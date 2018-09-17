@@ -241,4 +241,11 @@ Aşağıdaki görselde kaynak üzerine etki eden threshold tipleri grafiksel ola
 
 Threshold tiplerine göre ve kaynak görüntü üzerindeki farklılıklara bakalım.
 
+
+RGB Görüntü:
+
+![threshold](static/thres-2.jpg)
+
+Siyah - Beyaz Görüntü:
+
 ![threshold](static/thresholdinUI.png)
