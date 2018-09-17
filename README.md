@@ -31,6 +31,16 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [ ](/docs/12-.md) | |
 
 
+
+## Nasıl Katkı Sağlanır
+
+Öncelikle katkıda bulunmayı düşünmeniz gerçekten güzel haber. Üç farklı şekilde destek olabilirsiniz;
+
+*  **Dokümantasyon:** Burada yer almayan veya eski olduğunu düşündüğünüz bir konu varsa bize gönderebilirsiniz. Bunun için öncelikli olarak yer aldığı kategoriyi docs dizini altından bulun ve buradaki yer alan doküman içerisine ekleyin. Yeni bir konu hakkında birşeyler eklemek istiyorsanız uygun bir başlık ile docs dizini altına konuyu oluşturup gönderebilirsiniz.
+* **Örnek Kod:** code dizininde ilgili konu başlıkları altında programlama diline göre gruplanmış klasörler yer almaktadır. Öncelikli olarak hangi konuda örnek proje ekleyeceğinizi belirleyin ve uygun bir dizin olup olmadığını kontrol edin. Uygun bir dizin bulamaz iseniz oluşturabilirsiniz. Konu başlığı altında hangi dilde örnek kod ekleyecekseniz o klasör altında projede kullandığınız harici materyal (görüntü, video, model dosyası vb.) ile birlikte ekleyip gönderin.
+* **İmla:** Türkçemizi daha düzgün kullanmak adına doküman içerisinde gördüğünüz anlatım bozukluğu, imla yanlışı gibi hataları düzelterek gönderebilirsiniz.
+
+
 ## Eklenmesi Planlananlar , Ekim 2018
 
 - [ ] KNN, K En Yakın Komşu
