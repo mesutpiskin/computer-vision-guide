@@ -143,3 +143,102 @@ Imgproc.morphologyEx(girisGoruntu, cikisGoruntu, Imgproc.MORPH_CLOSE, Imgproc.ge
 closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernelMatris)
 ```
 ![closing](static/closing.jpg)
+
+
+**Gradyan**
+
+Dilation ve Erosion operatörü arasındaki farktır. Nesnelerin ana hatlarını belirlemek için kullanılır. Sınır çizgilerini tam hatlarıyla belirlemek için yapısal element, görüntüye göre özelleştirilmelidir. (Imgproc.MORPH_GRADIENT)
+
+
+*Java:*
+``` Java
+Imgproc.morphologyEx(girisGoruntu, cikisGoruntu, Imgproc.MORPH_GRADIENT, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(25,));
+```
+
+*Python:*
+```Python
+morfolojik_gradient = cv2.morphologyEx(img, cv2.MORPH_GRADIENT, kernelMatris)
+```
+
+![gradient](static/gradient.jpg)
+
+
+**Top Hat**
+
+Bu operatör giriş olarak verilen görüntüden, opening (açınım) operatörü uygulanmış halini çıkarır. (Imgproc.MORPH_TOPHAT)
+
+*Java:*
+
+``` Java
+Imgproc.morphologyEx(girisGoruntu, cikisGoruntu, Imgproc.MORPH_GRADIENT, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(25,2);
+```
+
+*Python:*
+```Python
+tophat = cv2.morphologyEx(img, cv2.MORPH_TOPHAT, kernelMatris)
+```
+
+![tophat](static/tophat.jpg)
+
+
+**Thresholding (Eşikleme)**
+
+Giriş olarak verilen görüntüyü ikili görüntüye çevirmek için kullanılan bir yöntemdir. İkili görüntü (binary), görüntünün siyah ve beyaz olarak tanımlanmasıdır. Morfolojik operatörler gibi görüntü üzerindeki gürültüleri azaltmak veya nesne belirlemek gibi farklı amaçlar için kullanılır. Giriş olarak verilen görüntü üzerinde uygulanan thresholding tipine bağlı olarak, pikselleri verilen eşik değerine göre siyah ya da beyaz olarak günceller.
+
+OpenCV içerisindeki sık kullanılan eşikleme tipleri:
+
+ * THRESH_BINARY
+ * THRESH_BINARY_INV
+ * THRESH_TRUNC
+ * THRESH_TOZERO
+ * THRESH_TOZERO_INV
+
+Thresholding işlemi için Imgproc içerisindeki threshold()metodunu kullanacağız. Bu metot beş adet parametre almaktadır. Kaynak mat nesnesi yani giriş görüntüsü, hedef olarak ikinci bir mat nesnesi bu hedef nesne işlem sonucunu tutmak için, thresh olarak adlandırılan parametre eşik değeri, THRESH_BINARY ve THRESH_BINARY_INV gibi tipler için kullanılmak üzere maksimum değer ve yukarıda belirtilenler gibi threshold tipini parametre olarak almaktadır.
+
+
+*Java:*
+
+``` Java
+Imgproc.threshold(kaynakMat,hedefMat,esikDegeri,maxDeger,threshoidngTipi);
+```
+
+*Python:*
+```Python
+hedefMat = cv.threshold(kaynakMat,esikDegeri,maxDeger,cv.threshoidngTipi)
+```
+
+THRESH_BINARY:
+
+Kaynak olarak alınan görüntü üzerindeki piksel,esikDegeri olarak verilen değerden büyükse maksDeger olarak verilen parametre değerine atanır.
+
+ 
+THRESH_BINARY_INV:
+
+Kaynak olarak alınan görüntü üzerindeki piksel,esikDegeri olarak verilen değerden küçükse maksDeger olarak verilen parametre değerine atanır.THRESH_BINARY_INV, THRESH_BINARY‘nin karşıtı olarak kullanılabilir.
+
+
+THRESH_TRUNC:
+
+Kaynak olarak alınan görüntü üzerindeki piksel,
+
+
+
+THRESH_TOZERO:
+
+Kaynak olarak alınan görüntü üzerindeki piksel,sınır olarak verilen değerden büyük olması durumunda piksel değeri korunacak, küçük olması durumunda ise piksel siyah olarak atanacaktır.
+
+ 
+THRESH_TOZERO_INV:
+
+Kaynak olarak alınan görüntü üzerindeki piksel,sınır olarak verilen değerden küçük olması durumunda piksel değeri korunacak, büyük olması durumunda ise piksel siyah olarak atanacaktır.
+
+ 
+
+Aşağıdaki görselde kaynak üzerine etki eden threshold tipleri grafiksel olarak ifade edilmiştir.
+
+![threshold](static/thres-1.jpg)
+
+
+Threshold tiplerine göre ve kaynak görüntü üzerindeki farklılıklara bakalım.
+
+![threshold](static/thresholdinUI.png)
