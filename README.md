@@ -1,14 +1,25 @@
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#)
+
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#)
+
+
 # Görüntü İşleme ve Bilgisayarlı Görü
 
 
-OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile birlikte, görüntü işleme algoritmalarını öğrenecek, yeri geldiğinde ise **Java**, **Python** ve **Csharp** programlama dilleri kullanarak örnek uygulamalar geliştireceğiz. Bu doküman, daha önce görüntü işleme ile uğraşmamış, bu konuda bilgisi olmayanlara ve tam aksine bu konuda bilgili, kendinisini farklı konularda geliştirmek  isteyen herkese hitap edecek şekilde hazırlanmıştır. Temel tanımlardan başlanarak birçok kavram ve algoritma ele alınmıştır. Örnek projelere **code** dizini altından ulaşabileceğiniz gibi, ilgi konu içerisindenden de ulaşabilirsiniz, **yararlı olması dileğiyle.**
+OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile birlikte, görüntü işleme algoritmalarını öğrenecek, yeri geldiğinde ise **Java**, **Python** , **C++** ve **Csharp** programlama dilleri kullanarak örnek uygulamalar geliştireceğiz. Bu doküman, daha önce görüntü işleme ile uğraşmamış, bu konuda bilgisi olmayanlara ve tam aksine bu konuda bilgili, kendinisini farklı konularda geliştirmek  isteyen herkese hitap edecek şekilde hazırlanmıştır. Temel tanımlardan başlanarak birçok kavram ve algoritma ele alınmıştır. Örnek projelere **code** dizini altından ulaşabileceğiniz gibi, ilgi konu içerisindenden de ulaşabilirsiniz, **yararlı olması dileğiyle.**
+<p align="center">
+
+<img src="https://opencv.org/assets/theme/logo.png">
+</p>
 
 ---
 
 <p align="center">
+
+
  ★★★ Dokumantasyonu beğendiyseniz ve destek olmak isterseniz; anlatım bozuklukları, kod değişikliği veya yeni bir örnek göndermekten çekinmeyin. Buradaki dokümantasyonun orijinaline <a href="http://mesutpiskin.com/blog">bu adresten</a> ulaşabilirsiniz. İletişime geçmek isterseniz  <a href="https://github.com/mesutpiskin">profilimdeki</a> eposta adresini kullanabilirsiniz. Teşekkürler! ★★★
 </p>
+
+---
 
 ## İçerik
 
@@ -32,16 +43,16 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 
 
-## Nasıl Katkı Sağlanır
+## Destek
 
-Öncelikle katkıda bulunmayı düşünmeniz gerçekten güzel haber. Üç farklı şekilde destek olabilirsiniz;
+Öncelikle katkıda bulunmayı düşünmeniz gerçekten güzel haber. Öncelikli olarak aşağıdaki yapılacaklar kısmına göz atabilirsin. Projeye  üç farklı şekilde destek olabilirsiniz;
 
-*  **Dokümantasyon:** Burada yer almayan veya eski olduğunu düşündüğünüz bir konu varsa bize gönderebilirsiniz. Bunun için öncelikli olarak yer aldığı kategoriyi docs dizini altından bulun ve buradaki yer alan doküman içerisine ekleyin. Yeni bir konu hakkında birşeyler eklemek istiyorsanız uygun bir başlık ile docs dizini altına konuyu oluşturup gönderebilirsiniz.
+* **Dokümantasyon:** Burada yer almayan veya eski olduğunu düşündüğünüz bir konu varsa bize gönderebilirsiniz. Bunun için öncelikli olarak yer aldığı kategoriyi docs dizini altından bulun ve buradaki yer alan doküman içerisine ekleyin. Yeni bir konu hakkında birşeyler eklemek istiyorsanız uygun bir başlık ile docs dizini altına konuyu oluşturup gönderebilirsiniz.
 * **Örnek Kod:** code dizininde ilgili konu başlıkları altında programlama diline göre gruplanmış klasörler yer almaktadır. Öncelikli olarak hangi konuda örnek proje ekleyeceğinizi belirleyin ve uygun bir dizin olup olmadığını kontrol edin. Uygun bir dizin bulamaz iseniz oluşturabilirsiniz. Konu başlığı altında hangi dilde örnek kod ekleyecekseniz o klasör altında projede kullandığınız harici materyal (görüntü, video, model dosyası vb.) ile birlikte ekleyip gönderin.
 * **İmla:** Türkçemizi daha düzgün kullanmak adına doküman içerisinde gördüğünüz anlatım bozukluğu, imla yanlışı gibi hataları düzelterek gönderebilirsiniz.
 
 
-## Eklenmesi Planlananlar , Ekim 2018
+## Yapılacaklar, Ekim 2018
 
 - [ ] KNN, K En Yakın Komşu
 - [ ] SVM, Destek Vektör Makinesi
@@ -50,3 +61,6 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 - [x] CamShift, MeanShift
 - [ ] Optik Akış
 - [ ] Derin Öğrenme ile Yüz Tanıma
+
+## Lisans
+Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır.
