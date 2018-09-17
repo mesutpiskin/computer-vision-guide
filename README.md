@@ -1,3 +1,4 @@
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#)
 # Görüntü İşleme ve Bilgisayarlı Görü
 
 
@@ -13,18 +14,21 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 | Bölüm |Özet|
 |----------|:--------|
-| [OpenCV Nedir?](/docs/1-opencv-nedir)|OpenCV'nin tarihi ve bileşenleri, alternatif görüntü işleme kütüphaneleri, neden OpenCV, OpenCV 2 vs OpenCV 3 ve OpenCV 4 ile gelecek yenilikler.|
-| [Geliştirme Ortamlar](/docs/2-gelistirme-ortamlari) |Hangi platform ve geliştirme ortamı seçimilmei, görüntü işleme için neden Java ve Python.|
-| [OpenCV Wrappers](/docs/3-opencv-wrappers) |Wrapper nedir? EmguCV, JavaCV, LiveCV, RubyCV ve wrapperlar arası farklar nelerdir.|
-| [Kurulum ve Derleme](/docs/4-opencv-kurulumlar) |Windows, Linux, macOS ve Raspberry Pi için OpenCV kurulumu.|
-| [IDE Yapılandırması](/docs/5-ide-yapilandirmasi) |Eclipse, Netbeans, Android Studio ve Intelij IDEA için yapılandırma ayarları.|
-| [Giriş ve Temel Kavramlar](/docs/6-giris-temel-kavramlar) |Görüntü işleme kavramları. Dosyadan, kameradan, IP kameradan görüntü okuma. Kamera parametrelerini değiştirme.|
-| [Video Kaydediciler ve Kod Çözücüler](/docs/7-video-kaydediciler-codec) |Codec, FourCC ve video kaydetme.|
-| [Görüntü Manipülasyonu](/docs/8-goruntu-manipulasyonu) |Piksel manüpülasyonu, geometrik çizimler ve geometrik dönüşümler.|
-| [Renk Uzayları](/docs/9-renk-uzaylari) |Temel renk uzayları ve renk uzayları arası dönüşüm.|
-| [Morfolojik Görüntü işleme](/docs/10-morfolojik-goruntu-isleme) |Morfolojik operatörler ve eşikleme: Erosion, dilation, closing, gradyan, thresholding ...|
-| [Filtreler ve Kenar Belirleme](/docs/11-filtreler-ve-kenar-belirleme) |Filtreleme ve kenar belirleme algoritmaları: Blur, Sobel, Laplace, Canny ...|
-
+| [OpenCV Nedir?](/docs/1-opencv-nedir.md)|OpenCV'nin tarihi ve bileşenleri, alternatif görüntü işleme kütüphaneleri, neden OpenCV, OpenCV 2 vs OpenCV 3 ve OpenCV 4 ile gelecek yenilikler.|
+| [Geliştirme Ortamlar](/docs/2-gelistirme-ortamlari.md) |Hangi platform ve geliştirme ortamı seçimilmei, görüntü işleme için neden Java ve Python.|
+| [OpenCV Wrappers](/docs/3-opencv-wrappers.md) |Wrapper nedir? EmguCV, JavaCV, LiveCV, RubyCV ve wrapperlar arası farklar nelerdir.|
+| [Kurulum ve Derleme](/docs/4-opencv-kurulumlar.md) |Windows, Linux, macOS ve Raspberry Pi için OpenCV kurulumu.|
+| [IDE Yapılandırması](/docs/5-ide-yapilandirmasi.md) |Eclipse, Netbeans, Android Studio ve Intelij IDEA için yapılandırma ayarları.|
+| [Giriş ve Temel Kavramlar](/docs/6-giris-temel-kavramlar.md) |Görüntü işleme kavramları. Dosyadan, kameradan, IP kameradan görüntü okuma. Kamera parametrelerini değiştirme.|
+| [Video Kaydediciler ve Kod Çözücüler](/docs/7-video-kaydediciler-codec.md) |Codec, FourCC ve video kaydetme.|
+| [Görüntü Manipülasyonu](/docs/8-goruntu-manipulasyonu.md) |Piksel manüpülasyonu, geometrik çizimler ve geometrik dönüşümler.|
+| [Renk Uzayları](/docs/9-renk-uzaylari.md) |Temel renk uzayları ve renk uzayları arası dönüşüm.|
+| [Morfolojik Görüntü işleme](/docs/10-morfolojik-goruntu-isleme.md) |Morfolojik operatörler ve eşikleme: Erosion, dilation, closing, gradyan, thresholding ...|
+| [Filtreler ve Kenar Belirleme](/docs/11-filtreler-ve-kenar-belirleme.md) |Filtreleme ve kenar belirleme algoritmaları: Blur, Sobel, Laplace, Canny ...|
+| [ ](/docs/12-.md) | |
+| [ ](/docs/12-.md) | |
+| [ ](/docs/12-.md) | |
+| [ ](/docs/12-.md) | |
 
 
 ## Eklenmesi Planlananlar , Ekim 2018
