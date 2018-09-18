@@ -24,7 +24,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 **Doküman**
 
 | Bölüm |Özet|
-|----------|:--------|
+|----------|--------|
 | [OpenCV Nedir?](/docs/1-opencv-nedir.md)|OpenCV'nin tarihi ve bileşenleri, alternatif görüntü işleme kütüphaneleri, neden OpenCV, OpenCV 2 vs OpenCV 3 ve OpenCV 4 ile gelecek yenilikler.|
 | [Geliştirme Ortamlar](/docs/2-gelistirme-ortamlari.md) |Hangi platform ve geliştirme ortamı seçimilmei, görüntü işleme için neden Java ve Python.|
 | [OpenCV Wrappers](/docs/3-opencv-wrappers.md) |Wrapper nedir? EmguCV, JavaCV, LiveCV, RubyCV ve wrapperlar arası farklar nelerdir.|
@@ -39,6 +39,13 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [Arkaplan Çıkarma](/docs/12-arka-plan-cikarma.md) | Absdiff, MOG, MOG2 ve GMG algoritmaları kullanarak, 2D görüntü arkaplan çıkarımı.|
 | [Video Analiz](/docs/13-video-analiz.md) |Mean Shift, Cam Shift, Optik akış vb. algoritmalar ile video üzerinde nesne tespit ve takibi. |
 | [Nesne Tespiti ve Nesne Tanıma](/docs/14-nesne-tespiti.md) |Nesne tespit süreçleri ve algoritmaları. HaarCascade, TemplateMatching, DNN, Makine Öğrenmesi ...|
+| [Kamera Kalibrasyonu ve 3D Görü](/docs/15-kamera-kalibrasyonu-ve-3d-goru) | Görüntü bozulmaları ve kamera kalibrasyonu, 3D görüntüler ve stero görüntü işleme.|
+| Makine Öğrenmesi ve Derin Öğrenme| Sınıflandırma ve kümeleme algoritmaları. Derin öğrenme kütüphaneleri ile entegrasyon. SVM, DNN, CNN vb. algoritmalar.|
+| Yüz Tanıma| Makine öğrenmesi ve derin öğrenme algoritmaları ile yüz tanıma. Farklı kütüphane entegrasyonları (dlib, tensorflow ve face recognition). |
+| Optik Karakter Tanıma OCR| Görüntü üzerindeki metnin tespit edilip çıkartılması ve analiz edilmesi.|
+| GPU ve Paralel Hesaplama | Cuda modülü ile Nvidia GPU üzerinde paralelleştirilmiş bilgisayarlı görü uygulamaları geliştirme.|
+| OpenCV Mobil  | Android ve iOS işletim sistemine sahip mobil cihazlar üzerinde bilgisayarlı görü ve görüntü işleme.|
+
 
 
 **Kaynak Kod**
@@ -46,22 +53,22 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <table style="width: 100%;">
 <tbody>
 <tr>
-<td style="text-align: center;"><strong>&nbsp;Konu</strong></td>
-<td style="text-align: center;"><strong>&nbsp;Python</strong></td>
-<td style="text-align: center;"><strong>&nbsp;Java</strong></td>
-<td style="text-align: center;"><strong>&nbsp;C++</strong></td>
-<td style="text-align: center;"><strong>C#</strong></td>
-<td style="text-align: center;"><strong>MATLAB</strong></td>
+<td><strong>&nbsp;Konu</strong></td>
+<td><strong>&nbsp;Python</strong></td>
+<td><strong>&nbsp;Java</strong></td>
+<td><strong>&nbsp;C++</strong></td>
+<td><strong>C#</strong></td>
+<td><strong>MATLAB</strong></td>
  
 </tr>
 <tr>
-<td>Kamera I/O</td>
+<td>Video I/O</td>
 <td>
 <ul>
-<li><a href="/code/kamera-io/python/webcamden-oku.py">Kameradan Video Stream</a></li>
-<li><a href="/code/kamera-io/python/ip-kameradan-oku.py">IP Kameradan Video Stream</a></li>
-<li><a href="/code/kamera-io/python/video-dosyasi-oku.py">Video Dosyasından Stream</a></li>
-<li><a href="/code/kamera-io/python/resim-oku.py">G&ouml;r&uuml;nt&uuml; Okuma</a></li>
+<li><a href="/code/kamera-io/python/webcamden-oku.py">Kameradan Video Akışı</a></li>
+<li><a href="/code/kamera-io/python/ip-kameradan-oku.py">IP Kameradan Video Akışı</a></li>
+<li><a href="/code/kamera-io/python/video-dosyasi-oku.py">Video Dosyasından Akış</a></li>
+<li><a href="/code/kamera-io/python/resim-oku.py">Görüntü Okuma</a></li>
 <li><a href="/code/kamera-io/python/video-kaydet.py">Video Kaydetme</a></li>
 </ul>
 </td>
@@ -71,13 +78,13 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
  <td>&nbsp;</td>
 </tr>
 <tr>
-<td>G&ouml;r&uuml;nt&uuml; Manip&uuml;lasyonu</td>
+<td>Görüntü Manipülasyonu</td>
 <td>
 <ul>
-<li><a href="/code/goruntu-manipulasyonu/python/geometrik-sekiller.py">Geometrik Şekil &Ccedil;izme</a></li>
-<li><a href="/code/goruntu-manipulasyonu/python/goruntu-kirpma.py">G&ouml;r&uuml;nt&uuml; Kırpma</a></li>
-<li><a href="/code/goruntu-manipulasyonu/python/piksel-manupulasyonu.py">Piksel Manip&uuml;lasyonu</a></li>
-<li><a href="/code/goruntu-manipulasyonu/python/yeniden-boyutlandirma.py">G&ouml;r&uuml;nt&uuml; Boyutlandırma</a></li>
+<li><a href="/code/goruntu-manipulasyonu/python/geometrik-sekiller.py">Geometrik Şekil çizme</a></li>
+<li><a href="/code/goruntu-manipulasyonu/python/goruntu-kirpma.py">Görüntü Kırpma</a></li>
+<li><a href="/code/goruntu-manipulasyonu/python/piksel-manupulasyonu.py">Piksel Manipülasyonu</a></li>
+<li><a href="/code/goruntu-manipulasyonu/python/yeniden-boyutlandirma.py">Görüntü Boyutlandırma</a></li>
 </ul>
 </td>
 <td>&nbsp;</td>
@@ -89,7 +96,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>Renk Uzayları</td>
 <td>
 <ul>
-<li><a href="/code/renk-uzaylari/python/renk-uzayi-donusumu.py">Renk Uzayı D&ouml;n&uuml;ş&uuml;m&uuml;</a></li>
+<li><a href="/code/renk-uzaylari/python/renk-uzayi-donusumu.py">Renk Uzayı Dönüşümü</a></li>
 </ul>
 </td>
 <td>&nbsp;</td>
@@ -98,10 +105,10 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
  <td>&nbsp;</td>
 </tr>
 <tr>
-<td>Morfolojik G&ouml;r&uuml;nt&uuml; İşleme</td>
+<td>Morfolojik G&ouml;rüntü İşleme</td>
 <td>
 <ul>
-<li><a href="/code/morfolojik-goruntu-isleme/python/acinim-opening.py">A&ccedil;ınım (Opening)</a></li>
+<li><a href="/code/morfolojik-goruntu-isleme/python/acinim-opening.py">Açınım (Opening)</a></li>
 <li><a href="/code/morfolojik-goruntu-isleme/python/kapanim-closing.py">Kapanım (Closing)</a></li>
 <li><a href="/code/morfolojik-goruntu-isleme/python/genisletme-dilation.py">Genisletme (Dilation)</a></li>
 <li><a href="/code/morfolojik-goruntu-isleme/python/gradient.py">Gradyan (Gradient)</a></li>
@@ -128,7 +135,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td>&nbsp;Kenar &Ccedil;ıkarma</td>
+<td>&nbsp;Kenar Çıkarma</td>
 <td>
 <ul>
 <li><a href="/code/kenar-belirleme/python/canny.py">Canny</a></li>
@@ -141,7 +148,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
  <td>&nbsp;</td>
 </tr>
 <tr>
-<td>Arka Plan &Ccedil;ıkarma</td>
+<td>Arka Plan Çıkarma</td>
 <td>
 <ul>
 <li><a href="/code/arkaplan-cikarma/python/absdif.py">Absdiff</a></li>
@@ -194,6 +201,60 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
  <td>&nbsp;</td>
 </tr>
 
+<tr>
+<td>Kamera Kalibrasyonu ve 3D Görü</td>
+<td>
+<ul>
+<li><a href="/code/kamera-kalibrasyon-3d-goru/python/fisheye-lens-duzeltme.py">Balık Gözü (Fisheye) Görüntü Düzeltme</a></li>
+<li><a href="/code/kamera-kalibrasyon-3d-goru/python/kamera-kalibrasyonu.py">Kamera Kalibrasyonu</a></li>
+</ul>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>Makine Öğrenmesi ve Derin Öğrenme</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+<tr>
+<td>Yüz Tanıma</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+<tr>
+<td>Optik Karakter Tanıma OCR</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+<tr>
+<td>GPU ve Paralel Hesaplama</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+<tr>
+<td>OpenCV Mobil</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
 
 </tbody>
 </table>
@@ -201,21 +262,21 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 ## Destek
 
-Öncelikle katkıda bulunmayı düşünmeniz gerçekten güzel haber. Öncelikli olarak aşağıdaki yapılacaklar kısmına göz atabilirsin. Projeye  üç farklı şekilde destek olabilirsiniz;
+Katkıda bulunmayı düşünmeniz gerçekten çok güzel bir haber. Öncelikli olarak aşağıdaki planlananlar kısmına göz atabilirsiniz, sırada bekleyen işleri görmek adına yardımcı olabilir. 
+
+Projeye  üç farklı şekilde destek olabilirsiniz;
 
 * **Dokümantasyon:** Burada yer almayan veya eski olduğunu düşündüğünüz bir konu varsa bize gönderebilirsiniz. Bunun için öncelikli olarak yer aldığı kategoriyi docs dizini altından bulun ve buradaki yer alan doküman içerisine ekleyin. Yeni bir konu hakkında birşeyler eklemek istiyorsanız uygun bir başlık ile docs dizini altına konuyu oluşturup gönderebilirsiniz.
-* **Örnek Kod:** code dizininde ilgili konu başlıkları altında programlama diline göre gruplanmış klasörler yer almaktadır. Öncelikli olarak hangi konuda örnek proje ekleyeceğinizi belirleyin ve uygun bir dizin olup olmadığını kontrol edin. Uygun bir dizin bulamaz iseniz oluşturabilirsiniz. Konu başlığı altında hangi dilde örnek kod ekleyecekseniz o klasör altında projede kullandığınız harici materyal (görüntü, video, model dosyası vb.) ile birlikte ekleyip gönderin.
-* **İmla:** Türkçemizi daha düzgün kullanmak adına doküman içerisinde gördüğünüz anlatım bozukluğu, imla yanlışı gibi hataları düzelterek gönderebilirsiniz.
+* **Örnek Kod:** code dizininde ilgili konu başlıkları altında programlama diline göre gruplanmış klasörler yer almaktadır. Öncelikli olarak hangi konuda örnek proje ekleyeceğinizi belirleyin ve uygun bir dizin olup olmadığını kontrol edin. Uygun bir dizin bulamaz iseniz oluşturabilirsiniz. Konu başlığı altında hangi dilde örnek kod ekleyecekseniz o klasör altında projede kullandığınız harici materyal (görüntü, video, model dosyası vb.) ile birlikte ekleyip gönderin. Örnek projeniz farklı bir repository'de ise, uygun bir başlık ile repository linki (yalnızca; Github, Gitlab ve Bitbucket) şeklinde ekleyebilirsiniz.
+* **İmla:** Türkçeyi düzgün kullanmak adına, doküman içerisinde gördüğünüz anlatım bozukluğu, imla yanlışı vb. gibi hataları düzelterek gönderebilirsiniz. Uygun olmadığını düşündüğünüz konu başlıklarını da bu kategoride değerlendirilir.
 
 
-## Yapılacaklar, Ekim 2018
+## Planlananlar, Eylül - Kasım 2018
 
-- [ ] KNN, K En Yakın Komşu
-- [ ] SVM, Destek Vektör Makinesi
-- [x] CamShift, MeanShift
-- [ ] Optik Akış
-- [ ] Derin Öğrenme ile Yüz Tanıma
-- [ ] Java ve C++ Örnekleri
+- [ ] Makine Öğrenmesi ve Derin Öğrenme
+- [ ] Yüz Tanıma
+- [ ] Kamera Kalibrasyonu ve 3D Görü
+- [ ] Java, Matlab, C# ve C++ Örneklerinin Arttırılması
 
 ## Lisans
 Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır.
