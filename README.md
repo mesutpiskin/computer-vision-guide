@@ -1,6 +1,5 @@
 
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#)
-
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) ![%60](http://progressed.io/bar/60?title=Tamamlanan "Genel Tamamlanma %60")
 
 # Görüntü İşleme ve Bilgisayarlı Görü
 
