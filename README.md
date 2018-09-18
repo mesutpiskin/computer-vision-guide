@@ -14,7 +14,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <p align="center">
 
 
- ★★★ Projeye destek olmak isterseniz; destek kısmına göz atabilirsiniz. Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya  <a href="https://github.com/mesutpiskin">profilimdeki</a> eposta adresini kullanabilirsiniz. Teşekkürler! ★★★
+ ★★★ Projeye destek olmak isterseniz; destek kısmına göz atabilirsiniz. Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="https://github.com/mesutpiskin">buradaki</a> e-posta adresini kullanabilirsiniz. Teşekkürler! ★★★
 </p>
 
 ---
@@ -26,8 +26,8 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | Bölüm |Özet|
 |----------|--------|
 | [OpenCV Nedir?](/docs/1-opencv-nedir.md)|OpenCV'nin tarihi ve bileşenleri, alternatif görüntü işleme kütüphaneleri, neden OpenCV, OpenCV 2 vs OpenCV 3 ve OpenCV 4 ile gelecek yenilikler.|
-| [Geliştirme Ortamlar](/docs/2-gelistirme-ortamlari.md) |Hangi platform ve geliştirme ortamı seçimilmei, görüntü işleme için neden Java ve Python.|
-| [OpenCV Wrappers](/docs/3-opencv-wrappers.md) |Wrapper nedir? EmguCV, JavaCV, LiveCV, RubyCV ve wrapperlar arası farklar nelerdir.|
+| [Geliştirme Ortamı ve Platformlar](/docs/2-gelistirme-ortamlari.md) |Hangi platform ve geliştirme ortamı seçilmeli, görüntü işleme için neden Java, C++ ve Python kullanılıyor.|
+| [OpenCV Wrappers](/docs/3-opencv-wrappers.md) |Wrapper nedir? EmguCV, JavaCV, LiveCV, RubyCV nedir ve wrapperlar arası farklar nelerdir.|
 | [Kurulum ve Derleme](/docs/4-opencv-kurulumlar.md) |Windows, Linux, macOS ve Raspberry Pi için OpenCV kurulumu.|
 | [IDE Yapılandırması](/docs/5-ide-yapilandirmasi.md) |Eclipse, Netbeans, Android Studio ve Intelij IDEA için yapılandırma ayarları.|
 | [Giriş ve Temel Kavramlar](/docs/6-giris-temel-kavramlar.md) |Görüntü işleme kavramları. Dosyadan, kameradan, IP kameradan görüntü okuma. Kamera parametrelerini değiştirme.|
@@ -39,12 +39,15 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [Arkaplan Çıkarma](/docs/12-arka-plan-cikarma.md) | Absdiff, MOG, MOG2 ve GMG algoritmaları kullanarak, 2D görüntü arkaplan çıkarımı.|
 | [Video Analiz](/docs/13-video-analiz.md) |Mean Shift, Cam Shift, Optik akış vb. algoritmalar ile video üzerinde nesne tespit ve takibi. |
 | [Nesne Tespiti ve Nesne Tanıma](/docs/14-nesne-tespiti.md) |Nesne tespit süreçleri ve algoritmaları. HaarCascade, TemplateMatching, DNN, Makine Öğrenmesi ...|
-| [Kamera Kalibrasyonu ve 3D Görü](/docs/15-kamera-kalibrasyonu-ve-3d-goru) | Görüntü bozulmaları ve kamera kalibrasyonu, 3D görüntüler ve stero görüntü işleme.|
+| [Kamera Kalibrasyonu ve 3D Görü](/docs/15-kamera-kalibrasyonu-ve-3d-goru.md) | Görüntü bozulmaları ve kamera kalibrasyonu, 3D görüntüler ve stero görüntü işleme.|
 | Makine Öğrenmesi ve Derin Öğrenme| Sınıflandırma ve kümeleme algoritmaları. Derin öğrenme kütüphaneleri ile entegrasyon. SVM, DNN, CNN vb. algoritmalar.|
 | Yüz Tanıma| Makine öğrenmesi ve derin öğrenme algoritmaları ile yüz tanıma. Farklı kütüphane entegrasyonları (dlib, tensorflow ve face recognition). |
 | Optik Karakter Tanıma OCR| Görüntü üzerindeki metnin tespit edilip çıkartılması ve analiz edilmesi.|
 | GPU ve Paralel Hesaplama | Cuda modülü ile Nvidia GPU üzerinde paralelleştirilmiş bilgisayarlı görü uygulamaları geliştirme.|
 | OpenCV Mobil  | Android ve iOS işletim sistemine sahip mobil cihazlar üzerinde bilgisayarlı görü ve görüntü işleme.|
+| Arttırılmış Gerçeklik| 3D modelleri kamera aracılığıyla elde edilmiş gerçek dünya görüntüsü üzerine giydirme. OpenCV ve OpenGL entegrasyonu. İnteraktif bilgisayarlı görü uygulaması geliştirme.|
+
+
 
 
 
@@ -175,7 +178,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 </td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
- <td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 
 <tr>
@@ -198,7 +201,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 </td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
- <td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 
 <tr>
@@ -221,7 +224,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
- <td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td>Yüz Tanıma</td>
@@ -229,7 +232,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
- <td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td>Optik Karakter Tanıma OCR</td>
@@ -245,7 +248,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
- <td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td>OpenCV Mobil</td>
@@ -255,7 +258,14 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>&nbsp;</td>
  <td>&nbsp;</td>
 </tr>
-
+<tr>
+<td>Arttırılmış Gerçeklik</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
 </tbody>
 </table>
 
@@ -271,12 +281,10 @@ Projeye  üç farklı şekilde destek olabilirsiniz;
 * **İmla:** Türkçeyi düzgün kullanmak adına, doküman içerisinde gördüğünüz anlatım bozukluğu, imla yanlışı vb. gibi hataları düzelterek gönderebilirsiniz. Uygun olmadığını düşündüğünüz konu başlıklarını da bu kategoride değerlendirilir.
 
 
-## Planlananlar, Eylül - Kasım 2018
 
-- [ ] Makine Öğrenmesi ve Derin Öğrenme
-- [ ] Yüz Tanıma
-- [ ] Kamera Kalibrasyonu ve 3D Görü
-- [ ] Java, Matlab, C# ve C++ Örneklerinin Arttırılması
+## 👏 Katkı Sağlayanlar
 
-## Lisans
+Aşağıdaki kişilere, OpenCV Türkçe dokümantasyon çalışmasına yaptıkları desteklerden ötürü teşekkür ederim.
+
+## 📄 Lisans
 Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır.
