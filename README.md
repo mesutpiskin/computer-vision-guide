@@ -38,7 +38,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [Filtreler ve Kenar Belirleme](/docs/11-filtreler-ve-kenar-belirleme.md) |Filtreleme ve kenar belirleme algoritmaları: Blur, Sobel, Laplace, Canny ...|
 | [Arkaplan Çıkarma](/docs/12-arka-plan-cikarma.md) | Absdiff, MOG, MOG2 ve GMG algoritmaları kullanarak, 2D görüntü arkaplan çıkarımı.|
 | [Video Analiz](/docs/13-video-analiz.md) |Mean Shift, Cam Shift, Optik akış vb. algoritmalar ile video üzerinde nesne tespit ve takibi. |
-
+| [Nesne Tespiti ve Nesne Tanıma](/docs/14-nesne-tespiti.md) |Nesne tespit süreçleri ve algoritmaları. HaarCascade, TemplateMatching, DNN, Makine Öğrenmesi ...|
 
 
 **Kaynak Kod**
