@@ -4,8 +4,7 @@
 
 # Görüntü İşleme ve Bilgisayarlı Görü
 
-
-OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile birlikte, görüntü işleme algoritmalarını öğrenecek, yeri geldiğinde ise **Java**, **Python** , **C++** ve **Csharp** programlama dilleri kullanarak örnek uygulamalar geliştireceğiz. Bu doküman, daha önce görüntü işleme ile uğraşmamış, bu konuda bilgisi olmayanlara ve tam aksine bu konuda bilgili, kendinisini farklı konularda geliştirmek  isteyen herkese hitap edecek şekilde hazırlanmıştır. Temel tanımlardan başlanarak birçok kavram ve algoritma ele alınmıştır. Örnek projelere **code** dizini altından ulaşabileceğiniz gibi, ilgi konu içerisindenden de ulaşabilirsiniz, **yararlı olması dileğiyle.**
+OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile birlikte, görüntü işleme algoritmalarını öğrenecek, yeri geldiğinde ise **Java**, **Python** , **C++**, **MATLAB** ve **C# (EmguCV)** programlama dilleri kullanarak örnek uygulamalar geliştireceğiz. Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile bilgisayarlı görü uygulamaları geliştirebilmenizi amaçlamaktadır. Python, Java ve C++ örnekleri ile desteklenmektedir. Bu doküman, daha önce görüntü işleme ile uğraşmamış, bu konuda bilgisi olmayanlara ve tam aksine bu konuda bilgili, kendinisini farklı konularda geliştirmek  isteyen herkese hitap edecek şekilde hazırlanmıştır. Temel tanımlardan başlanarak birçok kavram ve algoritma ele alınmıştır. Örnek projelere **code** dizininden, eğitim konularına ise **docs** dizini altından ulaşabilirsiniz, **yararlı olması dileğiyle.**
 <p align="center">
 
 <img src="https://opencv.org/assets/theme/logo.png">
@@ -16,12 +15,14 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <p align="center">
 
 
- ★★★ Dokumantasyonu beğendiyseniz ve destek olmak isterseniz; anlatım bozuklukları, kod değişikliği veya yeni bir örnek göndermekten çekinmeyin. Buradaki dokümantasyonun orijinaline <a href="http://mesutpiskin.com/blog">bu adresten</a> ulaşabilirsiniz. İletişime geçmek isterseniz  <a href="https://github.com/mesutpiskin">profilimdeki</a> eposta adresini kullanabilirsiniz. Teşekkürler! ★★★
+ ★★★ Projeye destek olmak isterseniz; destek kısmına göz atabilirsiniz. Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya  <a href="https://github.com/mesutpiskin">profilimdeki</a> eposta adresini kullanabilirsiniz. Teşekkürler! ★★★
 </p>
 
 ---
 
 ## İçerik
+
+**Doküman**
 
 | Bölüm |Özet|
 |----------|:--------|
@@ -38,9 +39,135 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [Filtreler ve Kenar Belirleme](/docs/11-filtreler-ve-kenar-belirleme.md) |Filtreleme ve kenar belirleme algoritmaları: Blur, Sobel, Laplace, Canny ...|
 | [Arkaplan Çıkarma](/docs/12-arka-plan-cikarma.md) | Absdiff, MOG, MOG2 ve GMG algoritmaları kullanarak, 2D görüntü arkaplan çıkarımı.|
 | [Video Analiz](/docs/13-video-analiz.md) |Mean Shift, Cam Shift, Optik akış vb. algoritmalar ile video üzerinde nesne tespit ve takibi. |
-| [ ](/docs/12-.md) | |
-| [ ](/docs/12-.md) | |
 
+
+
+**Kaynak Kod**
+
+<table style="width: 100%;">
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>&nbsp;Konu</strong></td>
+<td style="text-align: center;"><strong>&nbsp;Python</strong></td>
+<td style="text-align: center;"><strong>&nbsp;Java</strong></td>
+<td style="text-align: center;"><strong>&nbsp;C++</strong></td>
+<td style="text-align: center;"><strong>C#</strong></td>
+<td style="text-align: center;"><strong>MATLAB</strong></td>
+ 
+</tr>
+<tr>
+<td>Kamera I/O</td>
+<td>
+<ul>
+<li><a href="/code/kamera-io/python/webcamden-oku.py">Kameradan Video Stream</a></li>
+<li><a href="/code/kamera-io/python/ip-kameradan-oku.py">IP Kameradan Video Stream</a></li>
+<li><a href="/code/kamera-io/python/video-dosyasi-oku.py">Video Dosyasından Stream</a></li>
+<li><a href="/code/kamera-io/python/resim-oku.py">G&ouml;r&uuml;nt&uuml; Okuma</a></li>
+<li><a href="/code/kamera-io/python/video-kaydet.py">Video Kaydetme</a></li>
+</ul>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+<tr>
+<td>G&ouml;r&uuml;nt&uuml; Manip&uuml;lasyonu</td>
+<td>
+<ul>
+<li><a href="/code/goruntu-manipulasyonu/python/geometrik-sekiller.py">Geometrik Şekil &Ccedil;izme</a></li>
+<li><a href="/code/goruntu-manipulasyonu/python/goruntu-kirpma.py">G&ouml;r&uuml;nt&uuml; Kırpma</a></li>
+<li><a href="/code/goruntu-manipulasyonu/python/piksel-manupulasyonu.py">Piksel Manip&uuml;lasyonu</a></li>
+<li><a href="/code/goruntu-manipulasyonu/python/yeniden-boyutlandirma.py">G&ouml;r&uuml;nt&uuml; Boyutlandırma</a></li>
+</ul>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+<tr>
+<td>Renk Uzayları</td>
+<td>
+<ul>
+<li><a href="/code/renk-uzaylari/python/renk-uzayi-donusumu.py">Renk Uzayı D&ouml;n&uuml;ş&uuml;m&uuml;</a></li>
+</ul>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+<tr>
+<td>Morfolojik G&ouml;r&uuml;nt&uuml; İşleme</td>
+<td>
+<ul>
+<li><a href="/code/morfolojik-goruntu-isleme/python/acinim-opening.py">A&ccedil;ınım (Opening)</a></li>
+<li><a href="/code/morfolojik-goruntu-isleme/python/kapanim-closing.py">Kapanım (Closing)</a></li>
+<li><a href="/code/morfolojik-goruntu-isleme/python/genisletme-dilation.py">Genisletme (Dilation)</a></li>
+<li><a href="/code/morfolojik-goruntu-isleme/python/gradient.py">Gradyan (Gradient)</a></li>
+<li><a href="/code/morfolojik-goruntu-isleme/python/asindirme-erozyon.py">Aşındırma (Erosion)</a></li>
+</ul>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+<tr>
+<td>&nbsp;Filtreler</td>
+<td>
+<ul>
+<li><a href="/code/filtreleme/python/guasian.py">Guassian</a></li>
+<li><a href="/code/filtreleme/python/sobel.py">Sobel</a></li>
+<li><a href="/code/filtreleme/python/laplacian-sobel.py">Laplacian &amp; Sobel</a></li>
+</ul>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>&nbsp;Kenar &Ccedil;ıkarma</td>
+<td>
+<ul>
+<li><a href="/code/kenar-belirleme/python/canny.py">Canny</a></li>
+<li><a href="code/kenar-belirleme/python/kenar-belirleme-toplu.py">GaussianBlur &amp; Canny &amp; Sobel &amp;&nbsp;Prewitt</a></li>
+</ul>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+<tr>
+<td>Arka Plan &Ccedil;ıkarma</td>
+<td>
+<ul>
+<li><a href="/code/arkaplan-cikarma/python/absdif.py">Absdiff</a></li>
+<li><a href="/code/arkaplan-cikarma/python/background-subtractor-gmg.py">BackgroundSubtractorMOG - MOG2 - GMG</a></li>
+</ul>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+<tr>
+<td>Video Analizi</td>
+<td>
+<ul>
+<li><a href="/code/video-analiz/python/meanshift.py">MeanShift</a></li>
+</ul>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
 
 
 ## Destek
@@ -56,11 +183,10 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 - [ ] KNN, K En Yakın Komşu
 - [ ] SVM, Destek Vektör Makinesi
-- [ ] SURF
-- [ ] SIFT
 - [x] CamShift, MeanShift
 - [ ] Optik Akış
 - [ ] Derin Öğrenme ile Yüz Tanıma
+- [ ] Java ve C++ Örnekleri
 
 ## Lisans
 Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır.
