@@ -160,11 +160,41 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <li><a href="/code/video-analiz/python/meanshift.py">MeanShift</a></li>
 </ul>
 </td>
-<td>&nbsp;</td>
+<td>
+<ul>
+<li><a href="https://github.com/mesutpiskin/opencv-object-detection/tree/master/src/ColorBasedObjectTracker">Renk Tabanlı Nesne Takibi</a></li>
+</ul>
+
+</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
  <td>&nbsp;</td>
 </tr>
+
+<tr>
+<td>Nesne Tespiti ve Nesne Tanıma</td>
+<td>
+<ul>
+<li><a href="/code/nesne-tespit-ve-tanima/python/template-matching.py">Template Matching</a></li>
+<li><a href="/code/nesne-tespit-ve-tanima/python/haar-cascade.py">HaarCascade Classifier</a></li>
+</ul>
+</td>
+<td>
+
+<ul>
+<li><a href="/code/nesne-tespit-ve-tanima/java/TemplateMatching.java">Template Matching</a></li>
+<li><a href="https://github.com/mesutpiskin/opencv-object-detection/tree/master/src/DeepNeuralNetwork">Derin Sinir Ağı DNN</a></li>
+<li><a href="https://github.com/mesutpiskin/opencv-object-detection/tree/master/src/FaceAndEyeDetection">HaarCascade Classifier</a></li>
+
+</ul>
+
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
+
+
 </tbody>
 </table>
 
