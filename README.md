@@ -184,7 +184,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <ul>
 <li><a href="/code/nesne-tespit-ve-tanima/java/TemplateMatching.java">Template Matching</a></li>
 <li><a href="https://github.com/mesutpiskin/opencv-object-detection/tree/master/src/DeepNeuralNetwork">Derin Sinir Ağı DNN</a></li>
-<li><a href="https://github.com/mesutpiskin/opencv-object-detection/tree/master/src/FaceAndEyeDetection">HaarCascade Classifier</a></li>
+<li><a href="/code/nesne-tespit-ve-tanima/java/DetectFace.java">HaarCascade Classifier</a></li>
 
 </ul>
 
