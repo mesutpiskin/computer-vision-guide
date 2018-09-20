@@ -68,10 +68,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>Video I/O</td>
 <td>
 <ul>
-<li><a href="/code/kamera-io/python/webcamden-oku.py">Kameradan Video Akışı</a></li>
-<li><a href="/code/kamera-io/python/ip-kameradan-oku.py">IP Kameradan Video Akışı</a></li>
-<li><a href="/code/kamera-io/python/video-dosyasi-oku.py">Video Dosyasından Akış</a></li>
-<li><a href="/code/kamera-io/python/resim-oku.py">Görüntü Okuma</a></li>
+<li><a href="/code/kamera-io/python/video_io.py">Video ve Kamera Giriş Çıkış</a></li>
 <li><a href="/code/kamera-io/python/video-kaydet.py">Video Kaydetme</a></li>
 </ul>
 </td>
@@ -186,6 +183,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>
 <ul>
 <li><a href="/code/nesne-tespit-ve-tanima/python/template-matching.py">Template Matching</a></li>
+<li><a href="/code/nesne-tespit-ve-tanima/python/derin_sinir_agi.py">Derin Sinir Ağı DNN</a></li>
 <li><a href="/code/nesne-tespit-ve-tanima/python/haar-cascade.py">HaarCascade Classifier</a></li>
 </ul>
 </td>
