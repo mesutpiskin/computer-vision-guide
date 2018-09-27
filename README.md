@@ -41,7 +41,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [Nesne Tespiti ve Nesne Tanıma](/docs/14-nesne-tespiti.md) |Nesne tespit süreçleri ve algoritmaları. HaarCascade, TemplateMatching, DNN, Makine Öğrenmesi ...|
 | [Kamera Kalibrasyonu ve 3D Görü](/docs/15-kamera-kalibrasyonu-ve-3d-goru.md) | Görüntü bozulmaları ve kamera kalibrasyonu, 3D görüntüler ve stero görüntü işleme.|
 | Makine Öğrenmesi ve Derin Öğrenme| Sınıflandırma ve kümeleme algoritmaları. Derin öğrenme kütüphaneleri ile entegrasyon. SVM, DNN, CNN vb. algoritmalar.|
-| Yüz Tanıma| Makine öğrenmesi ve derin öğrenme algoritmaları ile yüz tanıma. Farklı kütüphane entegrasyonları (dlib, tensorflow ve face recognition). |
+| [Yüz Tanıma](/docs/17-yuz-tanima.md) | Makine öğrenmesi ve derin öğrenme algoritmaları ile yüz tanıma. Farklı kütüphane entegrasyonları (dlib, tensorflow ve face recognition). |
 | Optik Karakter Tanıma OCR| Görüntü üzerindeki metnin tespit edilip çıkartılması ve analiz edilmesi.|
 | GPU ve Paralel Hesaplama | Cuda modülü ile Nvidia GPU üzerinde paralelleştirilmiş bilgisayarlı görü uygulamaları geliştirme.|
 | OpenCV Mobil  | Android ve iOS işletim sistemine sahip mobil cihazlar üzerinde bilgisayarlı görü ve görüntü işleme.|
@@ -226,10 +226,22 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 </tr>
 <tr>
 <td>Yüz Tanıma</td>
+<td>
+<ul>
+<li><a href="/code/yuz-tanima/python/facerecognition_kutuphanesi/">face_recognition Kütüphanesi ve OpenCV</a></li>
+</ul>
+
+</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
+<td>
+<ul>
+<li><a href="https://github.com/mesutpiskin/face-detection-and-recognition">Eigenfaces ve Fisherfaces Algoritması</a></li>
+</ul>
+
+
+
+</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
