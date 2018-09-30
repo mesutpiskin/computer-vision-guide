@@ -3,10 +3,11 @@
 
 # Görüntü İşleme ve Bilgisayarlı Görü
 
-OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile birlikte, görüntü işleme algoritmalarını öğrenecek, yeri geldiğinde ise **Java**, **Python** , **C++**, **MATLAB** ve **C# (EmguCV)** programlama dilleri kullanarak örnek uygulamalar geliştireceğiz. Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile bilgisayarlı görü uygulamaları geliştirebilmenizi amaçlamaktadır. Python, Java ve C++ örnekleri ile desteklenmektedir. Bu doküman, daha önce görüntü işleme ile uğraşmamış, bu konuda bilgisi olmayanlara ve tam aksine bu konuda bilgili, kendinisini farklı konularda geliştirmek  isteyen herkese hitap edecek şekilde hazırlanmıştır. Temel tanımlardan başlanarak birçok kavram ve algoritma ele alınmıştır. Örnek projelere **code** dizininden, eğitim konularına ise **docs** dizini altından ulaşabilirsiniz, **yararlı olması dileğiyle.**
+OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile birlikte, görüntü işleme algoritmalarını öğrenecek, yeri geldiğinde ise **Java**, **Python** , **C++**,  **JavaScript**, **MATLAB** ve **C# (EmguCV)** programlama dilleri kullanarak örnek uygulamalar geliştireceğiz. Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile bilgisayarlı görü uygulamaları geliştirebilmenizi amaçlamaktadır. Python, Java ve C++ örnekleri ile desteklenmektedir. Bu doküman, daha önce görüntü işleme ile uğraşmamış, bu konuda bilgisi olmayanlara ve tam aksine bu konuda bilgili, kendinisini farklı konularda geliştirmek  isteyen herkese hitap edecek şekilde hazırlanmıştır. Temel tanımlardan başlanarak birçok kavram ve algoritma ele alınmıştır. Örnek projelere  <a href="/code/">code</a> dizininden, eğitim konularına ise <a href="/docs/">docs</a> dizini altından ulaşabilirsiniz, ayrıca dokümantasyon içerisinde kullanılan İngilizce terimlerin Türkçe karşılıklarının yer aldığı <a href="/docs/trimler.md">terimler</a> sayfasına göz atabilirsinz.
+
 <p align="center">
 
-<img src="https://opencv.org/assets/theme/logo.png">
+<img src="/docs/static/logo.png"/>
 </p>
 
 ---
@@ -14,7 +15,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <p align="center">
 
 
- ★★★ Projeye destek olmak isterseniz; destek kısmına göz atabilirsiniz. Ayrıca dokümantasyon içerisinde kullanılan İngilizce terimlerin Türkçe karşılıklarının yer aldığı <a href="/docs/trimler.md">Terimler</a> sayfasına göz atabilirsinz. Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="https://github.com/mesutpiskin">buradaki</a> e-posta adresini kullanabilirsiniz. Teşekkürler! ★★★
+ ★★★ Projeye destek olmak isterseniz; destek kısmına göz atabilirsiniz. Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="https://github.com/mesutpiskin">buradaki</a> e-posta adresini kullanabilirsiniz. Teşekkürler! ★★★
 </p>
 
 ---
@@ -41,7 +42,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [Nesne Tespiti ve Nesne Tanıma](/docs/14-nesne-tespiti.md) |Nesne tespit süreçleri ve algoritmaları. HaarCascade, TemplateMatching, DNN, Makine Öğrenmesi ...|
 | [Kamera Kalibrasyonu ve 3D Görü](/docs/15-kamera-kalibrasyonu-ve-3d-goru.md) | Görüntü bozulmaları ve kamera kalibrasyonu, 3D görüntüler ve stero görüntü işleme.|
 | Makine Öğrenmesi ve Derin Öğrenme| Sınıflandırma ve kümeleme algoritmaları. Derin öğrenme kütüphaneleri ile entegrasyon. SVM, DNN, CNN vb. algoritmalar.|
-| [Yüz Tanıma](/docs/17-yuz-tanima.md) | Makine öğrenmesi ve derin öğrenme algoritmaları ile yüz tanıma. Farklı kütüphane entegrasyonları (dlib, tensorflow ve face recognition). |
+| [Yüz Tanıma](/docs/17-yuz-tanima.md) | Yüz tanıma nedir? Eigenfaces, Fisherfaces, LBPH ve makine öğrenmesi algoritmaları ile yüz tanıma. Farklı kütüphane entegrasyonları (dlib, tensorflow ve face recognition). |
 | Optik Karakter Tanıma OCR| Görüntü üzerindeki metnin tespit edilip çıkartılması ve analiz edilmesi.|
 | GPU ve Paralel Hesaplama | Cuda modülü ile Nvidia GPU üzerinde paralelleştirilmiş bilgisayarlı görü uygulamaları geliştirme.|
 | OpenCV Mobil  | Android ve iOS işletim sistemine sahip mobil cihazlar üzerinde bilgisayarlı görü ve görüntü işleme.|
@@ -61,7 +62,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td><strong>&nbsp;Java</strong></td>
 <td><strong>&nbsp;C++</strong></td>
 <td><strong>C#</strong></td>
-<td><strong>MATLAB</strong></td>
+<td><strong>JavaScript</strong></td>
  
 </tr>
 <tr>
