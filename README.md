@@ -291,6 +291,9 @@ Projeye  üç farklı şekilde destek olabilirsiniz;
 * **Örnek Kod:** code dizininde ilgili konu başlıkları altında programlama diline göre gruplanmış klasörler yer almaktadır. Öncelikli olarak hangi konuda örnek proje ekleyeceğinizi belirleyin ve uygun bir dizin olup olmadığını kontrol edin. Uygun bir dizin bulamaz iseniz oluşturabilirsiniz. Konu başlığı altında hangi dilde örnek kod ekleyecekseniz o klasör altında projede kullandığınız harici materyal (görüntü, video, model dosyası vb.) ile birlikte ekleyip gönderin. Örnek projeniz farklı bir repository'de ise, uygun bir başlık ile repository linki (yalnızca; Github, Gitlab ve Bitbucket) şeklinde ekleyebilirsiniz.
 * **İmla:** Türkçeyi düzgün kullanmak adına, doküman içerisinde gördüğünüz anlatım bozukluğu, imla yanlışı vb. gibi hataları düzelterek gönderebilirsiniz. Uygun olmadığını düşündüğünüz konu başlıklarını da bu kategoride değerlendirilir.
 
+## 💬 Soru & Cevap
+
+Dokümanlar, kaynak kodlar veya her hangi bir konuda ki sorularınızı **issues** bölümünü kullanarak sorabilirsiniz (new issues). Soru cevaplamak veya daha öncekilere göz atmak isterseniz yine bu bölümü kullanabilirsiniz. 
 
 
 ## 👏 Katkı Sağlayanlar
