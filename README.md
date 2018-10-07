@@ -166,6 +166,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>
 <ul>
 <li><a href="/code/video-analiz/python/meanshift.py">MeanShift</a></li>
+ <li><a href="/code/video-analiz/python/camshift.py">CamShift</a></li>
 </ul>
 </td>
 <td>
