@@ -1,4 +1,4 @@
-# imput olarak kullanılan video https://www.youtube.com/watch?v=cpYKvbzkkrI
+#Python v3, OpenCV v3.4.2
 
 import cv2
 import numpy as np
@@ -13,7 +13,7 @@ rows, cols = frame.shape[:2]
 '''
 Video dosyası üzerine Mean Shift için bir alan belirlenir. 
 Bu koordinatlar ağırlıklı ortalaması belirlenecek olan dörtgen alanıdır. '''
-
+#w ve h boyutlandırmasını değiştirerek sonuçları gözlemleyebilirsiniz
 w = 200
 h = 300
 col = int((cols - w) / 2)
