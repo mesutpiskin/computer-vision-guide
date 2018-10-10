@@ -1,5 +1,5 @@
-**Renk Uzayları ve Renk Uzayı Dönüşümü** 
-----------------------------------------
+**Renk Uzayları, Renk Uzayı Dönüşümü ve Histogram** 
+---------------------------------------------------
 
 Renk Uzayı: Renk çeşitliliğinin fazla olması nedeniyle bu renkleri gruplama ihtiyacı doğmuştur bu renkleri gruplamak ve standartlaştırmak için renk uzayı (color space) kavramı ortaya çıkmıştır.  Her renk uzayı, renk kümesini tanımlamak için kendine özgü bir yapıya sahiptir. Örneğin siyah beyaz bir görüntüyü dijitalleştirmek için çok fazla kavrama gerek yoktur. Görüntü siyah ve beyaz olmak üzere 2 adet değişkene sahiptir. 300×300 boyutunda dijital siyah beyaz bir görüntü dijitalleştirilip renklendirilirken, 300×300 boyutunda bir dizi oluşturulur. Renklendirme işlemi için ise 2 adet değişken olduğu için 1 ve 0 yeterlidir. Fakat renkli bir resim üzerinde farklı renk tonları olacağı için 1 ve 0 ile bu görüntüyü tanımlamak yetersiz olacaktır. Bu farklı durumlar için çeşitli renk uzayları belirlenmiştir. En çok kullanılan ve kitap boyunca yer alacak örneklerde de kullanılan renk uzaylarına göz atalım.
 
@@ -35,7 +35,8 @@ Bizim için dijital görüntü işlemede en önemli olan renk uzaylarını tanı
 ![ColorSpaces](static/color-space-6.jpg)
 
 
-**Renk Uzayı Dönüşümü**
+### Renk Uzayı Dönüşümü
+
 Daha önce temel dijital görüntü işleme kavramları bölümünde renklere ve renk uzaylarına değinmiştir. OpenCV’de birçok renk uzayı desteklenmektedir ve bunlar arasında dönüşüm yapılabilmektedir. Bu bölümde OpenCV ile bu renk uzayları arasında dönüşüm işlemleri için Imgproc sınıfı içerisinde cvtColor() metodu bulunmaktadır. cvtColor metodu parametre olarak iki adet mat nesnesi ve dönüşüm yapılacak olan renk uzayını almaktadır.
 
 
@@ -103,3 +104,15 @@ Sistemdeki kameradan alınan görüntü üzerine de aynı işlemi uygulayarak, a
 Ek Bilgi:
 
 Eğer renk dönüşümünü kendiniz yapmak isterseniz; RGB bir pikselin değeri; kırmızı kanalının %30’u (0.2989), yeşil kanalın %59’u (0.5870) ve mavi kanalın %11’i (0.1144) alınarak toplanması neticesinde bulunmaktadır. Bu demek oluyor ki: GRI_SEVIYE_GORUNTU=0.2989*[1.KATMAN RED]+0.5870*[2.KATMAN GREEN]+0.1140*[3.KATMAN BLUE];
+
+
+### Histogram ve Histogram Eşitleme
+
+Histogram matematikdeki temel kavramlardan birtanesidir. Matematiksel tanımı: "Ölçülen bir istatistiksel sayısal değişkene, belirli değer aralıklarında kaçar kez rastlandığını gösteren grafik." Görüntü işlemedeki tanımıda çok farklı değildir. Görüntü matrisi üzerindeki her pixel değerinin görüntünün tamamındaki miktarıdır. Gri renk uzayına sahip̧ bir görüntüde (2 boyutlu bir matris) 0 dan 255’e kadar olan tonların görüntüde kaç adet bulunduğunu gösteren, görüntüdeki tüm bu piksellerin ışık değerleri ile x ekseninde ve y ekseninde pikseller ile oluşturulmuş çubuk  grafiktir.  RGB renk uzayına sahip renkli görüntülerde ise doğrudan bir histogram hesaplamak yerine Red-Green-Blue uzayları için kendi aralarında ayrı ayrı histogram hesaplanır, istenilirse RGB renkler 2 boyutlu bir matris gibi hesaplanır ve sonuçta oluşacak görüntü 2 boyutlu bir matrisin histogramını ifade edecek hale gelir.
+
+Histogram eşitleme ile, sonuç olarak elde ettiğiniz grafiğe göre bir aralık seçmek;  çok yüksek (yani fazla sayıda) olan matris değerlerini düşürerek, çok az olan matris değerlerini ise yükselterek görüntü üzerinde iyileştirme yapmaktır.
+
+
+**Histogramı Neden Kullanırız?**
+
+Düşünün elinizde bir fotoğraf var ve çok parlak çıkmış bu parlaklığı nasıl azaltırdınız? Histogram'dan yararlanarak parlak alanları bulabilir ve bu matrisleri bir alt seviyeye indirerek parlaklığı azaltabilirz. TV, Monitör vb. cihazlarda yer alan contrast ayarı (karşıtlık) hitogram kullanarak yapılmaktadır. Bunlar gibi bir çok örnek verilebilecek uygulama alanları mevcuttur.
