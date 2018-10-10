@@ -34,7 +34,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [Giriş ve Temel Kavramlar](/docs/6-giris-temel-kavramlar.md) |Görüntü işleme kavramları. Dosyadan, kameradan, IP kameradan görüntü okuma. Kamera parametrelerini değiştirme.|
 | [Video Kaydediciler ve Kod Çözücüler](/docs/7-video-kaydediciler-codec.md) |Codec, FourCC ve video kaydetme.|
 | [Görüntü Manipülasyonu](/docs/8-goruntu-manipulasyonu.md) |Piksel manüpülasyonu, geometrik çizimler ve geometrik dönüşümler.|
-| [Renk Uzayları](/docs/9-renk-uzaylari.md) |Temel renk uzayları ve renk uzayları arası dönüşüm.|
+| [Renk Uzayları ve Histogram](/docs/9-renk-uzaylari.md) |Temel renk uzayları, renk uzayları arası dönüşüm. Histogram kavramı ve histogram eşitleme.|
 | [Morfolojik Görüntü işleme](/docs/10-morfolojik-goruntu-isleme.md) |Morfolojik operatörler ve eşikleme: Erosion, dilation, closing, gradyan, thresholding ...|
 | [Filtreler ve Kenar Belirleme](/docs/11-filtreler-ve-kenar-belirleme.md) |Filtreleme ve kenar belirleme algoritmaları: Blur, Sobel, Laplace, Canny ...|
 | [Arkaplan Çıkarma](/docs/12-arka-plan-cikarma.md) | Absdiff, MOG, MOG2 ve GMG algoritmaları kullanarak, 2D görüntü arkaplan çıkarımı.|
