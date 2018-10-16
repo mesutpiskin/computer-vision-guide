@@ -35,3 +35,7 @@ pip install face_recognition
 ```bash
 pip install opencv-python
 ```
+
+**Video**
+
+[![Python ile Yüz Tanıma - Youtube](https://img.youtube.com/vi/vUl3-X2qOKk/0.jpg)](https://www.youtube.com/watch?v=vUl3-X2qOKk "Python ile Yüz Tanıma - Youtube")
