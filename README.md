@@ -1,5 +1,5 @@
 
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) ![%60](http://progressed.io/bar/60?title=Tamamlanan "Genel Tamamlanma %60")
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) ![%65](http://progressed.io/bar/65?title=Tamamlanan "Genel Tamamlanma %65")
 
 # Görüntü İşleme ve Bilgisayarlı Görü
 
@@ -7,7 +7,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 <p align="center">
 
-<img src="/docs/static/logo.png"/>
+<img src="https://image.ibb.co/i4XnbL/Yeni-Proje.png"/>
 </p>
 
 ---
