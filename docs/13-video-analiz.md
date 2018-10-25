@@ -2,13 +2,15 @@
 **Video Analiz ve Nesne Takibi** 
 --------------------------------
 
-Video analizi oldukça dağılmış bir konudur fakat temel anlamıyla video üzerindeki nesneleri ve hareket eden objeleri tespit ederek bunları takip etmeyi kapsar. Bu kapsamda bu bölümde video üzerinde hareket eden objeleri yakalamayı ve bunları takip etmeyi ele alacağız. Arkaplan çıkarma algoritmaları da bu kapsamda ele alınabilir, diğer geliştirilmiş başlıca algoritmalara göz atmak gerekirse:
+Video analizi oldukça geniş bir konudur fakat temel anlamıyla video üzerinde hareket halindeki nesneleri video boyunca takip etmeyi kapsar. Takip algoritmalarını farklı kılan şey nesne tanıma algoritmaları gibi her görüntü karesi üzerinde neseneyi takip etmek yerine, takip edilmek istenilen nesnenin bir sonraki karede nerede olduğunu bulmaya çalışır.Bu yüzden hangi algoritmanın nerede kullanılacağına probleme göre karar vermek gerekir.
+
+Bu bölümde video üzerinde hareket eden nesneleri takip edebilmemize olanak veren algoritmalara göz atacağız. Arkaplan çıkarma algoritmaları da dahil bir çok algoritma bu kapsamda ele alınabilir. Başlıca göreceğimiz algoritmalar:
 
 * Mean Shift
 * Camshift
 * Optik Akış
 
-OpenCV Object Tracker altında yer alan bazı algoritmalar ise:
+ve OpenCV Object Tracker paketi altında yer alan bazı algoritmalar ise:
 
 * GOTURN
 * BOOSTING
@@ -126,6 +128,9 @@ Regression Networks" http://davheld.github.io/GOTURN/GOTURN.pdf makalesi ile duy
 | ![GOTURN NESNE TAKİP ALGORİTMASI](static/goturn.png) | 
 |:--:| 
 |*Görsel Kaynağı: "Learning to Track at 100 FPS with Deep Regression Networks"* Makalesi Sayfa 2|
+
+Yukarıdaki görselde eğitim ve test aşamaları özetlenmiştir. Veri seti eğitilirken bir çok hareket eden nesne videosundan yararlanılır, sinir ağı bu sayede bir sonraki frame de nesnenin yerini tahmin edebilir hale gelir. Burada dikkat edilmesi gereken nokta nesneyi tanıma işlemi yapmadan sadece tahmin edilmek için belirlenen alanın sonraki framelerde nerede olabileceğine karar verir. Test için ise **VOT** veri setinden yararlanılır.
+
 **BOOSTING Tracker Algoritması**
 
 **MIL Tracker Algoritması**
