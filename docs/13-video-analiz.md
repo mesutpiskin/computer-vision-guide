@@ -1,6 +1,6 @@
 
-**Video Analizi** 
------------------
+**Video Analiz ve Nesne Takibi** 
+--------------------------------
 
 Video analizi oldukça dağılmış bir konudur fakat temel anlamıyla video üzerindeki nesneleri ve hareket eden objeleri tespit ederek bunları takip etmeyi kapsar. Bu kapsamda bu bölümde video üzerinde hareket eden objeleri yakalamayı ve bunları takip etmeyi ele alacağız. Arkaplan çıkarma algoritmaları da bu kapsamda ele alınabilir, diğer geliştirilmiş başlıca algoritmalara göz atmak gerekirse:
 
@@ -8,6 +8,15 @@ Video analizi oldukça dağılmış bir konudur fakat temel anlamıyla video üz
 * Camshift
 * Optik Akış
 
+OpenCV Object Tracker altında yer alan bazı algoritmalar ise:
+
+* GOTURN
+* BOOSTING
+* MIL
+* KCF
+* CSRT
+* TLD
+* MOSSE
 
 **Ağırlıklı Ortalama Öteleme Algoritması (Mean Shift)**
 
@@ -107,3 +116,25 @@ Bu algoritmanın kullanımı, yukarıda anlatılan ve örnek projeler kısmında
 ```Python
    ret, shiftWindow = cv.CamShift(backprojectedFrame, shiftWindow, terminationCriteria)
  ```
+
+**GOTURN Tracker Algoritması**
+
+GOTURN derin öğrenme tabanlı CNN kullanan bir nesne takip algoritmasıdır. Bu algoritma "Learning to Track at 100 FPS with Deep
+Regression Networks" http://davheld.github.io/GOTURN/GOTURN.pdf makalesi ile duyrulmuştur. Bu algoritma ile art arda gelen bir dizi frame yani video üzerinde tek bir nesnenin takibi yapılabilir. Yolda giden bir araç, yürüyen bir insan veya yuvarlanan bir top kısacası videonun başında takip edilmesini istediğiniz şeyi videonun sonuna kadar takip edilebilir. Bu algoritma eğitilmiş bir model ile kullanılır, opencv iplemantasyonu için eğitilmiş bir caffe modeli mevcuttur.
+
+
+| ![GOTURN NESNE TAKİP ALGORİTMASI](static/goturn.png) | 
+|:--:| 
+|*Görsel Kaynağı: "Learning to Track at 100 FPS with Deep Regression Networks"* Makalesi Sayfa 2|
+**BOOSTING Tracker Algoritması**
+
+**MIL Tracker Algoritması**
+
+**KCF Tracker Algoritması**
+
+**CSRT Tracker Algoritması**
+
+**TLD Tracker Algoritması**
+
+**MOSSE Tracker Algoritması**
+
