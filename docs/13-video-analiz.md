@@ -131,13 +131,27 @@ Regression Networks" http://davheld.github.io/GOTURN/GOTURN.pdf makalesi ile duy
 
 Yukarıdaki görselde eğitim ve test aşamaları özetlenmiştir. Veri seti eğitilirken bir çok hareket eden nesne videosundan yararlanılır, sinir ağı bu sayede bir sonraki frame de nesnenin yerini tahmin edebilir hale gelir. Burada dikkat edilmesi gereken nokta nesneyi tanıma işlemi yapmadan sadece tahmin edilmek için belirlenen alanın sonraki framelerde nerede olabileceğine karar verir. Test için ise **VOT** veri setinden yararlanılır.
 
-**BOOSTING Tracker Algoritması**
+**Boosting Tracker Algoritması**
 
-**MIL Tracker Algoritması**
+Boosting algoritması Cascade sınıflandırıcısında da kullanılan AdaBoost algoritmasına dayananır. Nesneyi tespit edebilmek için eğitilmiş negatif ve bozitif verilerden yararlanır. Negatif görüntü dediğimiz şey hedeflenen nesnenin bulunmadığı genellikle arka planların yer aldığı görüntülerdir. Pozitif görüntüler ise hedeflenen nesnenin yer aldığı görüntü setidir. Çok eski olan bu algoritmanın çalışma mantığı oldukça basittir. Diğer algoritmalarda olduğu gibi, giriş olarak görüntü üzerinden bir alan seçilerek verilir, bu alan takip edilmek istenilen nesnedir. Algoritma çalışma zamanında bu kare dışındaki alanları negatif veri seti alarak kabul eder ve her karede bir sınıflandırma yapar. Haar Cascade algoritmasında bizim tarafımızdan yapılan eğitim süreci bu algoritma tarafından sürekli olarak otomatik bir şekilde yapılır. Bu algoritma hızlı çalışıyor olsada oldukça başarısz bir sonuçlar vermektedir.
 
-**KCF Tracker Algoritması**
+**MIL (Multiple Instance Learning) Tracker Algoritması**
+
+MIL takip algoritması temel olarak Boosting algoritmasına benzer şekilde çalışır. Boosting algoritması pozitif görüntü olarak sadece tarafımızdan verilen alanı kullanmaktaydı. Tek bir pozitif görüntü kullanılması veya pozitif görüntüler için kullanıcı/geliştirici ye bağımlı kalınması genellikle sonucu olumsuz olarak etkilemektedir.
+
+MIL algoritması ile pozitif görüntülerde bir geliştirme yapıldı. Algoritma görüntü üzerinde belirtilen nesnenin alanını otomatik olarak çoklamaya başlamaktadır. Pozitif görüntü sayısını arttırmak için verilen alan ve çevresinden çokca farklı görüntü alıp algoritmayı bu görüntü parçaları ile eğitmektedir. Aşağıdaki görselde bu çoklama durum görülmektedir. Bu veri setini arttırmak için çok mantıklı ve kolay bir yoldur.
+
+Fazla sayıda pozitif görüntü veri setine sahip olması bu algoritmanın başarısını Boosting karşısında ön plana çıkarmaktadır.
+
+| ![GOTURN NESNE TAKİP ALGORİTMASI](static/miltakip.png) | 
+|:--:| 
+|*Görsel Kaynağı: http://vision.ucsd.edu/~bbabenko/new/project_miltrack.shtml*|
+
+
 
 **CSRT Tracker Algoritması**
+
+**KCF Tracker Algoritması**
 
 **TLD Tracker Algoritması**
 
