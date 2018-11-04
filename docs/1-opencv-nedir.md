@@ -12,6 +12,11 @@ OpenCV kütüphanesi içerisinde görüntü işlemeye (image processing) ve maki
 
 ![OpenCV Versiyon](http://mesutpiskin.com/blog/wp-content/uploads/2016/05/0-1.png "")
 
+
+OpenCV logosu üçgen halinde O, C ve V harflerinin temsilidir. Logo, Açık Kaynak (Open Source) ve Bilgisayarlı Görü (Computer Vision) kelimelerini ifade eder. O, C, V harfleri, ünlü Kanizsa üçgen optik yanılsamasını anımsatır. harflerin renkleri ise RGB renk uzayını ifade eder .
+
+![OpenCV Logo](https://opencv.org/assets/theme/logo.png "")
+
 **OpenCV Bileşenleri**
 
 
