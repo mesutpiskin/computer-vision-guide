@@ -176,3 +176,12 @@ Bu algoritmayla ilgibi makaleye buradan (http://epubs.surrey.ac.uk/713800/1/Kala
 MOSSE Korelasyon filtresi kullanan bir takip algoritmasıdır. Görüntü işleme algoritmalarından yararlananan bu algoritma oldukça hızlı çalışsada, derin öğrenme veya makine öğrenmesi kullanan algoritmalar göre başarı oranı düşüktür.
 
 İlgili makaleye buradan (http://www.cs.colostate.edu/~vision/publications/bolme_cvpr10.pdf) ulaşabilirsiniz.  Bu algoritmayı daha yakından tanımak isterseniz "Practical Computer Vision" kitabına göz atabilirsiniz.
+
+
+## Sonuç
+
+Yukarıda bazı takip algoritmalarını kısaca özetledik, peki ama hangi algoritmayı tercih etmeli? Böyle bir soru karşısında bir çok farklı cevap verilebilir ama OpenCV içerisinde bir algoritma arıyorsanız cevap **CSRT** diyebilirim. Nesne takibi için bir çok algoritma mevcut bunlardan yalnızca çok küçük bir kısmı OpenCV içerisinde yer alıyor, bu nedenle probleminize uygun bir takip algoritması arıyorsanız, neredeyse her yıl yapılan "The Visual Object Tracking VOT2017 Challenge" araştırması sonuçlarına göz atabilirsiniz. VOT hareketli videoların yer aldığı bir veri setidir ve bu karşılaştırma raporunda bir çok algoritma bu veri seti ile sınanır. 2017 yılındaki özet sonuca aşağıdaki görselden ulaşabilirsiniz. Rapora ise buradan (http://openaccess.thecvf.com/content_ICCV_2017_workshops/papers/w28/Kristan_The_Visual_Object_ICCV_2017_paper.pdf) ulaşabilirsiniz.
+
+| ![](static/voc.png) | 
+|:--:| 
+|*Görsel Kaynağı: The Visual Object Tracking VOT2017*|
