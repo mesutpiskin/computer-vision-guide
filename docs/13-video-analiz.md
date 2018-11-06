@@ -102,10 +102,10 @@ frame = cv2.rectangle(frame, (col, row), (col + w, row + h), 255, 2)
 ```
 Daha önce belirlediğimiz dörtgen alanı kullanarak mean shift algoritmasını yine belirlediğimiz kriter ile başlatıyoruz, ve belirlediği alanı frame üzerine çiziyoruz.
 
-Video:
 
-[![Youtube Video](http://img.youtube.com/vi/9qzaBzmmL7s/0.jpg)](https://youtu.be/9qzaBzmmL7s)
-
+| [![Youtube Video](http://img.youtube.com/vi/9qzaBzmmL7s/0.jpg)](https://youtu.be/9qzaBzmmL7s) | 
+|:--:| 
+|*MeanShift Demo Video*|
 
 **Camshift (Sürekli Mean Shift) Algoritması**
 
@@ -119,7 +119,7 @@ Bu algoritmanın kullanımı, yukarıda anlatılan ve örnek projeler kısmında
    ret, shiftWindow = cv.CamShift(backprojectedFrame, shiftWindow, terminationCriteria)
  ```
 
-**GOTURN Tracker Algoritması**
+**GOTURN Takip Algoritması**
 
 GOTURN derin öğrenme tabanlı CNN kullanan bir nesne takip algoritmasıdır. Bu algoritma "Learning to Track at 100 FPS with Deep
 Regression Networks" http://davheld.github.io/GOTURN/GOTURN.pdf makalesi ile duyrulmuştur. Bu algoritma ile art arda gelen bir dizi frame yani video üzerinde tek bir nesnenin takibi yapılabilir. Yolda giden bir araç, yürüyen bir insan veya yuvarlanan bir top kısacası videonun başında takip edilmesini istediğiniz şeyi videonun sonuna kadar takip edilebilir. Bu algoritma eğitilmiş bir model ile kullanılır, opencv iplemantasyonu için eğitilmiş bir caffe modeli mevcuttur.
@@ -131,11 +131,11 @@ Regression Networks" http://davheld.github.io/GOTURN/GOTURN.pdf makalesi ile duy
 
 Yukarıdaki görselde eğitim ve test aşamaları özetlenmiştir. Veri seti eğitilirken bir çok hareket eden nesne videosundan yararlanılır, sinir ağı bu sayede bir sonraki frame de nesnenin yerini tahmin edebilir hale gelir. Burada dikkat edilmesi gereken nokta nesneyi tanıma işlemi yapmadan sadece tahmin edilmek için belirlenen alanın sonraki framelerde nerede olabileceğine karar verir. Test için ise **VOT** veri setinden yararlanılır.
 
-**Boosting Tracker Algoritması**
+**Boosting Takip Algoritması**
 
 Boosting algoritması Cascade sınıflandırıcısında da kullanılan AdaBoost algoritmasına dayananır. Nesneyi tespit edebilmek için eğitilmiş negatif ve bozitif verilerden yararlanır. Negatif görüntü dediğimiz şey hedeflenen nesnenin bulunmadığı genellikle arka planların yer aldığı görüntülerdir. Pozitif görüntüler ise hedeflenen nesnenin yer aldığı görüntü setidir. Çok eski olan bu algoritmanın çalışma mantığı oldukça basittir. Diğer algoritmalarda olduğu gibi, giriş olarak görüntü üzerinden bir alan seçilerek verilir, bu alan takip edilmek istenilen nesnedir. Algoritma çalışma zamanında bu kare dışındaki alanları negatif veri seti alarak kabul eder ve her karede bir sınıflandırma yapar. Haar Cascade algoritmasında bizim tarafımızdan yapılan eğitim süreci bu algoritma tarafından sürekli olarak otomatik bir şekilde yapılır. Bu algoritma hızlı çalışıyor olsada oldukça başarısz bir sonuçlar vermektedir.
 
-**MIL (Multiple Instance Learning) Tracker Algoritması**
+**MIL (Multiple Instance Learning) Takip Algoritması**
 
 MIL takip algoritması temel olarak Boosting algoritmasına benzer şekilde çalışır. Boosting algoritması pozitif görüntü olarak sadece tarafımızdan verilen alanı kullanmaktaydı. Tek bir pozitif görüntü kullanılması veya pozitif görüntüler için kullanıcı/geliştirici ye bağımlı kalınması genellikle sonucu olumsuz olarak etkilemektedir.
 
@@ -148,12 +148,31 @@ Fazla sayıda pozitif görüntü veri setine sahip olması bu algoritmanın baş
 |*Görsel Kaynağı: http://vision.ucsd.edu/~bbabenko/new/project_miltrack.shtml*|
 
 
+**CSRT (Discriminative Correlation Filter with Channel and Spatial Reliability) Takip Algoritması**
 
-**CSRT Tracker Algoritması**
+Bir kaç yıl önce "Discriminative Correlation Filter with Channel and Spatial Reliability" başlıklı makale ile duyurulan bu algoritma yine yakın bir zaman OpenCV 3.4 versiyonuna eklendi. OpenCV içerisinde yer alan başarılı takip algoritmalarından birisidir.
 
-**KCF Tracker Algoritması**
 
-**TLD Tracker Algoritması**
+**KCF (Kernelized Correlation Filters) Takip Algoritması**
 
-**MOSSE Tracker Algoritması**
+2015 yılında João F. Henriques, Rui Caseiro, Pedro Martins ve Jorge Batista tarafından geliştirilen bu yöntem yakın bir zaman içerisinde OpenCV'ye eklendi. KCF yukarıda bahsettiğimiz takip algoritmalara göre daha başarılı diyebiliriz. Bu algoritma seçilen nesnenin alanın eğitimi için diğerlerinden farklı bir yol izler. Elde ettiği pozitif görüntülerdeki başarısı sebebiyle daha doğru ve daha yüksek başarıya sahip sonuç verir.
 
+Bu algoritmanın makalesine ve farklı programlama dillerindeki uyarlamasına buradaki bağlantıdan ulaşabilirsiniz. http://www.robots.ox.ac.uk/~joao/circulant/index.html
+
+| ![Takip algoritmaları için bir karşılaştırma  ](static/precision.png) | 
+|:--:| 
+|*Görsel Kaynağı: http://www.robots.ox.ac.uk/~joao/circulant/index.html*|
+
+
+**TLD (Tracking-Learning-Detection) Takip Algoritması**
+
+TLD izleyici nesne takibi için üç aşamalı bir süreç izler; takip et, öğren ve tespit et. Bu algoritma 2010 yılında Zdenek Kalal, Krystian Mikolajczyk ve Jiri Matas tarafından "Tracking-Learning-Detection" başlıklı makale ile duyruldu. TLD gerçek zamanlı bir takip algoritmasıdır. Takip edilmek istenilen nesne belirlendikten sonra üç aşamalı süreç başlar.  Öncelikli olarak verilen nesne üzerinde eğitim gerçekleştirilir, takip işlemi devam ederken algoritma kendisini tekrardan düzeltir ve eğitir, eğitim sonucu nesne tekrardan belirlenir ve takip edilir. Bu işlem kısa süreli takip için çok başarılı olmayabilir, algoritmanın kendisini kısa sürede ne kadar düzelteceğini bilemezsiniz.
+
+Bu algoritmayla ilgibi makaleye buradan (http://epubs.surrey.ac.uk/713800/1/Kalal-PAMI-2011%281%29.pdf), çeşitli örneklerin yer aldığı web sayfasına ise buradan (http://kahlan.eps.surrey.ac.uk/featurespace/tld/) ulaşabilirsiniz.
+
+
+**MOSSE (Minimum Output Sum of Squared Error) Takip Algoritması**
+
+MOSSE Korelasyon filtresi kullanan bir takip algoritmasıdır. Görüntü işleme algoritmalarından yararlananan bu algoritma oldukça hızlı çalışsada, derin öğrenme veya makine öğrenmesi kullanan algoritmalar göre başarı oranı düşüktür.
+
+İlgili makaleye buradan (http://www.cs.colostate.edu/~vision/publications/bolme_cvpr10.pdf) ulaşabilirsiniz.  Bu algoritmayı daha yakından tanımak isterseniz "Practical Computer Vision" kitabına göz atabilirsiniz.
