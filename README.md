@@ -184,16 +184,16 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>
 <ul>
 <li><a href="/code/nesne-tespit-ve-tanima/python/template-matching.py">Template Matching</a></li>
-<li><a href="/code/nesne-tespit-ve-tanima/python/derin_sinir_agi.py">Derin Sinir Ağı DNN</a></li>
-<li><a href="/code/nesne-tespit-ve-tanima/python/haar-cascade.py">HaarCascade Classifier</a></li>
+<li><a href="/code/nesne-tespit-ve-tanima/python/derin_sinir_agi.py">Derin Sinir Ağı DNN ile Nesne Tanıma</a></li>
+<li><a href="/code/nesne-tespit-ve-tanima/python/haar-cascade.py">HaarCascade Classifier ile Yüz Tespiti</a></li>
 </ul>
 </td>
 <td>
 
 <ul>
-<li><a href="/code/nesne-tespit-ve-tanima/java/TemplateMatching.java">Template Matching</a></li>
-<li><a href="https://github.com/mesutpiskin/opencv-object-detection/tree/master/src/DeepNeuralNetwork">Derin Sinir Ağı DNN</a></li>
-<li><a href="/code/nesne-tespit-ve-tanima/java/DetectFace.java">HaarCascade Classifier</a></li>
+<li><a href="/code/nesne-tespit-ve-tanima/java/TemplateMatching.java">Template Matching ile Nesne Tanıma</a></li>
+<li><a href="https://github.com/mesutpiskin/opencv-object-detection/tree/master/src/DeepNeuralNetwork">Derin Sinir Ağı DNN ile Nesne Tanıma</a></li>
+<li><a href="/code/nesne-tespit-ve-tanima/java/DetectFace.java">HaarCascade Classifier ile Yüz Tespiti</a></li>
 
 </ul>
 
@@ -220,7 +220,12 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <tr>
 <td>Makine Öğrenmesi ve Derin Öğrenme</td>
 <td>&nbsp;</td>
-<td>&nbsp;</td>
+<td>
+<ul>
+<li><a href="https://github.com/mesutpiskin/GenderClassification">Derin Sinir Ağı (DNN) ile Cinsiyet Tespiti</a></li>
+</ul>
+
+</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -229,7 +234,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>Yüz Tanıma</td>
 <td>
 <ul>
-<li><a href="/code/yuz-tanima/python/facerecognition_kutuphanesi/">face_recognition Kütüphanesi ve OpenCV</a></li>
+<li><a href="/code/yuz-tanima/python/facerecognition_kutuphanesi/">"FaceRecognition" kullanarak Yüz Tanıma</a></li>
 </ul>
 
 </td>
@@ -237,7 +242,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>&nbsp;</td>
 <td>
 <ul>
-<li><a href="https://github.com/mesutpiskin/face-detection-and-recognition">Eigenfaces ve Fisherfaces Algoritması</a></li>
+<li><a href="https://github.com/mesutpiskin/face-detection-and-recognition">Eigenfaces ve Fisherfaces ile Yüz Tanıma</a></li>
 </ul>
 
 
