@@ -133,3 +133,42 @@ cv2.destroyAllWindows()
 
 
 ![fisheye](static/fisheye.png)
+
+
+
+
+
+## Stereo Görü (Stereo Vision veya Stereoscopic Vision)
+
+Stereo görü insanlanrın sahip olduğu bir yetenekten yola çıkarak uyarlanmış bir kavram/teknolojidir. Mono bir fotoğraf düşününü cep telefonlarınızla çektiğiniz gibi. Fotoğrafa baktığınızda karede yer alan nesnelerin hangisini önce hangisinin arkada olduğunu ayırt edebiliyorsunuz değil mi. Bu derinlik kestirimi olarak adlandırılır. Derinlik kestirimi yeteneğimiz yani iki gözümüz olmasaydı, beynimiz bu derinlik algısını doğru hesaplayamazdı. Bir gözünüzü kapattığınızda önünüzde duran bir nesnenin bir noktasına dokunmaya çalışın bunu daha iyi anlayacaksınız.
+
+|![stereo görme](static/stereogorme.jpg) | 
+|:--:| 
+|*Görsel Kaynağı: Howstuffworks*|
+
+
+Bilgisayarlı görü alanında da bir nesnenin kameraya olan mesafesini veya sahnedeki tüm herşeyin kameraya olan mesafesini hesaplayabilmek için bu teknolojiden yararlanılmaktadır. Bunun için OpenCV içerisinde bir çok algoritma hali hazırda kullanılabilir durumdadır, tek yapmanız gereken bir stereo kamera kullanmak veya stereo kamera düzeneği kurmak. Aşağıda örnek stereo kameralar görülebilir.
+
+
+
+|<div style="width:50%; height:50%">![stereo kamera 1](static/sterokamera-1.jpg) ![stereo kamera 2](static/sterokamera-2.jpg) </div>| 
+|:--:| 
+|*Farklı stereo kameralar*|
+
+
+
+**Derinlik Nasıl Hesaplanır?**
+
+
+Aşağıdaki görselde bir stereo kamera düzeneği ve belirli bir mesafadeki nesne resmedilmiştir. **O ve O^**  sol ve sağ kameraları,  **X** ise belirli bir noktadaki nesneyi, **X ve X^** nesnenin sol ve sağ kameralarına olan iz düşümlerini, **f** ise kameraların odak uzaklığını, **B** ise iki kamera merceğinin birbirlerine olan mesafeini, **Z** ise kameranın nesneye olan uzaklığını yani derinlik bilgisini temsil etmektedir. Bu değişkenlerden; f yani odak uzaklığı, B yani mercekler arası mesafe önceden bilinen değişkenlerdir. Bu değişkenlere göre;
+
+![stereo derinlik](static/stereo_depth.jpg)
+
+
+*Z = (f * B) / d*
+
+Bilinmeyen **d** değişkeni görüntü düzlemine düşen iz düşümlerin bir birlerine olan mesafesidir. Buna göre;
+
+*d (disparity) = X - X^ = (B * f) / Z*
+
+Bu denklemler sayesinde hedeflediğimiz derinlik bilgisini çıkartabiliriz.
