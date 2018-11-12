@@ -38,9 +38,9 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [Morfolojik Görüntü işleme](/docs/10-morfolojik-goruntu-isleme.md) |Morfolojik operatörler ve eşikleme: Erosion, dilation, closing, gradyan, thresholding ...|
 | [Filtreler ve Kenar Belirleme](/docs/11-filtreler-ve-kenar-belirleme.md) |Filtreleme ve kenar belirleme algoritmaları: Blur, Sobel, Laplace, Canny ...|
 | [Arkaplan Çıkarma](/docs/12-arka-plan-cikarma.md) | Absdiff, MOG, MOG2 ve GMG algoritmaları kullanarak, 2D görüntü arkaplan çıkarımı.|
-| [Video Analiz ve Nesne Takibi](/docs/13-video-analiz.md) |Mean Shift, Cam Shift, Optik akış, GOTURN, BOOSTING, MIL, CNN vb. algoritmalar ile video üzerinde nesne tespit ve takibi. |
 | [Nesne Tespiti ve Nesne Tanıma](/docs/14-nesne-tespiti.md) |Nesne tespit süreçleri ve algoritmaları. HaarCascade, TemplateMatching, DNN, CNN, SVM Makine Öğrenmesi ve Derin Öğrenme algoritmaları ...|
-| [Kamera Kalibrasyonu ve 3D Görü](/docs/15-kamera-kalibrasyonu-ve-3d-goru.md) | Görüntü bozulmaları ve kamera kalibrasyonu, 3D görüntüler ve stero görüntü işleme.|
+| [Video Analiz ve Nesne Takibi](/docs/13-video-analiz.md) |Mean Shift, Cam Shift, Optik akış, GOTURN, BOOSTING, MIL, CNN vb. algoritmalar ile video üzerinde nesne veya alan takibi. |
+| [Kamera Kalibrasyonu ve 3D Görü](/docs/15-kamera-kalibrasyonu-ve-3d-goru.md) | Görüntü bozulmaları ve kamera kalibrasyonu, 3D görüntüler, derinlik kestirimi, stereoscopic vision ve stero görüntü işleme.|
 | [Yüz Tanıma](/docs/17-yuz-tanima.md) | Yüz tanıma nedir? Eigenfaces, Fisherfaces, LBPH ve makine öğrenmesi algoritmaları ile yüz tanıma. Farklı kütüphane entegrasyonları (dlib, tensorflow ve face recognition). |
 | [Optik Karakter Tanıma OCR ](/docs/18-optik-karakter-tanima.md)| Görüntü üzerindeki metnin tespiti ve analiz edilmesi, OCR.|
 | GPU ve Paralel Hesaplama | Cuda modülü ile Nvidia GPU üzerinde paralelleştirilmiş bilgisayarlı görü uygulamaları geliştirme.|
@@ -297,7 +297,7 @@ Güncelleme yapmak istediğiniz sayafa giderek, sayfanın sağ üstünde Raw, Bl
 
 **Uyarı**
 
-Herhangi bir şekilde, lisanslı içerik (online eğitim, kitap, makale vb.) eser veya telif hakkı sahibinin izni kapsamında yapılmalıdır.
+İçerik eklerken herhangi bir şekilde, lisanslı içerik (online eğitim, kitap, makale vb.) eklerken, bu işlem telif hakkı sahibinin izni kapsamında yapılmalıdır. Özgün içerik eklemekte özgürsünüz.
 
 
 ## 💬 Soru & Cevap
