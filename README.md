@@ -219,7 +219,13 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 <tr>
 <td>Makine Öğrenmesi ve Derin Öğrenme</td>
-<td>&nbsp;</td>
+<td>
+<ul>
+<li><a href="/code/yuz-tanima/python/dnn_yuz_tespiti/">Derin Sinir Ağı (DNN) ile Yüz Tespiti</a></li>
+</ul>
+
+
+</td>
 <td>
 <ul>
 <li><a href="https://github.com/mesutpiskin/GenderClassification">Derin Sinir Ağı (DNN) ile Cinsiyet Tespiti</a></li>
