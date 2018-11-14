@@ -325,4 +325,4 @@ Dokümanlar, kaynak kodlar veya her hangi bir konuda ki sorularınızı **issues
 Aşağıdaki kişilere, OpenCV Türkçe dokümantasyon çalışmasına yaptıkları desteklerden ötürü teşekkür ederim.
 
 ## 📄 Lisans
-Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır.
+Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır. İçeriğin **kaynak gösterilmeden** kullanılması durumunda bu kişiler/kurumlar [bu bölümde](#) paylaşılacaktır.
