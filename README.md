@@ -258,7 +258,11 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 </tr>
 <tr>
 <td>Optik Karakter Tanıma OCR</td>
-<td>&nbsp;</td>
+<td>
+<ul>
+<li><a href="/code/optik-karakter-tanima-ocr/python/tesseract-python/optik_karakter_tanima.py">Tesseract ile OCR</a></li>
+</ul>
+</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
