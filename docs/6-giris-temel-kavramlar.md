@@ -1,6 +1,4 @@
-Bu Konu için Geliştirilen Örnek Projeler |
---- |
-*Still* | 
+
 
 **Temel Kavramlar ve OpenCV'ye Giriş** 
 --------------------------------------

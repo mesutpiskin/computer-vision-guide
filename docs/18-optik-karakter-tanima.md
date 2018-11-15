@@ -70,4 +70,4 @@ frame = cv2.imread("metin.png");
 print(pytesseract.image_to_string(frame, lang='eng'))
 ```
 
-Yukarıdaki projeyi çalıştırdığınızda görüntü metne çevrilecektir.
+Yukarıdaki projeyi çalıştırdığınızda görüntü metne çevrilecektir. Daha detaylı kullanımlar için bu bölümün örnek projelerine göz atabilirsiniz.
