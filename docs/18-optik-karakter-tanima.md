@@ -33,3 +33,41 @@ OCR için geliştirilmiş birçok kütüphane ve algoritma mevcuttur. Açık kay
 ![Tesseract](static/tesseract.png)
 
 Tesseract 1985-1994 yılları arasında HP tarafından C++ ile geliştirilmiş bir kütüphanedir. 2006 yılından beri ise Google desteği ile geliştirilmeye devam etmektedir. En kararlı sürümü şuan için 4.0'dır. Tesseract UTF-8 desteğine sahiptir ve 100 den fazla dili desteklemektedir. 4. sürümü ile bilikte RNN(Recurrent Neural Network) çeşidi olan LTSM desteğine kavuşmuştur, bu sayede derin öğrenmeden yararlanarak daha iyi sonuçlar elde etmenize yardımcı olmaktadır.
+
+# Kurulum
+
+Python örneği için **pytesseract** kullanacağız, bunun için öncelikle bu python paketini kuralım.
+
+```Bash
+pip install pytesseract
+```
+Tesseract farklı dillerdeki metinleri tanıyabilmek için eksra bir modele ihtiyaç duyar, bu modeli aşağıdaki bağlantıdan indirebilirsiniz. 
+
+- https://github.com/tesseract-ocr/tessdata
+
+İsterseniz binary dosyaları işletim sisteminize doğrudan kurabilirsiniz. Bunun için buradaki bağlantı üzerinden işletim sistemine ve istediğiniz OCR diline göre özelleştirilmiş kurulum adımlarını izleyebilirsiniz. https://github.com/tesseract-ocr/tesseract/wiki
+
+Örneğin MacOS için;
+
+```Bash
+brew install tesseract
+```
+
+
+# Örnek Proje
+
+OpenCV ile bir görüntü yükleyelim ve bu görüntüyü tesseract ile metne çevirelim. Benim sistemimde İngilizce **tessdata** paketi olduğu için İngilizce seçtim, Türkçe için **lang = 'tur'** kullanabilirsiniz. Dil paketleri için [buraya](https://github.com/tesseract-ocr/tesseract/wiki/Data-Files) göz atabilirsiniz.
+
+```Python
+import cv2
+import pytesseract
+
+
+#OpenCV ile goruntuyu oku
+frame = cv2.imread("metin.png");
+
+#Matris goruntuyu tesseract ile metne çevir
+print(pytesseract.image_to_string(frame, lang='eng'))
+```
+
+Yukarıdaki projeyi çalıştırdığınızda görüntü metne çevrilecektir.
