@@ -260,7 +260,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>Optik Karakter Tanıma OCR</td>
 <td>
 <ul>
-<li><a href="/code/optik-karakter-tanima-ocr/python/tesseract-python/optik_karakter_tanima.py">Tesseract ile OCR</a></li>
+<li><a href="/code/optik-karakter-tanima-ocr/python/tesseract-python/">Tesseract ile OCR</a></li>
 </ul>
 </td>
 <td>&nbsp;</td>
@@ -329,4 +329,4 @@ Dokümanlar, kaynak kodlar veya her hangi bir konuda ki sorularınızı **issues
 Aşağıdaki kişilere, OpenCV Türkçe dokümantasyon çalışmasına yaptıkları desteklerden ötürü teşekkür ederim.
 
 ## 📄 Lisans
-Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır. İçeriğin **kaynak gösterilmeden** kullanılması durumunda bu kişiler/kurumlar [bu bölümde](#) paylaşılacaktır.
+Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır. İçeriğin **kaynak gösterilmeden** kullanılması durumunda bu kişiler/kurumlar [bu bölümde](/other/blacklist.md) paylaşılacaktır.
