@@ -286,7 +286,13 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 </tr>
 <tr>
 <td>Arttırılmış Gerçeklik</td>
-<td>&nbsp;</td>
+<td>
+<ul>
+<li><a href="/code/arttirilmis-gerceklik/python/sapka-filtresi/">Şapka Filtresi - Yüz Tespiti ve Şapka Giydirme</a></li>
+</ul>
+
+
+</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
