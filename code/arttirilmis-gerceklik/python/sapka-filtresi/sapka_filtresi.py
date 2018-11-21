@@ -30,11 +30,11 @@ faceCascade = cv2.CascadeClassifier(haarCascadeForFace)
 image_model = cv2.imread('img/fes.png')
 
 #Varsayılan video kamerayı başlat
-video_capture = cv2.VideoCapture(0) 
+capture = cv2.VideoCapture(0) 
 while True:
 
     # Kameradan bir görüntü al
-    ret, frame = video_capture.read()
+    ret, frame = capture.read()
     '''Görüntüyü boyutlandır, isterseniz boyutlandırmayı kaldırabilirsiniz, kameranız 600x300 den küçükse buranın
        zaten bir anlamı olamyacaktır.'''
     frame = cv2.resize(frame, (600, 300)) 
@@ -71,8 +71,5 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-    
-
-# When everything is done, release the capture
-video_capture.release()
+capture.release()
 cv2.destroyAllWindows()
