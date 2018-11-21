@@ -1,4 +1,4 @@
-**OpenCV ile Şapka Filresi** 
+**OpenCV ile  Yüz Tespiti ve Şapka Giydirme - Artırılmış Gerçeklik** 
 -----------------------------------------
 Haar Cascade ile yüzü tespit ederek yüzün üzerine yani kafaya input olarak verilen görüntüyü (şapkayı) giydiren örnek AR projesi.
 
@@ -30,4 +30,4 @@ pip install opencv-python
 
 **Video**
 
-[![OpenCV ile Şapka Filresi - Youtube](https://img.youtube.com/vi/psrxVJ4GgTs/0.jpg)](https://www.youtube.com/watch?v=psrxVJ4GgTs "OpenCV ile Şapka Filresi- Youtube")
+[![OpenCV ile  Yüz Tespiti ve Şapka Giydirme - Artırılmış Gerçeklik- Youtube](https://img.youtube.com/vi/psrxVJ4GgTs/0.jpg)](https://www.youtube.com/watch?v=psrxVJ4GgTs "OpenCV ile  Yüz Tespiti ve Şapka Giydirme - Artırılmış Gerçeklik- Youtube")
