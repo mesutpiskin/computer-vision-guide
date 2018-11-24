@@ -1,5 +1,8 @@
 
-[<img src="https://img.shields.io/badge/slack-@opencvturkiye-yellow.svg?logo=slack">](https://opencvturkiye.slack.com/messages/) [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) ![%65](http://progressed.io/bar/65?title=Tamamlanan "Genel Tamamlanma %65")
+[<img src="https://img.shields.io/badge/slack-@opencvturkiye-yellow.svg?logo=slack">](https://opencvturkiye.slack.com/messages/) [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) ![%70](http://progressed.io/bar/70?title=Tamamlanan "Genel Tamamlanma %70")
+[![Video](https://img.shields.io/badge/Video-@mesutpiskin-red.svg?logo=youtube&longCache=true&style=flat)](https://www.youtube.com/channel/UC_ko-bnDYXCVL1XJG0doRDgl)
+
+
 
 # Görüntü İşleme ve Bilgisayarlı Görü
 
