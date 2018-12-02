@@ -2,7 +2,11 @@
 [<img src="https://img.shields.io/badge/slack-@opencvturkiye-yellow.svg?logo=slack">](https://opencvturkiye.slack.com/messages/) [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) ![%70](http://progressed.io/bar/70?title=Tamamlanan "Genel Tamamlanma %70")
 [![Video](https://img.shields.io/badge/Video-@mesutpiskin-red.svg?logo=youtube&longCache=true&style=flat)](https://www.youtube.com/channel/UC_ko-bnDYXCVL1XJG0doRDg)
 
-
+- [Dokümantasyon](#)
+- [Örnek Projeler](#)
+- [Destek](#destek)
+- [Soru Cevap](#-soru--cevap)
+- [Lisans](#-lisans)
 
 # Görüntü İşleme ve Bilgisayarlı Görü
 
@@ -23,9 +27,8 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 ---
 
-## İçerik
 
-**Doküman**
+## Dokümantasyon
 
 | Bölüm |Özet|
 |----------|--------|
@@ -54,7 +57,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 
 
-**Kaynak Kod**
+## Örnek Projeler
 
 <table style="width: 100%;">
 <tbody>
@@ -318,10 +321,6 @@ Dokümanlar, kaynak kodlar veya her hangi bir konuda ki sorularınızı **issues
 
 Öncelikle [issues](https://github.com/mesutpiskin/opencv-tutorial/issues) bölümüne gidiniz. Sayfanın sağında yer alan **new issues** butonuna tıklayın. Açılan ilgili bölüme sorunuzu veya talebinizi açıklayıcı bir şekilde yazarak **Submit new issues** butonu aracılığıyla kaydedin.
 
-
-## 👏 Katkı Sağlayanlar
-
-Aşağıdaki kişilere, OpenCV Türkçe dokümantasyon çalışmasına yaptıkları desteklerden ötürü teşekkür ederim.
 
 ## 📄 Lisans
 Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır. İçeriğin **kaynak gösterilmeden** kullanılması durumunda bu kişiler/kurumlar [bu bölümde](/other/blacklist.md) paylaşılacaktır.
