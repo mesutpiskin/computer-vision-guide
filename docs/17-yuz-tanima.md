@@ -62,6 +62,14 @@ Fisherfaces algoritması, girdi olarak verilen yüz üzerindeki öznitelikleri b
 LBPH algoritması diğer algoritmalarda çok büyük bir sorun olan ışık ve çevre koşullarından en az oranda etkilenmeyi sağlamak amacıyla geliştirilmiştir. LBPH adından da anlaşılacağı üzere yerel pikselleri bir biriyle komşuluklarına göre inceleyerek sonuç çıkarmaya çalışır. Komşu piksel gruplarından yararlanarak yerel bir yapı bulmayı amaçlar, bu yöntemi girdi ve veri tabanındaki yüzler üzerinde uygulayarak en çok benzeyen yüzü bulmaya çalışır.
 
 
-**4.Sinir Ağı ile Sınıflandırma**
+**4.Sinir Ağları ile Yüz Tanıma**
 
 Bu yöntemi kullanmak için çok fazla veriye ihtiyaç duyulur. Tanınmasını istenen kişilerin yüzleri sinir ağına eğitim verisi olarak girilir ve sinir ağı (genellikle CNN) verisetinde yer alan yüzler üzerinde baskın öz nitlikleri belirleyerek bir sınıflandırma yapar. Girdi olarak verilen yüz sinir ağına girdiğinde bakılması gereken öz nitelikler eğitim ile belirlendiği için hızlı bir şekilde yüzün hangi sınıta olduğu belirlenir. Veri tabanına eklenen her kişinin yüzü artık ayrı bir sınıf olmuştur geriye kalan ise girdi olarak verilen yüzün hangi sınıfta olduğudur.
+
+Derin öğrenme tabanlı yüz tanıma yaklaşımları;
+
+  - **FaceNet:** FaceNet veya Google FaceNet, Google geliştiricileri tarafından bu makale ile https://arxiv.org/pdf/1503.03832.pdf duyurulmuştu. 
+  
+  - **DeepFace:** Facebook AI ekibi tarafından geliştirilmiş derin öğrenme tabanlı bir yüz tanıma sistemidir. İlgili makaleye https://research.fb.com/publications/deepface-closing-the-gap-to-human-level-performance-in-face-verification/ buradan ulaşabilirsiniz.
+  
+  - **OpenFace:** Derin öğrenme tabanlı bu yüz tanıma sistemi uzunca bir süredir geliştiriciler arasında sıklıkla tercih edilmektedir. https://cmusatyalab.github.io/openface/
