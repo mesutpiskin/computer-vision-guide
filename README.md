@@ -1,7 +1,7 @@
 
 [<img src="https://img.shields.io/badge/slack-@opencvtr-yellow.svg?logo=slack">](https://opencvturkiye.slack.com/messages/) [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) ![%70](http://progressed.io/bar/70?title=Tamamlanan "Genel Tamamlanma %70")
 [![Video](https://img.shields.io/badge/Video-@mesutpiskin-red.svg?logo=youtube&longCache=true&style=flat)](https://www.youtube.com/channel/UC_ko-bnDYXCVL1XJG0doRDg)
-[![Patreon](https://img.shields.io/badge/Patreon-ile_projeleri_destekleyin-green.svg?logo=patreon&longCache=true&style=flat)](https://www.patreon.com/mesutpiskin)
+[![Patreon](https://img.shields.io/badge/Patreon-ile_projeyi_destekleyin-green.svg?logo=patreon&longCache=true&style=flat)](https://www.patreon.com/mesutpiskin)
 
 - [Dokümantasyon](#dokümantasyon)
 - [Örnek Projeler](#örnek-projeler)
@@ -51,6 +51,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [Filtreler ve Kenar Belirleme](/docs/11-filtreler-ve-kenar-belirleme.md) |Filtreleme ve kenar belirleme algoritmaları: Blur, Sobel, Laplace, Canny ...|
 | [Arkaplan Çıkarma](/docs/12-arka-plan-cikarma.md) | Absdiff, MOG, MOG2 ve GMG algoritmaları kullanarak, 2D görüntü arkaplan çıkarımı.|
 | [Nesne Tespiti ve Nesne Tanıma](/docs/14-nesne-tespiti.md) |Nesne tespit süreçleri ve algoritmaları. HaarCascade, TemplateMatching, DNN, CNN, SVM Makine Öğrenmesi ve Derin Öğrenme algoritmaları ...|
+ [Öznitelik ve Öznitelik Çıkarımı](/docs/19-oznitelik-cikarimi.md) |Öznitelik tanımı, nesne tespiti için öznitelik çıkarmı ve öznitelik eşleştirme. Brute-Force, FLANN, SURF, SIFT, BRIEF, ORB, FAST algoritmaları ...|
 | [Video Analiz ve Nesne Takibi](/docs/13-video-analiz.md) |Mean Shift, Cam Shift, Optik akış, GOTURN, BOOSTING, MIL, CNN vb. algoritmalar ile video üzerinde nesne veya alan takibi. |
 | [Görüntü Bozulmaları ve Stereo Görü](/docs/15-kamera-kalibrasyonu-ve-3d-goru.md) | Görüntü bozulmaları ve kamera kalibrasyonu, 3D görüntüler, derinlik kestirimi, stereoscopic vision ve stereo görüntü işleme.|
 | [Yüz Tanıma](/docs/17-yuz-tanima.md) | Yüz tanıma nedir? Eigenfaces, Fisherfaces, LBPH ve makine öğrenmesi algoritmaları ile yüz tanıma. Farklı kütüphane entegrasyonları (dlib, tensorflow ve face recognition). |
@@ -214,7 +215,14 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
-
+<tr>
+<td>Öznitelik Çıkarımı</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+ <td>&nbsp;</td>
+</tr>
 <tr>
 <td>Kamera Kalibrasyonu ve 3D Görü</td>
 <td>
