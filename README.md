@@ -1,6 +1,7 @@
 
 [<img src="https://img.shields.io/badge/slack-@opencvtr-yellow.svg?logo=slack">](https://opencvturkiye.slack.com/messages/) [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) ![%70](http://progressed.io/bar/70?title=Tamamlanan "Genel Tamamlanma %70")
 [![Video](https://img.shields.io/badge/Video-@mesutpiskin-red.svg?logo=youtube&longCache=true&style=flat)](https://www.youtube.com/channel/UC_ko-bnDYXCVL1XJG0doRDg)
+[![Patreon](https://img.shields.io/badge/Patreon-ile_projeleri_destekleyin-green.svg?logo=patreon&longCache=true&style=flat)](https://www.patreon.com/mesutpiskin)
 
 - [Dokümantasyon](#dokümantasyon)
 - [Örnek Projeler](#örnek-projeler)
@@ -19,10 +20,15 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 ---
 
+
+<p align="center">
+ ★★ Projelere finansal destek olmak isterseniz <a href="https://www.patreon.com/mesutpiskin">Patreon</a> üzerinden bunu yapabilirsiniz. Destek olmayı düşünmüyorsanız bile göz atamınızdan memnun olurum. ★★
+</p>
+
 <p align="center">
 
 
- ★★★ Projeye destek olmak isterseniz; destek kısmına göz atabilirsiniz. Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="https://github.com/mesutpiskin">buradaki</a> e-posta adresini kullanabilirsiniz. Teşekkürler! ★★★
+ ★★★ Projeye destek olmak isterseniz; patreon destek kısmına göz atabilirsiniz. Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="https://github.com/mesutpiskin">buradaki</a> e-posta adresini kullanabilirsiniz. Teşekkürler! ★★★
 </p>
 
 ---
