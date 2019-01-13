@@ -1,4 +1,4 @@
-[English](./README-en-US.md) | Türkçe
+[English](./README.en-US.md) | Türkçe
 
 
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) ![%70](http://progressed.io/bar/70?title=Tamamlanan "Genel Tamamlanma %70")
@@ -19,7 +19,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 <p align="center">
 
-<img src="/banner/banner.png"/>
+<img src="/other/banner.png"/>
 </p>
 
 ---

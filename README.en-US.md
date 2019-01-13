@@ -5,11 +5,11 @@ English | [Türkçe](./README.md)
 [![Video](https://img.shields.io/badge/Video-@mesutpiskin-red.svg?logo=youtube&longCache=true&style=flat)](https://www.youtube.com/channel/UC_ko-bnDYXCVL1XJG0doRDg)
 [![Patreon](https://img.shields.io/badge/Patreon-donate_with_patreon-green.svg?logo=patreon&longCache=true&style=flat)](https://www.patreon.com/mesutpiskin)
 
-- [Documentation](#dokümantasyon)
-- [Example Projects](#örnek-projeler)
-- [Contribute](#destek)
-- [Question & Answer](#-soru--cevap)
-- [License](#-lisans)
+- [Documentation](#documentation)
+- [Example Projects](#example-projects)
+- [Contribute](#contribute)
+- [Question & Answer](#-question--answer)
+- [License](#-license)
 
 This guide to help you understand the basics of computerized view and to develop computer vision vision with OpenCV. Python, Java, JavaScript, C # and C ++ are supported with examples.
 
@@ -19,7 +19,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 <p align="center">
 
-<img src="/banner/banner-en.png"/>
+<img src="/other/banner-en.png"/>
 </p>
 
 ---
@@ -328,7 +328,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 ## Contribute
 
-It's really nice to think about contributing, so you can look at the [SUPPORT] (/CONTRIBUTING.md) link.
+It's really nice to think about contributing, so you can look at the [SUPPORT](/CONTRIBUTING.md) link.
 
 
 ## 💬 Question & Answer
@@ -340,4 +340,4 @@ You can ask questions, source codes or any other questions by using the **issues
 
 
 ## 📄 License
-Documents and source codes contained in this project are licensed  [MIT License] (/LICENSE-EN).
+Documents and source codes contained in this project are licensed  [MIT License](/LICENSE-EN).
