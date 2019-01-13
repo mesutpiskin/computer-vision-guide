@@ -328,7 +328,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 ## Contribute
 
-It's really nice to think about contributing, so you can look at the [SUPPORT](/CONTRIBUTING.md) link.
+It's really nice to think about contributing, so you can look at the [SUPPORT](/CONTRIBUTING.en-US.md) link.
 
 
 ## 💬 Question & Answer
