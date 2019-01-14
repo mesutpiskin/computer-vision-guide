@@ -1,30 +1,21 @@
 # Contribute
 
-Katkıda bulunmayı düşünmeniz gerçekten çok güzel bir haber. Öncelikli olarak aşağıdaki planlananlar kısmına göz atabilirsiniz, sırada bekleyen işleri görmek adına yardımcı olabilir. 
+It's really good news to think about contributing. You can contribute to the project in four different ways;
 
-Projeye  dört farklı şekilde destek olabilirsiniz;
-
-## Donation
-
-Yakın zamanda Github üzerinde yer alan kılavuzdaki konuları video içerik haline getirmeyi amaçlamaktayım. Uygulamalı canlı yayınlar ve video içerikler için bazı donanım ihtiyaclarım var, bunun yanı sıra bu alanda akademik ve profesyonel yetkinlikleri olan kişilerle podcast serisine başlayacağım. Tüm bu planları gerçekleştirmek elbette bir maliyet doğurmakta, bu konuda ihtiyaçları karşılamak için destek olmak isterseniz buyrun patronum olun :)
-
-
-**What is Patreon? How do I Donate?**
-
-Patreon bir "crowdsourcing" platformudur. Patreon Kickstarter gibi çalışan fakat projeye değil içeriğe finansör olduğunuz dijital bir platformdur. Bu yazının hemen sağında bulunan sütunda abonelik alternatifleri var. 2 dolardan 10 dolara kadar farklı destek modelleri mevcut. Destek olmak istediğiniz paketi seçip online ödeme yapabilirsiniz. Ödemelerinizi istediğiniz karttan, istediğiniz ülkeden yapabilirsiniz.
+## 1. Donation
 
 **Patreon Profile: https://www.patreon.com/mesutpiskin**
 
-## Documentation
+## 2. Documentation
 
-Burada yer almayan veya eski olduğunu düşündüğünüz bir konu varsa bize gönderebilirsiniz. Bunun için öncelikli olarak yer aldığı kategoriyi docs dizini altından bulun ve buradaki yer alan doküman içerisine ekleyin. Yeni bir konu hakkında birşeyler eklemek istiyorsanız uygun bir başlık ile docs dizini altına konuyu oluşturup gönderebilirsiniz.
+You can send it to us if you don't have an issue here or you think it's old. To do so, locate the category under the docs directory and add it to the document contained therein. If you want to add something about a new topic, you can create and send the subject under the docs directory with an appropriate title.
 
 
-## Example Code
+## 3. Example Code
 
 **code** dizininde ilgili konu başlıkları altında programlama diline göre gruplanmış klasörler yer almaktadır. Öncelikli olarak hangi konuda örnek proje ekleyeceğinizi belirleyin ve uygun bir dizin olup olmadığını kontrol edin. Uygun bir dizin bulamaz iseniz oluşturabilirsiniz. Konu başlığı altında hangi dilde örnek kod ekleyecekseniz o klasör altında projede kullandığınız harici materyal (görüntü, video, model dosyası vb.) ile birlikte ekleyip gönderin. Örnek projeniz farklı bir repository'de ise, uygun bir başlık ile repository linki (yalnızca; **Github**, **Gitlab** ve **Bitbucket**) şeklinde ekleyebilirsiniz.
 
-## Spelling 
+## 4. Spelling 
 Türkçeyi düzgün kullanmak adına, doküman içerisinde gördüğünüz anlatım bozukluğu, imla yanlışı vb. gibi hataları düzelterek gönderebilirsiniz. Uygun olmadığını düşündüğünüz konu başlıklarını da bu kategoride değerlendirilir.
 
 ## How to Edit Documents
