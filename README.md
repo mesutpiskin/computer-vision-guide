@@ -13,7 +13,7 @@
 
 Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile bilgisayarlı görü uygulamaları geliştirebilmenizi amaçlamaktadır. Python, Java, JavaScript, C# ve C++ örnekleri ile desteklenmektedir.
 
-# Görüntü İşleme ve Bilgisayarlı Görü Kılavuz
+# Görüntü İşleme ve Bilgisayarlı Görü Kılavuzu
 
 OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile birlikte, görüntü işleme algoritmalarını öğrenecek, yeri geldiğinde ise **Java**, **Python** , **C++**,  **JavaScript (OpenCV.JS)**, **MATLAB** ve **C# (EmguCV)** programlama dilleri kullanarak örnek uygulamalar geliştireceğiz. Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile bilgisayarlı görü uygulamaları geliştirebilmenizi amaçlamaktadır. Python, Java ve C++ örnekleri ile desteklenmektedir. Bu doküman, daha önce görüntü işleme ile uğraşmamış, bu konuda bilgisi olmayanlara ve tam aksine bu konuda bilgili, kendinisini farklı konularda geliştirmek  isteyen herkese hitap edecek şekilde hazırlanmıştır. Temel tanımlardan başlanarak birçok kavram ve algoritma ele alınmıştır. Örnek projelere  <a href="/code/">code</a> dizininden, eğitim konularına ise <a href="/docs/">docs</a> dizini altından ulaşabilirsiniz, ayrıca dokümantasyon içerisinde kullanılan İngilizce terimlerin Türkçe karşılıklarının yer aldığı <a href="/docs/terimler.md">terimler</a> sayfasına, konu ile alakalı önerilen tavsiye içeriklere ise <a href="/other/tavsiye-icerikler.md">tavsiye icerik</a> sayfasından ulaşabilirsiniz.
 
@@ -32,7 +32,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <p align="center">
 
 
- ★★★ Projeye destek olmak isterseniz; patreon destek kısmına göz atabilirsiniz. Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="https://github.com/mesutpiskin">buradaki</a> e-posta adresini kullanabilirsiniz. Teşekkürler! ★★★
+ ★★★ Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="mailto:mesutpiskin@outlook.com">eposta</a> bilgilerini kullanabilirsiniz. Teşekkürler! ★★★
 </p>
 
 ---
@@ -62,7 +62,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [Optik Karakter Tanıma OCR ](/docs/18-optik-karakter-tanima.md)| Görüntü üzerindeki metnin tespit edilmesi. OCR süreçleri, algoritmalar ve kütüphaneler. Tesseract, textocr...|
 | GPU ve Paralel Hesaplama | Cuda modülü ile Nvidia GPU üzerinde paralelleştirilmiş bilgisayarlı görü uygulamaları geliştirme.|
 | OpenCV Mobil  | Android ve iOS işletim sistemine sahip mobil cihazlar üzerinde bilgisayarlı görü ve görüntü işleme.|
-| Arttırılmış Gerçeklik| 3D modelleri kamera aracılığıyla elde edilmiş gerçek dünya görüntüsü üzerine giydirme. OpenCV ve OpenGL entegrasyonu. İnteraktif bilgisayarlı görü uygulaması geliştirme.|
+| Artırılmış Gerçeklik| 3D modelleri kamera aracılığıyla elde edilmiş gerçek dünya görüntüsü üzerine giydirme. OpenCV ve OpenGL entegrasyonu. İnteraktif bilgisayarlı görü uygulaması geliştirme.|
 
 
 

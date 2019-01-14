@@ -15,7 +15,7 @@ This guide to help you understand the basics of computerized view and to develop
 
 # Image Processing and Computer Vision Guide
 
-OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile birlikte, görüntü işleme algoritmalarını öğrenecek, yeri geldiğinde ise **Java**, **Python** , **C++**,  **JavaScript (OpenCV.JS)**, **MATLAB** ve **C# (EmguCV)** programlama dilleri kullanarak örnek uygulamalar geliştireceğiz. Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile bilgisayarlı görü uygulamaları geliştirebilmenizi amaçlamaktadır. Python, Java ve C++ örnekleri ile desteklenmektedir. Bu doküman, daha önce görüntü işleme ile uğraşmamış, bu konuda bilgisi olmayanlara ve tam aksine bu konuda bilgili, kendinisini farklı konularda geliştirmek  isteyen herkese hitap edecek şekilde hazırlanmıştır. Temel tanımlardan başlanarak birçok kavram ve algoritma ele alınmıştır. Örnek projelere  <a href="/code/">code</a> dizininden, eğitim konularına ise <a href="/docs/">docs</a> dizini altından ulaşabilirsiniz.
+ You will learn the image processing and machine learning algorithms.  We will develop example applications using **Python** , **C++**,  **JavaScript (OpenCV.JS)**, **MATLAB** and **C# (EmguCV)**  programming languages. This guide is intended to help you understand the basics of computerized view and develop OpenCV and computer vision applications. This document has been prepared to address those who have not previously been engaged in image processing, who are not familiar with the subject matter, and who, on the contrary, are knowledgeable about this subject and who want to develop themselves on different topics. Sample projects can be found in  <a href="/code/">code</a> and documents in <a href="/docs/">docs</a> directory.
 
 <p align="center">
 
@@ -26,13 +26,16 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 
 <p align="center">
- ★★ Projelere finansal destek olmak isterseniz <a href="https://www.patreon.com/mesutpiskin">Patreon</a> üzerinden bunu yapabilirsiniz. Destek olmayı düşünmüyorsanız bile göz atamınızdan memnun olurum. ★★
+
+ ★★ If you want to donate to projects, you can do this through <a href="https://www.patreon.com/mesutpiskin">Patreon</a> ★★
+
 </p>
 
 <p align="center">
 
 
- ★★★ Projeye destek olmak isterseniz; patreon destek kısmına göz atabilirsiniz. Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="https://github.com/mesutpiskin">buradaki</a> e-posta adresini kullanabilirsiniz. Teşekkürler! ★★★
+ ★★★ If you want to contribute the project; You can look at the contribute section.Feel free to contact us if you have a request or suggestion. To contact <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> or <a href="mailto:mesutpiskin@outlook.com">email</a>. Much obliged! ★★★
+ 
 </p>
 
 ---
@@ -42,27 +45,27 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 | Lecture |Abstract|
 |----------|--------|
-| [What is OpenCV?](/docs/1-opencv-nedir.md)|OpenCV'nin tarihi ve bileşenleri, alternatif görüntü işleme kütüphaneleri, neden OpenCV, OpenCV 2 vs OpenCV 3 ve OpenCV 4 ile gelecek yenilikler.|
-| [Development Environment and Platforms](/docs/2-gelistirme-ortamlari.md) |Hangi platform ve geliştirme ortamı seçilmeli, görüntü işleme için neden Java, C++ ve Python kullanılıyor.|
-| [OpenCV Wrappers](/docs/3-opencv-wrappers.md) |Wrapper nedir? EmguCV, JavaCV, LiveCV, RubyCV nedir ve wrapperlar arası farklar nelerdir.|
-| [Installation and Compilation](/docs/4-opencv-kurulumlar.md) |Windows, Linux, macOS ve Raspberry Pi için OpenCV kurulumu.|
-| [IDE Configuration](/docs/5-ide-yapilandirmasi.md) |Eclipse, Netbeans, Android Studio ve Intelij IDEA için yapılandırma ayarları.|
-| [Introduction and Basic Concepts](/docs/6-giris-temel-kavramlar.md) |Görüntü işleme kavramları. Dosyadan, kameradan, IP kameradan görüntü okuma. Kamera parametrelerini değiştirme.|
-| [Video Recorders and Decoders](/docs/7-video-kaydediciler-codec.md) |Codec, FourCC ve video kaydetme.|
-| [Image Manipulation](/docs/8-goruntu-manipulasyonu.md) |Piksel manüpülasyonu, geometrik çizimler ve geometrik dönüşümler.|
-| [Color Spaces and Histogram](/docs/9-renk-uzaylari.md) |Temel renk uzayları, renk uzayları arası dönüşüm. Histogram kavramı ve histogram eşitleme.|
-| [Morphological Image Processing](/docs/10-morfolojik-goruntu-isleme.md) |Morfolojik operatörler ve eşikleme: Erosion, dilation, closing, gradyan, thresholding ...|
-| [Filters and Edge Detection](/docs/11-filtreler-ve-kenar-belirleme.md) |Filtreleme ve kenar belirleme algoritmaları: Blur, Sobel, Laplace, Canny ...|
-| [Background Subtraction](/docs/12-arka-plan-cikarma.md) | Absdiff, MOG, MOG2 ve GMG algoritmaları kullanarak, 2D görüntü arkaplan çıkarımı.|
-| [Object Detection and Object Recognition](/docs/14-nesne-tespiti.md) |Nesne tespit süreçleri ve algoritmaları. HaarCascade, TemplateMatching, DNN, CNN, SVM Makine Öğrenmesi ve Derin Öğrenme algoritmaları ...|
- [Feature and Feature Extraction](/docs/19-oznitelik-cikarimi.md) |Öznitelik tanımı, nesne tespiti için öznitelik çıkarmı ve öznitelik eşleştirme. Brute-Force, FLANN, SURF, SIFT, BRIEF, ORB, FAST algoritmaları ...|
-| [Video Analysis and Object Tracking](/docs/13-video-analiz.md) |Mean Shift, Cam Shift, Optik akış, GOTURN, BOOSTING, MIL, CNN vb. algoritmalar ile video üzerinde nesne veya alan takibi. |
-| [Image Distortion and Stereo Vision](/docs/15-kamera-kalibrasyonu-ve-3d-goru.md) | Görüntü bozulmaları ve kamera kalibrasyonu, 3D görüntüler, derinlik kestirimi, stereoscopic vision ve stereo görüntü işleme.|
-| [Face Recognition](/docs/17-yuz-tanima.md) | Yüz tanıma nedir? Eigenfaces, Fisherfaces, LBPH ve makine öğrenmesi algoritmaları ile yüz tanıma. Farklı kütüphane entegrasyonları (dlib, tensorflow ve face recognition). |
-| [Optical Character Recognition OCR ](/docs/18-optik-karakter-tanima.md)| Görüntü üzerindeki metnin tespit edilmesi. OCR süreçleri, algoritmalar ve kütüphaneler. Tesseract, textocr...|
-| GPU and Parallel Computing | Cuda modülü ile Nvidia GPU üzerinde paralelleştirilmiş bilgisayarlı görü uygulamaları geliştirme.|
-| OpenCV Mobile  | Android ve iOS işletim sistemine sahip mobil cihazlar üzerinde bilgisayarlı görü ve görüntü işleme.|
-| Arttırılmış Gerçeklik| 3D modelleri kamera aracılığıyla elde edilmiş gerçek dünya görüntüsü üzerine giydirme. OpenCV ve OpenGL entegrasyonu. İnteraktif bilgisayarlı görü uygulaması geliştirme.|
+| [What is OpenCV?](/docs/1-introduction.en-US.md)|OpenCV history and components, alternative image processing libraries,  OpenCV 2 vs OpenCV 3 vs OpenCV 4 and OpenCV 4 future.|
+| [Development Environment and Platforms](/docs/2-development-environments.en-US.md) |Which platform and development environment should be selected, why Java, C ++ and Python are used for image processing.|
+| [OpenCV Wrappers](/docs/3-opencv-wrappers.en-US.md) |What is Wrapper? What is EmguCV, JavaCV, LiveCV, Ruby CV, and what are the differences between wrappers?|
+| [Installation and Compilation](/docs/4-opencv-installation.en-US.md) |OpenCV installation for Windows, Linux, macOS and Raspberry Pi.|
+| [IDE Configuration](/docs/5-ide-Configuration.en-US.md) |Configuration settings for Eclipse, Netbeans, Android Studio and Intellij IDEA.|
+| [Introduction and Basic Concepts](/docs/6-image-processing-concepts.en-US.md) |Image processing concepts. From the file, from the camera, reading the image from the IP camera. Changing camera parameters.|
+| [Video Recorders and Decoders](/docs/7-video-recorder-codec.en-US.md) |Codec, FourCC and video recorder.|
+| [Image Manipulation](/docs/8-pixel-manipulation.en-US.md) |Pixel manipulation, geometric objects and geometric transformations.|
+| [Color Spaces and Histogram](/docs/9-color-spaces.en-US.md) |Color spaces, color spaces conversion. Histogram concept and histogram matching.|
+| [Morphological Image Processing](/docs/10-morphological-operators.en-US.en-US.md) |Morphological operators and thresholding: Erosion, dilation, closing, gradyan, thresholding etc.
+| [Filters and Edge Detection](/docs/11-filtering-and-edge-detection.en-US.md) |Filtering and edge detection algorithms: Blur, Sobel, Laplace, Canny etc.|
+| [Background Subtraction](/docs/12-background-subtraction.en-US.md) | OpenCV background subtractor: Absdiff, MOG, MOG2 and GMG.|
+| [Object Detection and Object Recognition](/docs/14-object-detection.en-US.md) |Object detection processes and algorithms. HaarCascade, TemplateMatching, DNN, CNN, SVM Machine Learning and Deep Learning Algorithms etc.
+ [Feature and Feature Extraction](/docs/19-feature-extraction.en-US.md) |Feature , feature extraction for object detection, and feature matching. Brute-Force, FLANN, SURF, SIFT, BRIEF, ORB, FAST algorithms etc. 
+| [Video Analysis and Object Tracking](/docs/13-object-tracking.en-US.md) |Mean Shift, Camshift, Optical flow, GOTURN, BOOSTING, MIL, CNN etc. Object or area tracking on video. |
+| [Image Distortion and Stereo Vision](/docs/15-image-distortion-and-camera-calibration.en-US.md) | Image distortion and camera calibration, 3D images, depth estimation, stereoscopic vision and stereo image processing.|
+| [Face Recognition](/docs/17-face-recognition.en-US.md) | What is face recognition? Face recognition with Eigenfaces, Fisherfaces, LBPH and machine learning algorithms. Different library integrations (dlib, tensorflow and face_recognition). |
+| [Optical Character Recognition OCR ](/docs/18-optic-character-recognition.en-US.md)| Detecting text on the image. OCR processes, algorithms and libraries. Tesseract, textocr etc.
+| GPU and Parallel Computing | Development of parallelized computerized vision applications on Nvidia GPU with Cuda module.|
+| OpenCV Mobile  |Computerized view and image processing on mobile devices with Android and iOS operating system.|
+| Augmented Reality | 3D models have been acquired through the camera, dressed on real-world image. OpenCV and OpenGL integration. Interactive computer vision application development.|
 
 
 
@@ -328,16 +331,11 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 ## Contribute
 
-It's really nice to think about contributing, so you can look at the [SUPPORT](/CONTRIBUTING.en-US.md) link.
+It's really nice to think about contributing, so you can look at the [Contribute](/CONTRIBUTING.en-US.md) link.
 
 
 ## 💬 Question & Answer
 You can ask questions, source codes or any other questions by using the **issues** section (new issues). You can also use this section if you want to answer a question or check out the previous ones.
 
-**How to Ask a Question?**
-
-Öncelikle [issues](https://github.com/mesutpiskin/opencv-tutorial/issues) bölümüne gidiniz. Sayfanın sağında yer alan **new issues** butonuna tıklayın. Açılan ilgili bölüme sorunuzu veya talebinizi açıklayıcı bir şekilde yazarak **Submit new issues** butonu aracılığıyla kaydedin.
-
-
 ## 📄 License
-Documents and source codes contained in this project are licensed  [MIT License](/LICENSE-EN).
+Documents and source codes contained in this project are licensed  [MIT License](/LICENSE.en-US.md).
