@@ -25,15 +25,16 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 ---
 
 
-<p align="center">
+<center>
+
  ★★ Projelere finansal destek olmak isterseniz <a href="https://www.patreon.com/mesutpiskin">Patreon</a> üzerinden bunu yapabilirsiniz. Destek olmayı düşünmüyorsanız bile göz atamınızdan memnun olurum. ★★
 </p>
 
-<p align="center">
+</center>
 
 
  ★★★ Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="mailto:mesutpiskin@outlook.com">eposta</a> bilgilerini kullanabilirsiniz. Teşekkürler! ★★★
-</p>
+</center>
 
 ---
 

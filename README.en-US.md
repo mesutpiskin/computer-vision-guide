@@ -25,18 +25,18 @@ This guide to help you understand the basics of computerized view and to develop
 ---
 
 
-<p align="center">
+<center>
 
  ★★ If you want to donate to projects, you can do this through <a href="https://www.patreon.com/mesutpiskin">Patreon</a> ★★
 
-</p>
+</center>
 
-<p align="center">
+<center>
 
 
  ★★★ If you want to contribute the project; You can look at the contribute section.Feel free to contact us if you have a request or suggestion. To contact <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> or <a href="mailto:mesutpiskin@outlook.com">email</a>. Much obliged! ★★★
  
-</p>
+</center>
 
 ---
 
