@@ -1,3 +1,5 @@
+[English](./README.en-US.md) | Türkçe
+
 **face_recognition Kütüphanesi ile Yüz Tanıma** 
 -----------------------------------------------
 
