@@ -15,11 +15,6 @@ Görüntü işleme, makine öğrenmesi, derin öğrenme, veri madenciliği ve ö
 
  ## OpenCV Uygulamaları
 
-**Öznitelik Eşleştirme (Feature Matching)**
-
-- Brute-Force
-- FLANN
-
 **Öznitelik Çıkarma (Feature Extraction)**
 
 - SIFT
@@ -27,5 +22,25 @@ Görüntü işleme, makine öğrenmesi, derin öğrenme, veri madenciliği ve ö
 - BRIEF
 - ORB
 - FAST
+- BRISK
+
+**Öznitelik Eşleştirme (Feature Matching)**
+
+- Brute-Force
+- FLANN
+
+
+#### SIFT (Scale-Invariant Feature Transform - Ölçeklemeden Bağımsız Özellik Dönüşümü)
+
+SIFT algoritması David  Lowe tarafından 1999 yılında duyruldu. Bu algoritma sayesinde karşılaştırılan iki farklı giriş nesnesinin boyutu/ölçeği değişse veya belirli bir eşik seviyesine kadar gürültülü bile olsa başarılı olarak öznitelikler çıkarılıp eşleştirilebilmektedir. SIFT 3D Modelleme, nesne tanıma, nesne eşleme, nesne takibi vb. gibi bir çok alanda kullanılan bir algoritmadır. SIFT algoritmasının çalışması dört aşamada incelenir. Bu aşamalar; "Scale-Space Extrema Detection",  "Keypoint Localization", "Orientation Assignment" ve "Keypoint Descriptor".
+
+#### SURF (Speeded up Robust Features)
+
+SIFT algoritmasını hızlandırmak amacıyla ortaya çıkan bu algoritma 2006 yılında Herbert Bay tarafından duyruldu. SIFT algoritmasına göre x2 x3 kat daha hızlı çalışan bu algoritma yine SIFT de olduğu gibi ölçeklemeden bağımsız çalışmaktadır. SURF algoritmasının çalışması üç aşamada incelenir. Bu aşamalar; "Interest point detection", "local neighborhood description" ve "matching".
+
+
+![Oznitelik Algoritmaları Versus](static/surfvssift.png)
+
+Orjinal Görsel Kaynağı: http://www.willpowell.co.uk/blog/2014/09/07/feature-extractor-descriptor-performance-ios-ipad-iphones/
 
 
