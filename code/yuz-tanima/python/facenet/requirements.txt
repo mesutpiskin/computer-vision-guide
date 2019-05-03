@@ -1,0 +1,10 @@
+tensorflow==1.8
+scipy
+scikit-learn
+opencv-python
+h5py
+matplotlib
+Pillow
+requests
+psutil
+facenet
