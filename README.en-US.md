@@ -268,6 +268,7 @@ This guide to help you understand the basics of computerized view and to develop
 <td>
 <ul>
 <li><a href="/code/yuz-tanima/python/facerecognition_kutuphanesi/">Face Recognition with "FaceRecognition Lib"</a></li>
+<li><a href="/code/yuz-tanima/python/facenet/">Face Recognition with FaceNet</a></li>
 </ul>
 
 </td>

@@ -266,6 +266,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>
 <ul>
 <li><a href="/code/yuz-tanima/python/facerecognition_kutuphanesi/">"FaceRecognition" kullanarak Yüz Tanıma</a></li>
+<li><a href="/code/yuz-tanima/python/facenet/">FaceNet ile Yüz Tanıma</a></li>
 </ul>
 
 </td>
