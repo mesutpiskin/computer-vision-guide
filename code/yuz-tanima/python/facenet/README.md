@@ -17,6 +17,9 @@ https://github.com/davidsandberg/facenet
 pip install -r requirements.txt
 ```
 
+paket kurulumlarının ardından modeli aşağıdaki bağlantıdan indirerek proje altındaki models dizinine çıkartın.
+
+https://drive.google.com/open?id=1n9GZ_Uw9aJWfuAoPt6_4riNW8OpZVXK4
 
 **Çalıştırmak için:**
 
