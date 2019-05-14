@@ -165,7 +165,9 @@ This guide to help you understand the basics of computerized view and to develop
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
- <td>&nbsp;</td>
+  <td><ul>
+<li><a href="/code/kenar-belirleme/javascript/edge_detector.html">Canny</a></li>
+</ul></td>
 </tr>
 <tr>
 <td>Background Subtraction</td>
