@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Computer Vision Guide</title>
+
+    <!-- IMPORT OPENCV -->
+    <script
+      async
+      src="https://docs.opencv.org/master/opencv.js"
+      onload="onOpenCvReady();"
+      type="text/javascript"
+    ></script>
+
+    <!-- IMPORT BOOTSTRAP FOR UI -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
+      integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <center>
+        <a href="https://github.com/mesutpiskin/computer-vision-guide"
+          >https://github.com/mesutpiskin/computer-vision-guide</a
+        >
+        <p>Canny Edge Detector</p>
+      </center>
+      <br />
+      <div class="row">
+        <div class="col-sm">
+          <div class="card">
+            <div class="card-header">
+              Input Image
+            </div>
+            <div class="card-block text-center">
+              <img id="imageOriginal" class="card-img-top" />
+            </div>
+            <div class="card-footer text-muted">
+              <input type="file" id="imageInput" name="file" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <br />
+      <div class="row">
+        <div class="col-sm">
+          <div class="card">
+            <div class="card-header">
+              After Image Processing
+            </div>
+            <div class="card-block">
+              <canvas id="imageCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      document.body.classList.add("loading");
+
+      let imgElement = document.getElementById("imageOriginal");
+      let inputElement = document.getElementById("imageInput");
+      inputElement.addEventListener(
+        "change",
+        e => {
+          imgElement.src = URL.createObjectURL(e.target.files[0]);
+        },
+        false
+      );
+
+      // ---IMAGE PROCESSING---
+
+      imgElement.onload = function() {
+        let frame = cv.imread(imgElement);
+
+        let dst = new cv.Mat();
+
+        // RGB to GRAY color space
+        cv.cvtColor(frame, frame, cv.COLOR_RGB2GRAY, 0);
+
+        // canny edge detector
+        cv.Canny(frame, dst, 50, 100, 3, false);
+
+        cv.imshow("imageCanvas", dst);
+
+        frame.delete();
+        dst.delete();
+      };
+
+      // ---IMAGE PROCESSING---
+
+
+      // Opencv loaded
+      function onOpenCvReady() {
+        document.body.classList.remove("loading");
+      }
+    </script>
+  </body>
+</html>

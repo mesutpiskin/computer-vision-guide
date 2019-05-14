@@ -1,6 +1,5 @@
 [English](./README.en-US.md) | Türkçe
 
-
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) ![%70](http://progressed.io/bar/70?title=Tamamlanan "Genel Tamamlanma %70")
 [![Video](https://img.shields.io/badge/Video-@mesutpiskin-red.svg?logo=youtube&longCache=true&style=flat)](https://www.youtube.com/channel/UC_ko-bnDYXCVL1XJG0doRDg)
 [![Patreon](https://img.shields.io/badge/Patreon-ile_projeyi_destekleyin-green.svg?logo=patreon&longCache=true&style=flat)](https://www.patreon.com/mesutpiskin)
@@ -15,7 +14,7 @@ Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile b
 
 # Görüntü İşleme ve Bilgisayarlı Görü Kılavuzu
 
-OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile birlikte, görüntü işleme algoritmalarını öğrenecek, yeri geldiğinde ise **Java**, **Python** , **C++**,  **JavaScript (OpenCV.JS)**, **MATLAB** ve **C# (EmguCV)** programlama dilleri kullanarak örnek uygulamalar geliştireceğiz. Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile bilgisayarlı görü uygulamaları geliştirebilmenizi amaçlamaktadır. Python, Java ve C++ örnekleri ile desteklenmektedir. Bu doküman, daha önce görüntü işleme ile uğraşmamış, bu konuda bilgisi olmayanlara ve tam aksine bu konuda bilgili, kendinisini farklı konularda geliştirmek  isteyen herkese hitap edecek şekilde hazırlanmıştır. Temel tanımlardan başlanarak birçok kavram ve algoritma ele alınmıştır. Örnek projelere  <a href="/code/">code</a> dizininden, eğitim konularına ise <a href="/docs/">docs</a> dizini altından ulaşabilirsiniz, ayrıca dokümantasyon içerisinde kullanılan İngilizce terimlerin Türkçe karşılıklarının yer aldığı <a href="/docs/terimler.md">terimler</a> sayfasına, konu ile alakalı önerilen tavsiye içeriklere ise <a href="/other/tavsiye-icerikler.md">tavsiye icerik</a> sayfasından ulaşabilirsiniz.
+OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile birlikte, görüntü işleme algoritmalarını öğrenecek, yeri geldiğinde ise **Java**, **Python** , **C++**, **JavaScript (OpenCV.JS)**, **MATLAB** ve **C# (EmguCV)** programlama dilleri kullanarak örnek uygulamalar geliştireceğiz. Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile bilgisayarlı görü uygulamaları geliştirebilmenizi amaçlamaktadır. Python, Java ve C++ örnekleri ile desteklenmektedir. Bu doküman, daha önce görüntü işleme ile uğraşmamış, bu konuda bilgisi olmayanlara ve tam aksine bu konuda bilgili, kendinisini farklı konularda geliştirmek isteyen herkese hitap edecek şekilde hazırlanmıştır. Temel tanımlardan başlanarak birçok kavram ve algoritma ele alınmıştır. Örnek projelere <a href="/code/">code</a> dizininden, eğitim konularına ise <a href="/docs/">docs</a> dizini altından ulaşabilirsiniz, ayrıca dokümantasyon içerisinde kullanılan İngilizce terimlerin Türkçe karşılıklarının yer aldığı <a href="/docs/terimler.md">terimler</a> sayfasına, konu ile alakalı önerilen tavsiye içeriklere ise <a href="/other/tavsiye-icerikler.md">tavsiye icerik</a> sayfasından ulaşabilirsiniz.
 
 <p align="center">
 
@@ -24,50 +23,45 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 ---
 
-
 <center>
 
- ★★ Projelere finansal destek olmak isterseniz <a href="https://www.patreon.com/mesutpiskin">Patreon</a> üzerinden bunu yapabilirsiniz. Destek olmayı düşünmüyorsanız bile göz atamınızdan memnun olurum. ★★
+★★ Projelere finansal destek olmak isterseniz <a href="https://www.patreon.com/mesutpiskin">Patreon</a> üzerinden bunu yapabilirsiniz. Destek olmayı düşünmüyorsanız bile göz atamınızdan memnun olurum. ★★
+
 </p>
 
 </center>
 
+★★★ Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="mailto:mesutpiskin@outlook.com">eposta</a> bilgilerini kullanabilirsiniz. Teşekkürler! ★★★
 
- ★★★ Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="mailto:mesutpiskin@outlook.com">eposta</a> bilgilerini kullanabilirsiniz. Teşekkürler! ★★★
 </center>
 
 ---
 
-
 ## Dokümantasyon
 
-| Bölüm |Özet|
-|----------|--------|
-| [OpenCV Nedir?](/docs/1-opencv-nedir.md)|OpenCV'nin tarihi ve bileşenleri, alternatif görüntü işleme kütüphaneleri, neden OpenCV, OpenCV 2 vs OpenCV 3 ve OpenCV 4 ile gelecek yenilikler.|
-| [Geliştirme Ortamı ve Platformlar](/docs/2-gelistirme-ortamlari.md) |Hangi platform ve geliştirme ortamı seçilmeli, görüntü işleme için neden Java, C++ ve Python kullanılıyor.|
-| [OpenCV Wrappers](/docs/3-opencv-wrappers.md) |Wrapper nedir? EmguCV, JavaCV, LiveCV, RubyCV nedir ve wrapperlar arası farklar nelerdir.|
-| [Kurulum ve Derleme](/docs/4-opencv-kurulumlar.md) |Windows, Linux, macOS ve Raspberry Pi için OpenCV kurulumu.|
-| [IDE Yapılandırması](/docs/5-ide-yapilandirmasi.md) |Eclipse, Netbeans, Android Studio ve Intelij IDEA için yapılandırma ayarları.|
-| [Giriş ve Temel Kavramlar](/docs/6-giris-temel-kavramlar.md) |Görüntü işleme kavramları. Dosyadan, kameradan, IP kameradan görüntü okuma. Kamera parametrelerini değiştirme.|
-| [Video Kaydediciler ve Kod Çözücüler](/docs/7-video-kaydediciler-codec.md) |Codec, FourCC ve video kaydetme.|
-| [Görüntü Manipülasyonu](/docs/8-goruntu-manipulasyonu.md) |Piksel manüpülasyonu, geometrik çizimler ve geometrik dönüşümler.|
-| [Renk Uzayları ve Histogram](/docs/9-renk-uzaylari.md) |Temel renk uzayları, renk uzayları arası dönüşüm. Histogram kavramı ve histogram eşitleme.|
-| [Morfolojik Görüntü işleme](/docs/10-morfolojik-goruntu-isleme.md) |Morfolojik operatörler ve eşikleme: Erosion, dilation, closing, gradyan, thresholding ...|
-| [Filtreler ve Kenar Belirleme](/docs/11-filtreler-ve-kenar-belirleme.md) |Filtreleme ve kenar belirleme algoritmaları: Blur, Sobel, Laplace, Canny ...|
-| [Arkaplan Çıkarma](/docs/12-arka-plan-cikarma.md) | Absdiff, MOG, MOG2 ve GMG algoritmaları kullanarak, 2D görüntü arkaplan çıkarımı.|
-| [Nesne Tespiti ve Nesne Tanıma](/docs/14-nesne-tespiti.md) |Nesne tespit süreçleri ve algoritmaları. HaarCascade, TemplateMatching, DNN, CNN, SVM Makine Öğrenmesi ve Derin Öğrenme algoritmaları ...|
- [Öznitelik ve Öznitelik Çıkarımı](/docs/19-oznitelik-cikarimi.md) |Öznitelik tanımı, nesne tespiti için öznitelik çıkarmı ve öznitelik eşleştirme. Brute-Force, FLANN, SURF, SIFT, BRIEF, ORB, FAST algoritmaları ...|
-| [Video Analiz ve Nesne Takibi](/docs/13-video-analiz.md) |Mean Shift, Cam Shift, Optik akış, GOTURN, BOOSTING, MIL, CNN vb. algoritmalar ile video üzerinde nesne veya alan takibi. |
-| [Görüntü Bozulmaları ve Stereo Görü](/docs/15-kamera-kalibrasyonu-ve-3d-goru.md) | Görüntü bozulmaları ve kamera kalibrasyonu, 3D görüntüler, derinlik kestirimi, stereoscopic vision ve stereo görüntü işleme.|
-| [Yüz Tanıma](/docs/17-yuz-tanima.md) | Yüz tanıma nedir? Eigenfaces, Fisherfaces, LBPH ve makine öğrenmesi algoritmaları ile yüz tanıma. Farklı kütüphane entegrasyonları (dlib, tensorflow ve face recognition). |
-| [Optik Karakter Tanıma OCR ](/docs/18-optik-karakter-tanima.md)| Görüntü üzerindeki metnin tespit edilmesi. OCR süreçleri, algoritmalar ve kütüphaneler. Tesseract, textocr...|
-| GPU ve Paralel Hesaplama | Cuda modülü ile Nvidia GPU üzerinde paralelleştirilmiş bilgisayarlı görü uygulamaları geliştirme.|
-| OpenCV Mobil  | Android ve iOS işletim sistemine sahip mobil cihazlar üzerinde bilgisayarlı görü ve görüntü işleme.|
-| Artırılmış Gerçeklik| 3D modelleri kamera aracılığıyla elde edilmiş gerçek dünya görüntüsü üzerine giydirme. OpenCV ve OpenGL entegrasyonu. İnteraktif bilgisayarlı görü uygulaması geliştirme.|
-
-
-
-
+| Bölüm                                                                            | Özet                                                                                                                                                                       |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [OpenCV Nedir?](/docs/1-opencv-nedir.md)                                         | OpenCV'nin tarihi ve bileşenleri, alternatif görüntü işleme kütüphaneleri, neden OpenCV, OpenCV 2 vs OpenCV 3 ve OpenCV 4 ile gelecek yenilikler.                          |
+| [Geliştirme Ortamı ve Platformlar](/docs/2-gelistirme-ortamlari.md)              | Hangi platform ve geliştirme ortamı seçilmeli, görüntü işleme için neden Java, C++ ve Python kullanılıyor.                                                                 |
+| [OpenCV Wrappers](/docs/3-opencv-wrappers.md)                                    | Wrapper nedir? EmguCV, JavaCV, LiveCV, RubyCV nedir ve wrapperlar arası farklar nelerdir.                                                                                  |
+| [Kurulum ve Derleme](/docs/4-opencv-kurulumlar.md)                               | Windows, Linux, macOS ve Raspberry Pi için OpenCV kurulumu.                                                                                                                |
+| [IDE Yapılandırması](/docs/5-ide-yapilandirmasi.md)                              | Eclipse, Netbeans, Android Studio ve Intelij IDEA için yapılandırma ayarları.                                                                                              |
+| [Giriş ve Temel Kavramlar](/docs/6-giris-temel-kavramlar.md)                     | Görüntü işleme kavramları. Dosyadan, kameradan, IP kameradan görüntü okuma. Kamera parametrelerini değiştirme.                                                             |
+| [Video Kaydediciler ve Kod Çözücüler](/docs/7-video-kaydediciler-codec.md)       | Codec, FourCC ve video kaydetme.                                                                                                                                           |
+| [Görüntü Manipülasyonu](/docs/8-goruntu-manipulasyonu.md)                        | Piksel manüpülasyonu, geometrik çizimler ve geometrik dönüşümler.                                                                                                          |
+| [Renk Uzayları ve Histogram](/docs/9-renk-uzaylari.md)                           | Temel renk uzayları, renk uzayları arası dönüşüm. Histogram kavramı ve histogram eşitleme.                                                                                 |
+| [Morfolojik Görüntü işleme](/docs/10-morfolojik-goruntu-isleme.md)               | Morfolojik operatörler ve eşikleme: Erosion, dilation, closing, gradyan, thresholding ...                                                                                  |
+| [Filtreler ve Kenar Belirleme](/docs/11-filtreler-ve-kenar-belirleme.md)         | Filtreleme ve kenar belirleme algoritmaları: Blur, Sobel, Laplace, Canny ...                                                                                               |
+| [Arkaplan Çıkarma](/docs/12-arka-plan-cikarma.md)                                | Absdiff, MOG, MOG2 ve GMG algoritmaları kullanarak, 2D görüntü arkaplan çıkarımı.                                                                                          |
+| [Nesne Tespiti ve Nesne Tanıma](/docs/14-nesne-tespiti.md)                       | Nesne tespit süreçleri ve algoritmaları. HaarCascade, TemplateMatching, DNN, CNN, SVM Makine Öğrenmesi ve Derin Öğrenme algoritmaları ...                                  |
+| [Öznitelik ve Öznitelik Çıkarımı](/docs/19-oznitelik-cikarimi.md)                | Öznitelik tanımı, nesne tespiti için öznitelik çıkarmı ve öznitelik eşleştirme. Brute-Force, FLANN, SURF, SIFT, BRIEF, ORB, FAST algoritmaları ...                         |
+| [Video Analiz ve Nesne Takibi](/docs/13-video-analiz.md)                         | Mean Shift, Cam Shift, Optik akış, GOTURN, BOOSTING, MIL, CNN vb. algoritmalar ile video üzerinde nesne veya alan takibi.                                                  |
+| [Görüntü Bozulmaları ve Stereo Görü](/docs/15-kamera-kalibrasyonu-ve-3d-goru.md) | Görüntü bozulmaları ve kamera kalibrasyonu, 3D görüntüler, derinlik kestirimi, stereoscopic vision ve stereo görüntü işleme.                                               |
+| [Yüz Tanıma](/docs/17-yuz-tanima.md)                                             | Yüz tanıma nedir? Eigenfaces, Fisherfaces, LBPH ve makine öğrenmesi algoritmaları ile yüz tanıma. Farklı kütüphane entegrasyonları (dlib, tensorflow ve face recognition). |
+| [Optik Karakter Tanıma OCR ](/docs/18-optik-karakter-tanima.md)                  | Görüntü üzerindeki metnin tespit edilmesi. OCR süreçleri, algoritmalar ve kütüphaneler. Tesseract, textocr...                                                              |
+| GPU ve Paralel Hesaplama                                                         | Cuda modülü ile Nvidia GPU üzerinde paralelleştirilmiş bilgisayarlı görü uygulamaları geliştirme.                                                                          |
+| OpenCV Mobil                                                                     | Android ve iOS işletim sistemine sahip mobil cihazlar üzerinde bilgisayarlı görü ve görüntü işleme.                                                                        |
+| Artırılmış Gerçeklik                                                             | 3D modelleri kamera aracılığıyla elde edilmiş gerçek dünya görüntüsü üzerine giydirme. OpenCV ve OpenGL entegrasyonu. İnteraktif bilgisayarlı görü uygulaması geliştirme.  |
 
 ## Örnek Projeler
 
@@ -163,7 +157,9 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
- <td>&nbsp;</td>
+ <td><ul>
+<li><a href="/code/kenar-belirleme/javascript/edge_detector.html">Canny</a></li>
+</ul></td>
 </tr>
 <tr>
 <td>Arka Plan Çıkarma</td>
@@ -249,7 +245,6 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <li><a href="/code/yuz-tanima/python/dnn_yuz_tespiti/">Derin Sinir Ağı (DNN) ile Yüz Tespiti</a></li>
 </ul>
 
-
 </td>
 <td>
 <ul>
@@ -276,8 +271,6 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <ul>
 <li><a href="https://github.com/mesutpiskin/face-detection-and-recognition">Eigenfaces ve Fisherfaces ile Yüz Tanıma</a></li>
 </ul>
-
-
 
 </td>
 <td>&nbsp;</td>
@@ -317,7 +310,6 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <li><a href="/code/arttirilmis-gerceklik/python/sapka-filtresi/">Şapka Filtresi - Yüz Tespiti ve Şapka Giydirme</a></li>
 </ul>
 
-
 </td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -327,20 +319,18 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 </tbody>
 </table>
 
-
 ## Destek
 
 Katkıda bulunmayı düşünmeniz gerçekten çok güzel bir haber, bunun için [DESTEK](/CONTRIBUTING.md) bağlantısına göz atabilirsiniz.
 
-
 ## 💬 Soru & Cevap
 
-Dokümanlar, kaynak kodlar veya her hangi bir konuda ki sorularınızı **issues** bölümünü kullanarak sorabilirsiniz (new issues). Soru cevaplamak veya daha öncekilere göz atmak isterseniz yine bu bölümü kullanabilirsiniz. 
+Dokümanlar, kaynak kodlar veya her hangi bir konuda ki sorularınızı **issues** bölümünü kullanarak sorabilirsiniz (new issues). Soru cevaplamak veya daha öncekilere göz atmak isterseniz yine bu bölümü kullanabilirsiniz.
 
 **Nasıl Soru Sorulur?**
 
 Öncelikle [issues](https://github.com/mesutpiskin/opencv-tutorial/issues) bölümüne gidiniz. Sayfanın sağında yer alan **new issues** butonuna tıklayın. Açılan ilgili bölüme sorunuzu veya talebinizi açıklayıcı bir şekilde yazarak **Submit new issues** butonu aracılığıyla kaydedin.
 
-
 ## 📄 Lisans
+
 Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır. İçeriğin **kaynak gösterilmeden** kullanılması durumunda bu kişiler/kurumlar [bu bölümde](/other/blacklist.md) paylaşılacaktır.
