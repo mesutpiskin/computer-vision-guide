@@ -1,6 +1,6 @@
 [English](./README.en-US.md) | Türkçe
 
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) ![%70](http://progressed.io/bar/70?title=Tamamlanan "Genel Tamamlanma %70")
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) 
 [![Video](https://img.shields.io/badge/Video-@mesutpiskin-red.svg?logo=youtube&longCache=true&style=flat)](https://www.youtube.com/channel/UC_ko-bnDYXCVL1XJG0doRDg)
 [![Patreon](https://img.shields.io/badge/Patreon-ile_projeyi_destekleyin-green.svg?logo=patreon&longCache=true&style=flat)](https://www.patreon.com/mesutpiskin)
 
