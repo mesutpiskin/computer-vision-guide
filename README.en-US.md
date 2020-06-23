@@ -8,10 +8,10 @@ English | [Türkçe](./README.md)
   - [Documentation](#documentation)
   - [Example Projects](#example-projects)
   - [Contribute](#contribute)
-  - [💬 Question & Answer](#-question--answer)
-  - [📄 License](#-license)
+  - [Question & Answer](#question--answer)
+  - [License](#license)
 
-This guide to help you understand the basics of computerized view and to develop computer vision vision with OpenCV. Python, Java, JavaScript, C # and C ++ are supported with examples.
+This guide to help you understand the basics of computerized view and to develop computer vision vision with OpenCV. Python, Java, JavaScript, C # and C ++ are supported with examples. If you want to contribute the project; You can look at the contribute section.Feel free to contact us if you have a request or suggestion. To contact <a href="http://mesutpiskin.com">websitee</a> or <a href="mailto:mesutpiskin@outlook.com">email</a>. Much obliged!
 
 # Image Processing and Computer Vision Guide
 
@@ -22,17 +22,6 @@ This guide to help you understand the basics of computerized view and to develop
 <img src="/other/banner-en.png"/>
 </p>
 
----
-
-
-<center>
-
-
- ★★★ If you want to contribute the project; You can look at the contribute section.Feel free to contact us if you have a request or suggestion. To contact <a href="http://mesutpiskin.com">websitee</a> or <a href="mailto:mesutpiskin@outlook.com">email</a>. Much obliged! ★★★
- 
-</center>
-
----
 
 
 ## Documentation
@@ -331,8 +320,8 @@ This guide to help you understand the basics of computerized view and to develop
 It's really nice to think about contributing, so you can look at the [Contribute](/CONTRIBUTING.en-US.md) link.
 
 
-## 💬 Question & Answer
+## Question & Answer
 You can ask questions, source codes or any other questions by using the **issues** section (new issues). You can also use this section if you want to answer a question or check out the previous ones.
 
-## 📄 License
+## License
 Documents and source codes contained in this project are licensed  [MIT License](/LICENSE.en-US.md).

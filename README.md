@@ -7,12 +7,12 @@
   - [Dokümantasyon](#dokümantasyon)
   - [Örnek Projeler](#örnek-projeler)
   - [Destek](#destek)
-  - [💬 Soru & Cevap](#-soru--cevap)
-  - [📄 Lisans](#-lisans)
+  - [Soru & Cevap](#soru--cevap)
+  - [Lisans](#lisans)
 
-<center>
-Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile bilgisayarlı görü uygulamaları geliştirebilmenizi amaçlamaktadır. Python, Java, JavaScript, C# ve C++ örnekleri ile desteklenmektedir.
-</center>
+Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile bilgisayarlı görü uygulamaları geliştirebilmenizi amaçlamaktadır. Python, Java, JavaScript, C# ve C++ örnekleri ile desteklenmektedir. Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="http://meesutpiskin.com">web sitem</a> veya <a href="mailto:mesutpiskin@outlook.com">e-posta</a> bilgilerini kullanabilirsiniz. Teşekkürler!
+
+
 
 
 # Görüntü İşleme ve Bilgisayarlı Görü Kılavuzu
@@ -24,16 +24,6 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 <img src="/other/banner.png"/>
 </p>
 
----
-</p>
-
-<center>
-
-★★★ Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="http://meesutpiskin.com">web sitem</a> veya <a href="mailto:mesutpiskin@outlook.com">e-posta</a> bilgilerini kullanabilirsiniz. Teşekkürler! ★★★
-
-</center>
-
----
 
 ## Dokümantasyon
 
@@ -321,7 +311,7 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 
 Katkıda bulunmayı düşünmeniz gerçekten çok güzel bir haber, bunun için [DESTEK](/CONTRIBUTING.md) bağlantısına göz atabilirsiniz.
 
-## 💬 Soru & Cevap
+## Soru & Cevap
 
 Dokümanlar, kaynak kodlar veya her hangi bir konuda ki sorularınızı **issues** bölümünü kullanarak sorabilirsiniz (new issues). Soru cevaplamak veya daha öncekilere göz atmak isterseniz yine bu bölümü kullanabilirsiniz.
 
@@ -329,6 +319,6 @@ Dokümanlar, kaynak kodlar veya her hangi bir konuda ki sorularınızı **issues
 
 Öncelikle [issues](https://github.com/mesutpiskin/opencv-tutorial/issues) bölümüne gidiniz. Sayfanın sağında yer alan **new issues** butonuna tıklayın. Açılan ilgili bölüme sorunuzu veya talebinizi açıklayıcı bir şekilde yazarak **Submit new issues** butonu aracılığıyla kaydedin.
 
-## 📄 Lisans
+## Lisans
 
 Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır. İçeriğin **kaynak gösterilmeden** kullanılması durumunda bu kişiler/kurumlar [bu bölümde](/other/blacklist.md) paylaşılacaktır.
