@@ -2,15 +2,18 @@
 
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/opencv-turkish-tutorial) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](#) 
 [![Video](https://img.shields.io/badge/Video-@mesutpiskin-red.svg?logo=youtube&longCache=true&style=flat)](https://www.youtube.com/channel/UC_ko-bnDYXCVL1XJG0doRDg)
-[![Patreon](https://img.shields.io/badge/Patreon-ile_projeyi_destekleyin-green.svg?logo=patreon&longCache=true&style=flat)](https://www.patreon.com/mesutpiskin)
 
-- [Dokümantasyon](#dokümantasyon)
-- [Örnek Projeler](#örnek-projeler)
-- [Destek](#destek)
-- [Soru Cevap](#-soru--cevap)
-- [Lisans](#-lisans)
+- [Görüntü İşleme ve Bilgisayarlı Görü Kılavuzu](#görüntü-i̇şleme-ve-bilgisayarlı-görü-kılavuzu)
+  - [Dokümantasyon](#dokümantasyon)
+  - [Örnek Projeler](#örnek-projeler)
+  - [Destek](#destek)
+  - [💬 Soru & Cevap](#-soru--cevap)
+  - [📄 Lisans](#-lisans)
 
+<center>
 Bu eğitim, bilgisayarlı görünün temellerini anlayabilmenizi ve OpenCV ile bilgisayarlı görü uygulamaları geliştirebilmenizi amaçlamaktadır. Python, Java, JavaScript, C# ve C++ örnekleri ile desteklenmektedir.
+</center>
+
 
 # Görüntü İşleme ve Bilgisayarlı Görü Kılavuzu
 
@@ -22,16 +25,11 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 </p>
 
 ---
+</p>
 
 <center>
 
-★★ Projelere finansal destek olmak isterseniz <a href="https://www.patreon.com/mesutpiskin">Patreon</a> üzerinden bunu yapabilirsiniz. Destek olmayı düşünmüyorsanız bile göz atamınızdan memnun olurum. ★★
-
-</p>
-
-</center>
-
-★★★ Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="https://gitter.im/opencv-turkish-tutorial">Gitter</a> veya <a href="mailto:mesutpiskin@outlook.com">eposta</a> bilgilerini kullanabilirsiniz. Teşekkürler! ★★★
+★★★ Talep veya öneriniz varsa iletişime geçmekten çekinmeyin. İletişime geçmek için <a href="http://meesutpiskin.com">web sitem</a> veya <a href="mailto:mesutpiskin@outlook.com">e-posta</a> bilgilerini kullanabilirsiniz. Teşekkürler! ★★★
 
 </center>
 
