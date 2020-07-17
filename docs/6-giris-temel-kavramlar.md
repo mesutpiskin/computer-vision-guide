@@ -242,63 +242,33 @@ while True:
 
 VideoCapture sınıfında bulunan set() metodu ile video aygıtları için bazı ayarları yapılandırabiliriz. int tipinde id ve paramtere değerini alır. get() metodu ile de değerleri görebilirsiniz. propId olarak tanımlanan int tipinde verilecek atanacak olan özelliğin id değeridir. Doğrudan int tipinde id değeri verilebileceği gibi 3.x öncesi sürümlerde Highgui 3.x sürümlerde ise Videoio içerisindeki int değişkenleride doğrudan kullanabilirsiniz. VideoCapture sınıfında kullanılabilecek bazı parametrelere göz atalım.
 
-CV_CAP_PROP_POS_MSEC
+- **CV_CAP_PROP_POS_MSEC:** Video dosyasından okuma yaparken mili saniye cinsinden o anki video zamanını yönetir.
 
-Video dosyasından okuma yaparken mili saniye cinsinden o anki video zamanını yönetir.
+- **CV_CAP_PROP_FRAME_WIDTH:** Okunan görüntünün genişliğini yönetir. Görüntü genişliği değiştirilebilir yada okunan görüntünün genişliği öğrenilebilir.
 
-CV_CAP_PROP_FRAME_WIDTH
+- **CV_CAP_PROP_FRAME_HEIGHT:** Okunan görüntünün yüksekliğini yönetir. Görüntü yüksekliği değiştirilebilir yada okunan görüntünün yüksekliği öğrenilebilir.
 
-Okunan görüntünün genişliğini yönetir. Görüntü genişliği değiştirilebilir yada okunan görüntünün genişliği öğrenilebilir.
+- **CV_CAP_PROP_FPS:** Görüntünün saniyedeki kare hızını ifade eden FPS değeri değiştirilebilir.
 
-CV_CAP_PROP_FRAME_HEIGHT
+- **CV_CAP_PROP_FOURCC:** Codec değiştirilebilir. Kodek dört karakterlik kod ile ifade edilir.
 
-Okunan görüntünün yüksekliğini yönetir. Görüntü yüksekliği değiştirilebilir yada okunan görüntünün yüksekliği öğrenilebilir.
+- **CV_CAP_PROP_FRAME_COUNT:** Görüntünün çerçeve (frame) sayısına erişilebilir.
 
-CV_CAP_PROP_FPS
+- **CV_CAP_PROP_FORMAT:** Mat nesnesinin formatı değiştirilebilir.
 
-Görüntünün saniyedeki kare hızını ifade eden FPS değeri değiştirilebilir.
+- **CV_CAP_PROP_BRIGHTNESS:** Görüntünün parlaklık değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
 
-CV_CAP_PROP_FOURCC
+- **CV_CAP_PROP_CONTRAST:** Görüntünün kontrast değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
 
-Kodek değiştirilebilir. Kodek dört karakterlik kod ile ifade edilir.
+- **CV_CAP_PROP_SATURATION:** Görüntünün doygunluk değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
 
-CV_CAP_PROP_FRAME_COUNT
+- **CV_CAP_PROP_HUE:** Görüntünün renk tonu değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
 
-Görüntünün çerçeve (frame) sayısına erişilebilir.
+- **CV_CAP_PROP_CONVERT_RGB:** Görüntünün RGB renk uzayına dönüştürülmesi gerekiyor ise kullanılır.
 
-CV_CAP_PROP_FORMAT
+- **CV_CAP_PROP_WHITE_BALANCE:** Görüntünün beyaz dengesi değiştirilebilir.
 
-Mat nesnesinin formatı değiştirilebilir.
+- **CV_CAP_PROP_ISO_SPEED:** Kameranın ISO hızı değiştirilebilir. Tüm aygıtlar için desteklenmemektedir.
 
-CV_CAP_PROP_BRIGHTNESS
-
-Görüntünün parlaklık değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
-
-CV_CAP_PROP_CONTRAST
-
-Görüntünün kontrast değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
-
-CV_CAP_PROP_SATURATION
-
-Görüntünün doygunluk değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
-
-CV_CAP_PROP_HUE
-
-Görüntünün renk tonu değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
-
-CV_CAP_PROP_CONVERT_RGB
-
-Görüntünün RGB renk uzayına dönüştürülmesi gerekiyor ise kullanılır.
-
-CV_CAP_PROP_WHITE_BALANCE
-
-Görüntünün beyaz dengesi değiştirilebilir.
-
-CV_CAP_PROP_ISO_SPEED
-
-Kamera aygtının ISO hızı değiştirilebilir. Tüm aygıtlar için desteklenmemektedir.
-
-CV_CAP_PROP_BUFFERSIZE
-
-Ara belleğe alınacak olan çerçeve (frame) miktarı değiştirilebilir.
+- **CV_CAP_PROP_BUFFERSIZE:** Ara belleğe alınacak olan çerçeve (frame) miktarı değiştirilebilir. Bellek taşmaları için dikkatli olunmalıdır.
 
