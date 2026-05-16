@@ -1,0 +1,24 @@
+README.md
+  s_a880a270e8c042::t_39197173c898a0 32
+  s_a880a270e8c042::t_ffd8b2a3e40dab 36
+  s_a880a270e8c042::t_0f71b64a655f80 33
+  s_a880a270e8c042::t_68aa316f57170a 50
+  s_a880a270e8c042::t_aa7742cf28730a 51
+  s_a880a270e8c042::t_0daad0c8925089 52-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "a82c04014daa811e38d366fd0b8da92f8397848e",
+  "prompts": {},
+  "sessions": {
+    "s_a880a270e8c042": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "079528d4-210c-4ef6-8662-41a25a357b73",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "MESUT PISKIN <mesut.piskin@turkcell.com.tr>"
+    }
+  }
+}
