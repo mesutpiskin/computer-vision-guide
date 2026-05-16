@@ -1,0 +1,19 @@
+docs/23-edge-deployment.md
+  s_a880a270e8c042::t_8eb26c1bb2060b 1-205
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "4b732f38d08a6f2a7641db8ba67d7557bace1ce6",
+  "prompts": {},
+  "sessions": {
+    "s_a880a270e8c042": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "079528d4-210c-4ef6-8662-41a25a357b73",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "MESUT PISKIN <mesut.piskin@turkcell.com.tr>"
+    }
+  }
+}
