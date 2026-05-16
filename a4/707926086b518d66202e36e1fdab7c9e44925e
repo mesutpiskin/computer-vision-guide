@@ -1,0 +1,21 @@
+docs/1-opencv-nedir.md
+  s_a880a270e8c042::t_bb75f6448eefc5 73,75-84
+  s_a880a270e8c042::t_f1d6090eef44a0 8
+  s_a880a270e8c042::t_bd3e56dfa1a9a4 54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "a4707926086b518d66202e36e1fdab7c9e44925e",
+  "prompts": {},
+  "sessions": {
+    "s_a880a270e8c042": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "079528d4-210c-4ef6-8662-41a25a357b73",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "MESUT PISKIN <mesut.piskin@turkcell.com.tr>"
+    }
+  }
+}
