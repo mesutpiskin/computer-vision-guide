@@ -5,7 +5,7 @@ OpenCV Nedir?
 
 OpenCV (Open Source Computer Vision) açık kaynak kodlu görüntü işleme kütüphanesidir. 1999 yılında İntel tarafından geliştirilmeye başlanmış daha sonra Itseez, Willow, Nvidia, AMD,  Google gibi şirket ve toplulukların desteği ile gelişim süreci devam etmektedir. İlk sürüm olan OpenCV alfa 2000 yılında piyasaya çıkmıştır. İlk etapta C programlama dili ile geliştirilmeye başlanmış ve daha sonra birçok algoritması C++ dili ile geliştirilmiştir. Open source yani açık kaynak kodlu bir kütüphanedir ve BSD lisansı ile altında geliştirilmektedir. BSD lisansına sahip olması bu kütüphaneyi istediğiniz projede ücretsiz olarak kullanabileceğiniz anlamına gelmektedir.  OpenCV platform bağımsız bir kütüphanedir, bu sayede Windows, Linux, FreeBSD, Android, Mac OS ve iOS platformlarında çalışabilmektedir. C++, C, Python, Java, Matlab, EmguCV kütüphanesi aracılığıyla da Visual Basic Net, C# ve Visual C++ dilleri ile topluluklar tarafından geliştirilen farklı wrapperlar aracılığıyla Perl ve Ruby programlama dilleri ile kolaylıkla OpenCV uygulamaları geliştirilebilir.
 
-Mayıs 2016 tarihinde, OpenCV geliştirici Itseez firması Intel tarafından satın alındı. OpenCV geliştirmesine Intel çatısı altından devam edeceğini duyurdu. Bugün itirabri ile de OpenCV 4.0 versiyonu release olmak üzere.
+Mayıs 2016 tarihinde, OpenCV geliştirici Itseez firması Intel tarafından satın alındı. OpenCV geliştirmesine Intel çatısı altından devam edeceğini duyurdu. Bugün itibarıyla OpenCV 4.9 kararlı sürümü aktif olarak geliştirilmekte olup 5.0 beta süreci de sürmektedir.
 
 OpenCV kütüphanesi içerisinde görüntü işlemeye (image processing) ve makine öğrenmesine (machine learning) yönelik 2500’den fazla algoritma bulunmaktadır. Bu algoritmalar ile yüz tanıma, nesneleri ayırt etme, insan hareketlerini tespit edebilme, nesne sınıflandırma, plaka tanıma, üç boyutlu görüntü üzerinde işlem yapabilme, görüntü karşılaştırma, optik karakter tanımlama OCR (Optical Character Recognition) gibi işlemler rahatlıkla yapılabilmektedir.
 
@@ -51,7 +51,7 @@ OpenCV görüntü işleme kütüphaneleri arasında en popüler ve en çok kulla
 
 **OpenCV 2 ile OpenCV 3 Versiyonu Arasındaki Farklar**
 
-Bu soru daha çok yeni başlayanlar veya projesinde hangi sürümü kullanmasına karar veremeyenler tarafından geliyor. Bu sürümleri kesin bir çizgiyle bir birinden ayırmamak gerekiyor, yani Python 2 ile Python 3 arasındaki ayrım gibi düşünülmemeli. Sürekli geliştirilen bir kütüphane ve yenilendikçe üzerine bir şeyler katıldıkça versiyonlama sisteminin doğası gereği major atlıyor. (Versiyonlama sistemlerinde x.x.x.x şeklinde giden numaralandırma Major, Minor, Build,Revision olarak adlandırılır.) Öğrenmek veya bir şeyler denemek için indiriyorsanız en güncel sürüm olan 3.1 i kullanmanızı öneririm veya iki sürümüde referans olarak ekleyip aynı projede kullanabilirsiniz bunun için bir engel bulunmuyor.
+Bu soru daha çok yeni başlayanlar veya projesinde hangi sürümü kullanmasına karar veremeyenler tarafından geliyor. Bu sürümleri kesin bir çizgiyle bir birinden ayırmamak gerekiyor, yani Python 2 ile Python 3 arasındaki ayrım gibi düşünülmemeli. Sürekli geliştirilen bir kütüphane ve yenilendikçe üzerine bir şeyler katıldıkça versiyonlama sisteminin doğası gereği major atlıyor. (Versiyonlama sistemlerinde x.x.x.x şeklinde giden numaralandırma Major, Minor, Build,Revision olarak adlandırılır.) Öğrenmek veya bir şeyler denemek için indiriyorsanız en güncel kararlı sürüm olan 4.x serisini kullanmanızı öneririm. Pip ile kurulum için `pip install opencv-python` komutu yeterlidir.
 
 3.x sürümünde daha çok mobil (ios,android), Intel işlemciler ve ARM mimarisi (iOT kartlar, FPGI vb.) için iyileştirmeler yapıldı. Açık kaynak kod olması sebebiyle de bağımsız geliştiriciler tarafından bir çok yeni paket eklendi. Eski algoritmalar çıkartıldı ve yerlerine yenileri eklendi bu sebeple de paketlerde yeni bir düzenlemeye gidildi. Java geliştiricisi değilseniz paketlerdeki değişiklikler sizi çok ilgilendirmiyor olabilir :).
 
@@ -70,6 +70,15 @@ Eklenen bazı özellikler:
 *   [Genel] CUDA için iyileştirmeler yapıldı.
 yukarıdakiler sadece bazıları ve tabiki bir çok bug temizlendi. OpenCV belirli bir doygunluk seviyesine ulaşmıştı, bu sebeple performans iyileştirmeleri ve bug temizleme üzerine geliştirmeler yapılıyordu, paralel programlama ve derin öğrenmedeki gelişmeler ile birlikte 3.x sürümünde bu doğrultuda bir çok yeni modül ve algoritma entegre edildi.
 
-**OpenCV 4 ile Bizi Neler Bekliyor**
+**OpenCV 4.x ve 5.0 ile Gelen Yenilikler**
 
-OpenCV 4 versiyonu takviminin gerisinde kalmış olsada çok yakında release olacak. 4 versiyonu ile birlikte derin öğrenme ve GPU tarafında bir çok kolaylık ve yenilik olması bekleniyor. Bu versiyon release olduğunda bir çok sinir ağını OpenCV ile kolayca kullanabilmeyi ve daha hızlı sonuçlar alabilmeyi umuyoruz. Nvidia GPU ları için yürütülen parça bağımsız projelerde 4 ile birlikte OpenCV modülleri içerisindeki yerini alacak. Sürüm release olduğunda burayı tekrardan günceller ve gelen yeniliklere birlikte bakıyor oluruz.
+OpenCV 4.0, Kasım 2018'de yayınlandı. O tarihten bugüne kadar eklenen önemli yenilikler:
+
+* **DNN Modülü Güçlendi:** YOLOv3/v4, SSD, ResNet, EfficientDet gibi modeller doğrudan OpenCV DNN ile çalışabilmektedir. ONNX formatı desteği ile PyTorch ve TensorFlow modellerini OpenCV içinde kullanmak mümkündür.
+* **CUDA Hızlandırma:** `cv2.cuda` modülü ile GPU üzerinde temel görüntü işleme ve derin öğrenme çıkarımı yapılabilmektedir.
+* **QR Kod Okuyucu:** `cv2.QRCodeDetector` sınıfı ile bağımlılık gerektirmeden QR kod okuma/yazma yapılabilmektedir.
+* **G-API:** Graph API — işlem grafiği üzerinden görüntü işleme pipeline'larını optimize etmeye yarayan yeni bir modül eklendi.
+* **Python Binding İyileştirmeleri:** NumPy entegrasyonu, tip ipuçları (type hints) ve async desteği geliştirildi.
+* **OpenCV 5.0 (Beta):** Halihazırda beta aşamasında olan 5.0 sürümü C++20 desteği, yeniden yazılmış Python binding'leri ve gelişmiş deep learning desteği getirmektedir.
+
+Güncel sürüm notlarına [https://opencv.org/releases/](https://opencv.org/releases/) adresinden ulaşabilirsiniz.
