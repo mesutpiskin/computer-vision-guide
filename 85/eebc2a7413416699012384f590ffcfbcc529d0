@@ -1,0 +1,19 @@
+README.md
+  s_a880a270e8c042::t_51749326e12ce5 325-354
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "85eebc2a7413416699012384f590ffcfbcc529d0",
+  "prompts": {},
+  "sessions": {
+    "s_a880a270e8c042": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "079528d4-210c-4ef6-8662-41a25a357b73",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
