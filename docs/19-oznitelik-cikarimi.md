@@ -44,3 +44,147 @@ SIFT algoritmasını hızlandırmak amacıyla ortaya çıkan bu algoritma 2006 y
 Orjinal Görsel Kaynağı: http://www.willpowell.co.uk/blog/2014/09/07/feature-extractor-descriptor-performance-ios-ipad-iphones/
 
 
+---
+
+## Python Kod Örnekleri
+
+### ORB ile Öznitelik Çıkarımı ve Görselleştirme
+
+ORB (Oriented FAST and Rotated BRIEF), ücretsiz ve hızlı çalışan bir öznitelik çıkarım algoritmasıdır. (SIFT ve SURF patentli olduğundan `opencv-contrib-python` gerektirir.)
+
+```python
+import cv2
+import numpy as np
+
+img = cv2.imread("goruntu.jpg", cv2.IMREAD_GRAYSCALE)
+
+orb = cv2.ORB_create(nfeatures=500)
+keypoints, descriptors = orb.detectAndCompute(img, None)
+
+img_kp = cv2.drawKeypoints(img, keypoints, None,
+                            flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+cv2.imshow("ORB Anahtar Noktalar", img_kp)
+cv2.waitKey(0)
+print(f"Bulunan anahtar nokta sayısı: {len(keypoints)}")
+```
+
+### SIFT ile Öznitelik Çıkarımı
+
+> Not: SIFT kullanmak için `pip install opencv-contrib-python` gereklidir.
+
+```python
+import cv2
+
+img = cv2.imread("goruntu.jpg", cv2.IMREAD_GRAYSCALE)
+
+sift = cv2.SIFT_create()
+keypoints, descriptors = sift.detectAndCompute(img, None)
+
+img_kp = cv2.drawKeypoints(img, keypoints, None)
+cv2.imshow("SIFT Anahtar Noktalar", img_kp)
+cv2.waitKey(0)
+print(f"Descriptor boyutu: {descriptors.shape}")  # (N, 128)
+```
+
+### Brute-Force ile Öznitelik Eşleştirme
+
+```python
+import cv2
+import numpy as np
+
+img1 = cv2.imread("nesne.jpg", cv2.IMREAD_GRAYSCALE)
+img2 = cv2.imread("sahne.jpg", cv2.IMREAD_GRAYSCALE)
+
+orb = cv2.ORB_create()
+kp1, des1 = orb.detectAndCompute(img1, None)
+kp2, des2 = orb.detectAndCompute(img2, None)
+
+# Brute-Force Matcher — ORB için Hamming mesafesi kullan
+bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+matches = bf.match(des1, des2)
+
+# Mesafeye göre sırala — en iyi eşleşmeler önce
+matches = sorted(matches, key=lambda x: x.distance)
+
+# İlk 20 eşleşmeyi göster
+result = cv2.drawMatches(img1, kp1, img2, kp2, matches[:20], None,
+                         flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+cv2.imshow("Brute-Force Eşleştirme", result)
+cv2.waitKey(0)
+```
+
+### FLANN ile Hızlı Öznitelik Eşleştirme
+
+FLANN (Fast Library for Approximate Nearest Neighbors), büyük veri setlerinde BFMatcher'a göre çok daha hızlı çalışır.
+
+```python
+import cv2
+import numpy as np
+
+img1 = cv2.imread("nesne.jpg", cv2.IMREAD_GRAYSCALE)
+img2 = cv2.imread("sahne.jpg", cv2.IMREAD_GRAYSCALE)
+
+sift = cv2.SIFT_create()
+kp1, des1 = sift.detectAndCompute(img1, None)
+kp2, des2 = sift.detectAndCompute(img2, None)
+
+# FLANN parametreleri
+FLANN_INDEX_KDTREE = 1
+index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
+search_params = dict(checks=50)
+
+flann = cv2.FlannBasedMatcher(index_params, search_params)
+matches = flann.knnMatch(des1, des2, k=2)
+
+# Lowe'un oran testi — kötü eşleşmeleri filtrele
+good_matches = []
+for m, n in matches:
+    if m.distance < 0.7 * n.distance:
+        good_matches.append(m)
+
+result = cv2.drawMatches(img1, kp1, img2, kp2, good_matches, None,
+                         flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+cv2.imshow(f"FLANN — {len(good_matches)} iyi eşleşme", result)
+cv2.waitKey(0)
+```
+
+### Homografi ile Nesne Konumu Bulma
+
+Eşleştirilen öznitelikleri kullanarak bir nesnenin sahnedeki konumunu bul:
+
+```python
+import cv2
+import numpy as np
+
+img1 = cv2.imread("nesne.jpg", cv2.IMREAD_GRAYSCALE)
+img2 = cv2.imread("sahne.jpg", cv2.IMREAD_GRAYSCALE)
+
+sift = cv2.SIFT_create()
+kp1, des1 = sift.detectAndCompute(img1, None)
+kp2, des2 = sift.detectAndCompute(img2, None)
+
+flann = cv2.FlannBasedMatcher(
+    dict(algorithm=1, trees=5), dict(checks=50)
+)
+matches = flann.knnMatch(des1, des2, k=2)
+good = [m for m, n in matches if m.distance < 0.7 * n.distance]
+
+if len(good) >= 4:
+    src_pts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
+    dst_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
+
+    H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+
+    h, w = img1.shape
+    corners = np.float32([[0, 0], [0, h-1], [w-1, h-1], [w-1, 0]]).reshape(-1, 1, 2)
+    scene_corners = cv2.perspectiveTransform(corners, H)
+
+    img2_color = cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR)
+    cv2.polylines(img2_color, [np.int32(scene_corners)], True, (0, 255, 0), 3)
+    cv2.imshow("Nesne Konumu", img2_color)
+    cv2.waitKey(0)
+else:
+    print(f"Yeterli eşleşme yok: {len(good)} / 4")
+```
+
+
