@@ -73,3 +73,157 @@ Derin öğrenme tabanlı yüz tanıma yaklaşımları;
   - **DeepFace:** Facebook AI ekibi tarafından geliştirilmiş derin öğrenme tabanlı bir yüz tanıma sistemidir. İlgili makaleye https://research.fb.com/publications/deepface-closing-the-gap-to-human-level-performance-in-face-verification/ buradan ulaşabilirsiniz.
   
   - **OpenFace:** Derin öğrenme tabanlı bu yüz tanıma sistemi uzunca bir süredir geliştiriciler arasında sıklıkla tercih edilmektedir. https://cmusatyalab.github.io/openface/
+
+---
+
+## Modern Yüz Tanıma Kütüphaneleri
+
+### DeepFace ile Yüz Tanıma
+
+DeepFace, birden fazla derin öğrenme modelini (VGG-Face, FaceNet, ArcFace, DeepID, Dlib) tek bir API altında sunan yüksek seviyeli bir Python kütüphanesidir.
+
+```bash
+pip install deepface
+```
+
+**İki yüzü karşılaştır:**
+
+```python
+from deepface import DeepFace
+
+result = DeepFace.verify("yuz1.jpg", "yuz2.jpg", model_name="ArcFace")
+print(f"Aynı kişi mi: {result['verified']}")
+print(f"Mesafe: {result['distance']:.4f}")
+```
+
+**Yüz analizi (yaş, cinsiyet, duygu, etnik köken):**
+
+```python
+from deepface import DeepFace
+
+analysis = DeepFace.analyze("yuz.jpg", actions=["age", "gender", "emotion"])
+print(f"Tahmini yaş: {analysis[0]['age']}")
+print(f"Cinsiyet: {analysis[0]['gender']}")
+print(f"Duygu: {analysis[0]['dominant_emotion']}")
+```
+
+**Veri tabanında yüz arama:**
+
+```python
+from deepface import DeepFace
+
+# "veri_tabani/" klasöründe her kişi için bir alt klasör ve fotoğraflar bulunmalı
+results = DeepFace.find("sorgu_yuz.jpg", db_path="veri_tabani/",
+                        model_name="ArcFace", enforce_detection=False)
+print(results[0][["identity", "distance"]].head())
+```
+
+---
+
+### InsightFace ile Yüz Tanıma
+
+InsightFace, özellikle ArcFace ve RetinaFace implementasyonları ile endüstri standardı haline gelmiş yüksek performanslı bir kütüphanedir.
+
+```bash
+pip install insightface onnxruntime
+```
+
+```python
+import insightface
+import cv2
+import numpy as np
+
+# Model yükle (ilk çalıştırmada model dosyaları indirilir)
+app = insightface.app.FaceAnalysis(name="buffalo_l")
+app.prepare(ctx_id=0, det_size=(640, 640))  # ctx_id=0 GPU, -1 CPU
+
+img = cv2.imread("grup_fotografi.jpg")
+faces = app.get(img)
+
+for face in faces:
+    box = face.bbox.astype(int)
+    cv2.rectangle(img, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
+    print(f"Yaş: {face.age}, Cinsiyet: {'Erkek' if face.gender == 1 else 'Kadın'}")
+    # face.embedding — 512 boyutlu özellik vektörü (yüz karşılaştırma için)
+
+cv2.imshow("InsightFace Tespitler", img)
+cv2.waitKey(0)
+```
+
+**Yüz benzerliği hesaplama:**
+
+```python
+import numpy as np
+
+def cosine_similarity(emb1, emb2):
+    return np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2))
+
+# İki yüzün embedding'lerini karşılaştır
+sim = cosine_similarity(faces[0].embedding, faces[1].embedding)
+print(f"Benzerlik: {sim:.4f}")  # 0.5+ aynı kişi olabilir
+```
+
+---
+
+### MediaPipe ile Yüz Algılama ve Yüz Landmark
+
+MediaPipe, Google tarafından geliştirilen ve mobil cihazlarda bile gerçek zamanlı çalışabilen bir çerçevedir.
+
+```bash
+pip install mediapipe
+```
+
+**468 yüz landmark tespiti:**
+
+```python
+import cv2
+import mediapipe as mp
+
+mp_face_mesh = mp.solutions.face_mesh
+mp_drawing = mp.solutions.drawing_utils
+
+cap = cv2.VideoCapture(0)
+
+with mp_face_mesh.FaceMesh(
+    max_num_faces=2,
+    refine_landmarks=True,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+) as face_mesh:
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = face_mesh.process(rgb)
+
+        if results.multi_face_landmarks:
+            for landmarks in results.multi_face_landmarks:
+                mp_drawing.draw_landmarks(
+                    frame, landmarks,
+                    mp_face_mesh.FACEMESH_CONTOURS,
+                    mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1)
+                )
+
+        cv2.imshow("MediaPipe Yüz Mesh", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+cap.release()
+cv2.destroyAllWindows()
+```
+
+---
+
+## Algoritma Karşılaştırması
+
+| Kütüphane | Model | Hız | Doğruluk | Kullanım Kolaylığı |
+|-----------|-------|-----|---------|------------------|
+| OpenCV LBPH | LBPH | ★★★★★ | ★★ | ★★★★ |
+| DeepFace | ArcFace | ★★★ | ★★★★★ | ★★★★★ |
+| InsightFace | ArcFace | ★★★★ | ★★★★★ | ★★★ |
+| MediaPipe | BlazeFace | ★★★★★ | ★★★★ | ★★★★ |
+
+Prodüksiyon uygulamaları için **InsightFace + ArcFace** kombinasyonu önerilir. Hızlı prototipleme için **DeepFace** idealdir.
