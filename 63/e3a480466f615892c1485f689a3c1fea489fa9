@@ -1,0 +1,19 @@
+docs/20-gpu-paralel-hesaplama.md
+  s_a880a270e8c042::t_081b89f68c5821 1-177
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "63e3a480466f615892c1485f689a3c1fea489fa9",
+  "prompts": {},
+  "sessions": {
+    "s_a880a270e8c042": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "079528d4-210c-4ef6-8662-41a25a357b73",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "MESUT PISKIN <mesut.piskin@turkcell.com.tr>"
+    }
+  }
+}
