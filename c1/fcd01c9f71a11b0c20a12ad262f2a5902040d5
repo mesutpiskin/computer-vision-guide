@@ -1,0 +1,19 @@
+docs/2-gelistirme-ortamlari.md
+  s_a880a270e8c042::t_043ffe81493ae3 4,6,8,10,12-15,17,19,21,23,25-124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "c1fcd01c9f71a11b0c20a12ad262f2a5902040d5",
+  "prompts": {},
+  "sessions": {
+    "s_a880a270e8c042": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "079528d4-210c-4ef6-8662-41a25a357b73",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "MESUT PISKIN <mesut.piskin@turkcell.com.tr>"
+    }
+  }
+}
