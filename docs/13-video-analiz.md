@@ -121,7 +121,9 @@ Bu algoritmanın kullanımı, yukarıda anlatılan ve örnek projeler kısmında
    ret, shiftWindow = cv.CamShift(backprojectedFrame, shiftWindow, terminationCriteria)
  ```
 
-**GOTURN Takip Algoritması**
+**GOTURN Takip Algoritması** *(OpenCV 4.5+ ile kaldırıldı)*
+
+> ⚠️ **Deprecated:** GOTURN, OpenCV 4.5 sürümünden itibaren resmi olarak kaldırılmıştır. Yeni projelerinizde CSRT veya DaSiamRPN kullanın.
 
 GOTURN derin öğrenme tabanlı CNN kullanan bir nesne takip algoritmasıdır. Bu algoritma "Learning to Track at 100 FPS with Deep
 Regression Networks" http://davheld.github.io/GOTURN/GOTURN.pdf makalesi ile duyrulmuştur. Bu algoritma ile art arda gelen bir dizi frame yani video üzerinde tek bir nesnenin takibi yapılabilir. Yolda giden bir araç, yürüyen bir insan veya yuvarlanan bir top kısacası videonun başında takip edilmesini istediğiniz şeyi videonun sonuna kadar takip edilebilir. Bu algoritma eğitilmiş bir model ile kullanılır, opencv iplemantasyonu için eğitilmiş bir caffe modeli mevcuttur.
@@ -133,7 +135,9 @@ Regression Networks" http://davheld.github.io/GOTURN/GOTURN.pdf makalesi ile duy
 
 Yukarıdaki görselde eğitim ve test aşamaları özetlenmiştir. Veri seti eğitilirken bir çok hareket eden nesne videosundan yararlanılır, sinir ağı bu sayede bir sonraki frame de nesnenin yerini tahmin edebilir hale gelir. Burada dikkat edilmesi gereken nokta nesneyi tanıma işlemi yapmadan sadece tahmin edilmek için belirlenen alanın sonraki framelerde nerede olabileceğine karar verir. Test için ise **VOT** veri setinden yararlanılır.
 
-**Boosting Takip Algoritması**
+**Boosting Takip Algoritması** *(OpenCV 4.5+ ile kaldırıldı)*
+
+> ⚠️ **Deprecated:** Boosting tracker OpenCV 4.5 ile kaldırılmıştır. Yerine MIL veya CSRT kullanın.
 
 Boosting algoritması Cascade sınıflandırıcısında da kullanılan AdaBoost algoritmasına dayananır. Nesneyi tespit edebilmek için eğitilmiş negatif ve bozitif verilerden yararlanır. Negatif görüntü dediğimiz şey hedeflenen nesnenin bulunmadığı genellikle arka planların yer aldığı görüntülerdir. Pozitif görüntüler ise hedeflenen nesnenin yer aldığı görüntü setidir. Çok eski olan bu algoritmanın çalışma mantığı oldukça basittir. Diğer algoritmalarda olduğu gibi, giriş olarak görüntü üzerinden bir alan seçilerek verilir, bu alan takip edilmek istenilen nesnedir. Algoritma çalışma zamanında bu kare dışındaki alanları negatif veri seti alarak kabul eder ve her karede bir sınıflandırma yapar. Haar Cascade algoritmasında bizim tarafımızdan yapılan eğitim süreci bu algoritma tarafından sürekli olarak otomatik bir şekilde yapılır. Bu algoritma hızlı çalışıyor olsada oldukça başarısz bir sonuçlar vermektedir.
 
@@ -179,6 +183,81 @@ MOSSE Korelasyon filtresi kullanan bir takip algoritmasıdır. Görüntü işlem
 
 İlgili makaleye buradan (http://www.cs.colostate.edu/~vision/publications/bolme_cvpr10.pdf) ulaşabilirsiniz.  Bu algoritmayı daha yakından tanımak isterseniz "Practical Computer Vision" kitabına göz atabilirsiniz.
 
+
+**DaSiamRPN Takip Algoritması**
+
+DaSiamRPN (Distractor-aware Siamese Networks for Visual Object Tracking), Siamese ağı mimarisini kullanan güncel ve yüksek performanslı bir takip algoritmasıdır. OpenCV 4.3 ile eklenen bu algoritma hem doğruluk hem hız açısından klasik takipçilere göre belirgin biçimde üstündür.
+
+```python
+import cv2
+
+# Model dosyalarını indir:
+# https://github.com/opencv/opencv_zoo/tree/main/models/object_tracking_dasiamrpn
+tracker = cv2.TrackerDaSiamRPN.create()
+
+cap = cv2.VideoCapture(0)
+ret, frame = cap.read()
+bbox = cv2.selectROI("Takip edilecek nesneyi seç", frame, False)
+tracker.init(frame, bbox)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+    success, bbox = tracker.update(frame)
+    if success:
+        x, y, w, h = [int(v) for v in bbox]
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    cv2.imshow("DaSiamRPN Tracker", frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+```
+
+**NanoTrack Takip Algoritması**
+
+NanoTrack, OpenCV 4.6 ile eklenen hafif ve mobil cihazlara uygun bir takip algoritmasıdır. Siamese ağı tabanlıdır, DaSiamRPN'e göre daha hızlı çalışır.
+
+```python
+import cv2
+
+# Model dosyaları: opencv_zoo/models/object_tracking_nanotrack
+params = cv2.TrackerNano_Params()
+params.backbone = "nanotrack_backbone_sim.onnx"
+params.neckhead = "nanotrack_head_sim.onnx"
+tracker = cv2.TrackerNano.create(params)
+```
+
+**ByteTrack (Çoklu Nesne Takibi)**
+
+ByteTrack, YOLO gibi bir detektörün çıktısını girdi olarak alan ve aynı anda birden fazla nesneyi takip eden (MOT — Multi-Object Tracking) bir algoritmadır. OpenCV içinde değil, bağımsız bir kütüphane olarak kullanılır:
+
+```bash
+pip install supervision
+```
+
+```python
+import cv2
+import supervision as sv
+from ultralytics import YOLO
+
+model = YOLO("yolov8n.pt")
+tracker = sv.ByteTrack()
+annotator = sv.BoxAnnotator()
+
+cap = cv2.VideoCapture(0)
+while True:
+    ret, frame = cap.read()
+    results = model(frame)[0]
+    detections = sv.Detections.from_ultralytics(results)
+    detections = tracker.update_with_detections(detections)
+    frame = annotator.annotate(frame, detections)
+    cv2.imshow("ByteTrack MOT", frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+```
 
 ## Sonuç
 
