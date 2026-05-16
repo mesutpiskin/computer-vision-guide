@@ -1,66 +1,160 @@
-**Java için IDE Yapılandırması** 
---------------------------------
+**IDE Yapılandırması**
+----------------------
 
-Java için farklı geliştirme ortamları mevcut olmasına rağmen Maven ile OpenCV'yi kullanabilirsiniz. Fakat OpenCV maven depoları üzerinde resmi olarka yer almıyor online inport etmek yerine pom.xml üzerinden file system olarak referans verebilirsiniz, bunun için:
+Bu bölümde en yaygın kullanılan geliştirme ortamlarında OpenCV Python projesi nasıl kurulur adım adım anlatılmaktadır.
 
+## Visual Studio Code ile Python + OpenCV Kurulumu
 
-pom.xml
-```Shell
- <dependency>
-      <groupId>opencv</groupId>
-      <artifactId>opencv</artifactId>
-      <version>3.42</version>
-      <scope>system</scope>
-      <systemPath>/myfolder/lib/opencv-342.jar</systemPath> 
-    </dependency>
+### 1. Gerekli Eklentileri Kur
+
+VS Code Extensions panelinden (Ctrl+Shift+X) şu eklentileri kur:
+
+* `ms-python.python` — Python dil desteği
+* `ms-python.pylance` — Tip kontrolü ve otomatik tamamlama
+* `ms-toolsai.jupyter` — Notebook desteği
+
+### 2. Sanal Ortam Oluştur ve Yorumlayıcıyı Seç
+
+```bash
+# Proje klasöründe sanal ortam oluştur
+python -m venv .venv
+
+# macOS/Linux
+source .venv/bin/activate
+
+# Windows
+.venv\Scripts\activate
+
+# Bağımlılıkları kur
+pip install opencv-python opencv-contrib-python numpy matplotlib
 ```
-şeklinde projenize proje dizinindeki OpenCV jar dosyasını import ederek kullanabilirsiniz. Maven dependency olarak eklediğiniz JVM parametresi olarak native kütüphane dizinini belirtmeniz veya uygulama içerisinde yüklemeniz gerekir. Bunu aşmayı örnek projelerde göreceğiz.
 
+VS Code'da yorumlayıcıyı seçmek için: `Ctrl+Shift+P` → "Python: Select Interpreter" → `.venv` içindeki Python'ı seç.
 
-**Eclipse**
+### 3. İlk Proje: Görüntü Oku ve Göster
 
-Eclipse ücretsiz bir geliştirme ortamıdır. Eklenti desteği sayesinde esnek ve hızlıdır, java projelerinde en çok tercih edilen IDE dir. Eclipse Mars 1 sürümünü kullanacağım tercih ettiğiniz bir sürümü kullanabilirsiniz. Eclips’i https://eclipse.org/downloads/ adresinden Eclipse IDE for Java Developers veya Eclipse IDE for JavaEE Developers paketini kullandığınız işletim sistemine göre indirebilirsiniz. OpenCV kütüphanesini kullanabilmek için jar dosyasına ve sistem kütüphanesine ihtiyacımız var. Bu dosyalar Windows kullanıyorsanız daha önce indirdiğiniz OpenCV klasörü içerisindeki build\java dizininde jar dosyası ve işlemci mimarisine göre x86 ve x64 olarak sistem kütüphanesi bulunmaktadır. Linux ile OpenCV derleme işlemi yaptıysanız Opencv klasörü içerisinde build\bin dizininde jar dosyası, build\lib içerisinde ise sistem kütüphanesi yer almaktadır.
+`main.py` dosyası oluştur:
 
+```python
+import cv2
 
-Eclipse ile yeni bir proje oluşturalım ve jar dosyasını kütüphanelere ekleyelim. Add External JARs butonu ile OpenCV jar dosyasını seçiyoruz. Bir user library oluşturup, jar dosyasını ve sistem kütüphanesini proje içerisine ekleyebilirsiniz.
+img = cv2.imread("test.jpg")
+if img is None:
+    raise FileNotFoundError("Görüntü dosyası bulunamadı")
 
-![Eclipse](static/eclipse-1.png)
+cv2.imshow("Görüntü", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
 
-OpenCV’nin bulunduğu dizinden jar dosyasını seçerek devam ediyoruz.
+`F5` ile çalıştır veya terminalde `python main.py`.
 
-![Eclipse](static/eclipse-2.png)
+### 4. launch.json ile Debug Yapılandırması
 
-Bir sonraki aşamada işletim sistemine mimarisine göre sistem kütüphanesini,  jar dosyasına native library olarak eklememiz gerekmektedir. Windows kullanıyorsanız x64 ve x86 olarak işlemci mimarisine göre farklı kütüphaneler bulunmaktadır kullandığınız mimariye göre seçmeniz gerekmektedir. Linux kullanıyorsanız derleme işlemini kendi bilgisayarımızda yaptığımız için, kullanılan bilgisayar mimarisine göre derlemiştir bu yüzden so uzantılı kütüphaneyi lib klasöründen seçmeniz yeterli olacaktır.
+`.vscode/launch.json` dosyasını oluştur:
 
-Jar dosyasını seçtik ve library kısmına Opencv kütüphanesi geldi.  Native library location seçerek edit butonuna tıklıyoruz.
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}
+```
 
-![Eclipse](static/eclipse-3.png)
+### 5. settings.json ile Linter Yapılandırması
 
-Açılan pencereden External Folder diyerek sistem kütüphanenin bulunduğu klasörü seçiyoruz. Linux kullanıyorsanız build içerisindeki lib klasörünü seçmeniz yeterlidir.
+`.vscode/settings.json`:
 
-**Netbeans**
+```json
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "editor.formatOnSave": true,
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
+}
+```
 
-Netbeans Oracle şirketi tarafından geliştirilen ve ücretsiz olarak dağıtılan bir yazılım geliştirme ortamıdır. Özellikle Java GUI projeleri için sıklıkla tercih edilir. Netbeans IDE içinde OpenCV kütüphanesi kurulumu yapacağız. Netbeans IDE’yi https://netbeans.org/ adresinden indirip kurabilirsiniz.
+---
 
-Netbeans ile yeni bir Java projesi oluşturalım ve projemize OpenCV kütüphanesini ekleyelim. Bunun için Project paelinden libraries üzerine sağ tıklayalım ve Add JAR/Folder ile build/java dizini içerisindeki jar dosyasını seçerek yükleyelim.  Yeni bir library oluşturarak jar dosyasını proje içerisine yerleştirebilirsiniz.
+## Anaconda / Conda ile Kurulum
 
-![Netbeans](static/netbeans-1.png)
+Conda, bilimsel Python projelerinde paket çakışmalarını önleyen popüler bir paket yöneticisidir.
 
-Jar dosyasını ekledikten sonra, run menüsünden run project veya F6 tuşu ile projeyi çalıştıralım. Son olarak native sistem kütüphanesinin yolunu göstermemiz gerekiyor. File menüsünden project propertis seçeneği ile proje özellikleri menüsünü açalım. Sol tarafta yer alan menüden run diyerek VM Options kısmına Windows için dll Linux için so uzantılı olan sistem kütüphanesininin yolunu -Djava.library.path=”Dosya yolu” parametresi ile verelim.
+```bash
+# Yeni conda ortamı oluştur
+conda create -n cv-env python=3.11
+conda activate cv-env
 
-![Netbeans](static/netbeans-2.png)
+# OpenCV conda-forge kanalından kur
+conda install -c conda-forge opencv
 
+# Veya pip ile
+pip install opencv-python opencv-contrib-python
+```
 
-**Android Studio / InteliJ IDEA**
+VS Code'da conda ortamını seçmek için: `Ctrl+Shift+P` → "Python: Select Interpreter" → conda ortamını seç.
 
-OpennCV Android platformu için de destek vermektedir. Bu sayede Java ile android uygulamaları geliştirirken OpenCV kütüphanesinden yararlanabilirsiniz. OpenCV web sitesi üzerinden “OpenCV for Android” linkine tıklayarak kitabın yazıldığı tarih itibariyle en güncel olan 3.1 sürümünü  indiriyoruz. İndirdiğimiz zip dosyasını çıkartıyoruz.
+---
 
-Android stuido üzerinde proje oluşturalım, oluşturulan projeye opencv kütüphanesini ekleyeceğiz. File menüsünden New/ Import Module diyerek New Modüle penceresini açıyoruz. Bu pencereden daha önce indirdiğimiz OpenCV klasörü içerisinde SDK/Java klasörünü seçerek  devam ediyoruz. Derleme işlemi ardından hata mesajı ile karşılaşırsanız bunun nedeni OpenCV kütüphanesinin derlendiği sdk versiyonunun sisteminizde kurulu olmamasıdır. SDK Manager ile istenilen sürümünü kurabilirsiniz.
+## PyCharm ile Kurulum
 
-Kullandığınız SDK sürümü ile tekrardan derleyerek te bu hatayı ortadan kaldırabilirsiniz. Bunun için yapmanız gereken, Project menüsünden  projenizin altında OpenCVLibrary altındaki (görünümü Project Files olarak değiştirmelisiniz) build.grandle dosyasını açınız. Android altında derleme için kullanacağınız sdk sürümünü ve buildToolVersion’ı ekleyiniz. Tekrar bir derleme işleminin ardından hata ortadan kalkacaktır.
+1. PyCharm'ı aç, "New Project" → "Pure Python"
+2. Interpreter: "New environment using Virtualenv"
+3. Terminal'de: `pip install opencv-python numpy`
+4. `Settings > Project > Python Interpreter > +` ile paket eklenebilir
 
-Daha sonra File menüsünden Project Structure’a tıklayarak veya Ctrl+Alt+Shift+S kısa yolu ile Project Structure penceresini açıyoruz. Dependencies sekmesine gelerek  sağ tarafta yer alan + butonuna tıklıyoruz, buradan Module dependency seçeneği ile açılan pencereden  daha önce eklediğimiz openCVLibrary modulünü seçiyoruz tamam diyerek pencereleri kapatıyoruz. Tekrarlanan bir derleme işlemi ardından OpenCV paketleri kullanım için hazır olacaktır.
+---
 
-Video:
+## Google Colab (Kurulum Gerektirmez)
 
-[![Youtube Install Video](http://img.youtube.com/vi/hk_DoTIclFY/0.jpg)](https://youtu.be/hk_DoTIclFY) [![Youtube Install Video](http://img.youtube.com/vi/GsR2vRdhhw8/0.jpg)](https://youtu.be/GsR2vRdhhw8)
+Tarayıcı üzerinden doğrudan başlamak için [colab.research.google.com](https://colab.research.google.com) adresine git ve yeni bir notebook oluştur.
+
+```python
+# OpenCV Colab'da zaten yüklüdür
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow  # imshow yerine bu kullanılır
+
+# Örnek: görüntü üret ve göster
+img = np.zeros((300, 400, 3), dtype=np.uint8)
+cv2.putText(img, "Merhaba OpenCV!", (50, 150),
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+cv2_imshow(img)
+```
+
+Not: Colab'da `cv2.imshow()` çalışmaz; bunun yerine `cv2_imshow` veya Matplotlib kullanın.
+
+---
+
+## Android Studio ile Android OpenCV Kurulumu
+
+Android uygulamalarında OpenCV kullanmak için:
+
+1. [opencv.org/releases](https://opencv.org/releases/) adresinden "Android" paketini indir
+2. Android Studio'da: `File > New > Import Module` → indirilen zip içindeki `sdk/java` klasörünü seç
+3. `app/build.gradle` içine modül bağımlılığı ekle:
+
+```groovy
+dependencies {
+    implementation project(':sdk')
+}
+```
+
+4. Java dosyasında OpenCV'yi yükle:
+
+```java
+static {
+    if (!OpenCVLoader.initDebug()) {
+        Log.e("OpenCV", "Yüklenemedi");
+    }
+}
+```
