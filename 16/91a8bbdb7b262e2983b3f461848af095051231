@@ -1,0 +1,19 @@
+docs/19-oznitelik-cikarimi.md
+  s_a880a270e8c042::t_ed3edf2ea2b541 47-190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "1691a8bbdb7b262e2983b3f461848af095051231",
+  "prompts": {},
+  "sessions": {
+    "s_a880a270e8c042": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "079528d4-210c-4ef6-8662-41a25a357b73",
+        "model": "unknown"
+      },
+      "human_author": "MESUT PISKIN <mesut.piskin@turkcell.com.tr>"
+    }
+  }
+}
