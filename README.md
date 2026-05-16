@@ -322,6 +322,36 @@ Dokümanlar, kaynak kodlar veya her hangi bir konuda ki sorularınızı **issues
 
 Öncelikle [issues](https://github.com/mesutpiskin/opencv-tutorial/issues) bölümüne gidiniz. Sayfanın sağında yer alan **new issues** butonuna tıklayın. Açılan ilgili bölüme sorunuzu veya talebinizi açıklayıcı bir şekilde yazarak **Submit new issues** butonu aracılığıyla kaydedin.
 
+## Sürüm Notları
+
+### v2.0 — Mayıs 2026 (Modernizasyon)
+
+Reponun 2020'den bu yana ilk büyük güncellemesi. Tüm içerik Python-first ve güncel kütüphanelere göre yeniden düzenlendi.
+
+**Güncellenen Bölümler:**
+- **Bölüm 1:** OpenCV 4.9/5.0 yenilikleri (DNN, CUDA, QR Kod, G-API)
+- **Bölüm 2:** Java/Eclipse odaklı içerik → Python + VS Code + Jupyter + Colab
+- **Bölüm 5:** Eclipse/Netbeans → VS Code, PyCharm, Conda, Android Studio
+- **Bölüm 13:** GOTURN/Boosting deprecated; DaSiamRPN, NanoTrack, ByteTrack eklendi
+- **Bölüm 14:** YOLOv8/v9 (Ultralytics API, özel eğitim, ONNX export)
+- **Bölüm 17:** DeepFace, InsightFace, MediaPipe Face Mesh eklendi
+- **Bölüm 18:** EasyOCR, PaddleOCR, TrOCR eklendi
+- **Bölüm 19:** ORB, SIFT, FLANN, Homografi Python kod örnekleri eklendi
+
+**Yeni Bölümler:**
+- **Bölüm 20:** [GPU ve Paralel Hesaplama](/docs/20-gpu-paralel-hesaplama.md) — CUDA, OpenVINO, Threading
+- **Bölüm 21:** [Poz Tahmini](/docs/21-poz-tahmini.md) — MediaPipe Pose, YOLOv8-Pose
+- **Bölüm 22:** [Segmentasyon](/docs/22-segmentasyon.md) — YOLOv8-seg, SAM/SAM2, DeepLab
+- **Bölüm 23:** [Edge Deployment](/docs/23-edge-deployment.md) — ONNX Runtime, TFLite, Quantization
+- **Bölüm 24:** [OpenCV Mobil](/docs/24-opencv-mobil.md) — Android, iOS
+- **Bölüm 25:** [Artırılmış Gerçeklik](/docs/25-artirilmis-gerceklik.md) — ArUco, 3D Overlay, Yüz Filtresi
+
+### v1.0 — 2018–2020
+
+İlk yayın. OpenCV 3.x/4.x ile Java, Python ve C++ örnekleri.
+
+---
+
 ## Lisans
 
 Bu proje içerisinde yer alan doküman ve kaynak kodlar [MIT Lisansı](/LICENSE) ile lisanslanmıştır. İçeriğin **kaynak gösterilmeden** kullanılması durumunda bu kişiler/kurumlar [bu bölümde](/other/blacklist.md) paylaşılacaktır.
