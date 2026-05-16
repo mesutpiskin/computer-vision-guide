@@ -71,3 +71,125 @@ print(pytesseract.image_to_string(frame, lang='eng'))
 ```
 
 Yukarıdaki projeyi çalıştırdığınızda görüntü metne çevrilecektir. Daha detaylı kullanımlar için bu bölümün örnek projelerine göz atabilirsiniz.
+
+---
+
+## EasyOCR ile Metin Tanıma
+
+EasyOCR, 80+ dil desteği ve derin öğrenme tabanlı mimarisi ile Tesseract'a güçlü bir alternatiftir. El yazısı ve zor fontlarda daha iyi sonuç verir.
+
+```bash
+pip install easyocr
+```
+
+```python
+import easyocr
+import cv2
+
+# İlk çalıştırmada model dosyaları indirilir (~100MB)
+reader = easyocr.Reader(['tr', 'en'], gpu=False)
+
+img = cv2.imread("metin.png")
+results = reader.readtext(img)
+
+for (bbox, text, confidence) in results:
+    print(f"Metin: '{text}' — Güven: {confidence:.2f}")
+
+    # Tespit kutusunu çiz
+    pts = [list(map(int, p)) for p in bbox]
+    cv2.polylines(img, [pts], True, (0, 255, 0), 2)
+    cv2.putText(img, text, tuple(pts[0]),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+cv2.imshow("EasyOCR Sonuç", img)
+cv2.waitKey(0)
+```
+
+Sadece metin listesi almak için:
+
+```python
+texts = reader.readtext("metin.png", detail=0)
+print(" ".join(texts))
+```
+
+---
+
+## PaddleOCR ile Metin Tanıma
+
+PaddleOCR, Baidu tarafından geliştirilen ve endüstri uygulamalarında geniş çapta kullanılan yüksek performanslı bir OCR çerçevesidir. Metin tespiti, tanıma ve yönelim düzeltme aşamalarını tek bir pipeline'da sunar.
+
+```bash
+pip install paddlepaddle paddleocr
+```
+
+```python
+from paddleocr import PaddleOCR
+import cv2
+
+ocr = PaddleOCR(use_angle_cls=True, lang='en')  # 'ch' Çince için
+
+result = ocr.ocr("metin.png", cls=True)
+for line in result[0]:
+    bbox, (text, confidence) = line
+    print(f"Metin: '{text}' — Güven: {confidence:.2f}")
+```
+
+**Görsel çıktı:**
+
+```python
+from paddleocr import draw_ocr
+from PIL import Image
+
+result = ocr.ocr("metin.png", cls=True)
+image = Image.open("metin.png").convert('RGB')
+boxes = [line[0] for line in result[0]]
+txts = [line[1][0] for line in result[0]]
+scores = [line[1][1] for line in result[0]]
+
+drawn = draw_ocr(image, boxes, txts, scores)
+Image.fromarray(drawn).save("paddleocr_sonuc.png")
+```
+
+---
+
+## TrOCR ile El Yazısı Tanıma
+
+TrOCR, Microsoft tarafından geliştirilen Transformer tabanlı bir OCR modelidir. Özellikle el yazısı tanımada son derece başarılıdır.
+
+```bash
+pip install transformers pillow torch
+```
+
+```python
+from transformers import TrOCRProcessor, VisionEncoderDecoderModel
+from PIL import Image
+import torch
+
+# El yazısı için eğitilmiş model
+processor = TrOCRProcessor.from_pretrained("microsoft/trocr-base-handwritten")
+model = VisionEncoderDecoderModel.from_pretrained("microsoft/trocr-base-handwritten")
+
+image = Image.open("el_yazisi.png").convert("RGB")
+pixel_values = processor(images=image, return_tensors="pt").pixel_values
+
+with torch.no_grad():
+    generated_ids = model.generate(pixel_values)
+
+text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+print(f"Tanınan metin: {text}")
+```
+
+Baskı metni için `"microsoft/trocr-base-printed"` modelini kullanın.
+
+---
+
+## OCR Kütüphane Karşılaştırması
+
+| Kütüphane | Dil Desteği | El Yazısı | Hız | Kurulum |
+|-----------|------------|---------|-----|---------|
+| Tesseract | 100+ | Kısıtlı | ★★★ | ★★★★ |
+| EasyOCR | 80+ | İyi | ★★★ | ★★★★★ |
+| PaddleOCR | 80+ | İyi | ★★★★ | ★★★ |
+| TrOCR | EN/ZH | Mükemmel | ★★ | ★★★ |
+
+Genel amaçlı kullanım için **EasyOCR** ile başlamanız önerilir. Prodüksiyon uygulamalar için **PaddleOCR** daha uygun olabilir.
