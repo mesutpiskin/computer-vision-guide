@@ -404,3 +404,139 @@ public class DnnObject {
 
 
 ![DNN](static/siniflandirma_opencv_dnn.png)
+
+---
+
+## YOLOv8 ile Nesne Tespiti
+
+YOLO (You Only Look Once) serisi, gerçek zamanlı nesne tespiti için geliştirilmiş en popüler derin öğrenme algoritmalarından biridir. Ultralytics tarafından geliştirilen YOLOv8 (2023), hem doğruluk hem de hız açısından benchmark'larda üst sıralarda yer almaktadır.
+
+### Kurulum
+
+```bash
+pip install ultralytics
+```
+
+### Görüntü Üzerinde Nesne Tespiti
+
+```python
+from ultralytics import YOLO
+import cv2
+
+# Önceden eğitilmiş YOLOv8n modeli (nano — en hızlı)
+model = YOLO("yolov8n.pt")  # İlk çalıştırmada otomatik indirilir
+
+# Görüntü üzerinde çıkarım
+results = model("test.jpg")
+
+# Sonuçları görselleştir
+for result in results:
+    annotated = result.plot()
+    cv2.imshow("YOLOv8 Tespitler", annotated)
+    cv2.waitKey(0)
+```
+
+### Kamera Üzerinde Gerçek Zamanlı Tespit
+
+```python
+from ultralytics import YOLO
+import cv2
+
+model = YOLO("yolov8n.pt")
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    results = model(frame, stream=True, conf=0.5)
+    for result in results:
+        boxes = result.boxes
+        for box in boxes:
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+            conf = float(box.conf[0])
+            cls = int(box.cls[0])
+            label = f"{model.names[cls]} {conf:.2f}"
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(frame, label, (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+    cv2.imshow("YOLOv8 Gerçek Zamanlı", frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+```
+
+### Model Boyutları
+
+Ultralytics YOLOv8 beş farklı boyutta sunulur:
+
+| Model | Boyut | mAP (COCO) | Hız (ms) |
+|-------|-------|-----------|---------|
+| YOLOv8n | 3.2 MB | 37.3 | 0.99 |
+| YOLOv8s | 11.2 MB | 44.9 | 1.20 |
+| YOLOv8m | 25.9 MB | 50.2 | 3.83 |
+| YOLOv8l | 43.7 MB | 52.9 | 6.05 |
+| YOLOv8x | 68.2 MB | 53.9 | 9.70 |
+
+Gerçek zamanlı uygulamalar için `yolov8n` veya `yolov8s` tercih edilir.
+
+### Özel Model Eğitimi
+
+Kendi veri setinizde YOLOv8 eğitimi:
+
+```python
+from ultralytics import YOLO
+
+model = YOLO("yolov8n.pt")  # Önceden eğitilmiş ağırlıklardan başla
+
+results = model.train(
+    data="veri_seti.yaml",  # YOLO formatında veri seti tanımı
+    epochs=100,
+    imgsz=640,
+    batch=16,
+    device=0  # GPU kullanmak için; CPU için device="cpu"
+)
+```
+
+`veri_seti.yaml` örneği:
+
+```yaml
+path: /proje/veri
+train: images/train
+val: images/val
+nc: 3  # sınıf sayısı
+names: ['kedi', 'kopek', 'kus']
+```
+
+### ONNX'e Export
+
+```python
+model = YOLO("yolov8n.pt")
+model.export(format="onnx")  # yolov8n.onnx dosyası oluşturulur
+```
+
+---
+
+## YOLOv9 ile Nesne Tespiti
+
+YOLOv9 (2024), "Programmable Gradient Information" (PGI) ve "Generalized Efficient Layer Aggregation Network" (GELAN) mimarileri ile YOLOv8'e göre daha yüksek doğruluk sunar.
+
+```bash
+pip install ultralytics  # YOLOv9 Ultralytics 8.1+ ile desteklenmektedir
+```
+
+```python
+from ultralytics import YOLO
+
+# YOLOv9c modeli (compact)
+model = YOLO("yolov9c.pt")
+results = model("test.jpg")
+for result in results:
+    print(result.boxes)
+```
+
+YOLOv8 API'si ile birebir uyumludur; model adını değiştirmek yeterlidir.
