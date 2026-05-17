@@ -407,6 +407,67 @@ public class DnnObject {
 
 ---
 
+### Teorik Temel — YOLO ve Tespit Metrikleri
+
+**IoU (Intersection over Union):**
+$$\text{IoU} = \frac{|A \cap B|}{|A \cup B|}$$
+Genellikle IoU > 0.5 doğru tespit sayılır. mAP@0.5:0.95 birden fazla eşikte ortalamasını alır.
+
+**Precision-Recall:**
+$$\text{Precision} = \frac{TP}{TP+FP}, \quad \text{Recall} = \frac{TP}{TP+FN}$$
+$$\text{AP} = \int_0^1 p(r)\,dr \approx \sum_{k} (r_{k+1}-r_k) \cdot p(r_{k+1})$$
+
+**YOLO Loss Fonksiyonu:**
+$$\mathcal{L} = \lambda_{coord}\sum_{i}\sum_{j} \mathbb{1}_{ij}^{obj}\left[(x_i-\hat{x}_i)^2 + (y_i-\hat{y}_i)^2 + (\sqrt{w_i}-\sqrt{\hat{w}_i})^2 + (\sqrt{h_i}-\sqrt{\hat{h}_i})^2\right] + \mathcal{L}_{conf} + \mathcal{L}_{cls}$$
+
+Referans: Redmon & Farhadi, "YOLOv3: An Incremental Improvement", 2018 (https://arxiv.org/abs/1804.02767)
+
+```python
+from ultralytics import YOLO
+import cv2
+
+# YOLOv8 ile nesne tespiti
+model = YOLO("yolov8n.pt")  # nano modeli indir (ilk çalıştırmada otomatik)
+
+# Tek görüntü
+results = model.predict("resim.jpg", conf=0.5, iou=0.45)
+for result in results:
+    for box in result.boxes:
+        x1, y1, x2, y2 = box.xyxy[0].int().tolist()
+        conf = float(box.conf[0])
+        cls  = int(box.cls[0])
+        name = model.names[cls]
+        print(f"{name}: {conf:.2f} @ [{x1},{y1},{x2},{y2}]")
+
+# Gerçek zamanlı kamera
+cap = cv2.VideoCapture(0)
+if not cap.isOpened():
+    raise RuntimeError("Kamera açılamadı")
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+    results = model.predict(frame, conf=0.5, verbose=False)
+    annotated = results[0].plot()
+    cv2.imshow("YOLOv8 Nesne Tespiti", annotated)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+```
+
+### Özet & İleri Okuma
+- IoU tahmin ve gerçek kutu örtüşme oranını ölçer; 0.5 yaygın eşik değeridir
+- Precision yanlış pozitifleri, Recall kaçırılan tespitleri yansıtır
+- mAP birden fazla eşik ve sınıfta ortalama AP'dir — tek sayısal karşılaştırma metriği
+- YOLO mimarisi tek geçişle hem sınıflandırma hem lokalizasyon yapar
+- YOLOv8 Ultralytics API ile eğitim, değerlendirme ve deployment kolaylaşır
+- Referans: Redmon & Farhadi — YOLOv3 (https://arxiv.org/abs/1804.02767)
+
+---
+
 ## YOLOv8 ile Nesne Tespiti
 
 YOLO (You Only Look Once) serisi, gerçek zamanlı nesne tespiti için geliştirilmiş en popüler derin öğrenme algoritmalarından biridir. Ultralytics tarafından geliştirilen YOLOv8 (2023), hem doğruluk hem de hız açısından benchmark'larda üst sıralarda yer almaktadır.
