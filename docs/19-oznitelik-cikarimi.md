@@ -30,6 +30,24 @@ Görüntü işleme, makine öğrenmesi, derin öğrenme, veri madenciliği ve ö
 - FLANN
 
 
+### Teorik Temel — SIFT ve Öznitelik Eşleştirme
+
+**Scale-Space Extrema Tespiti (SIFT):**
+$$L(x,y,\sigma) = G(x,y,\sigma) * I(x,y)$$
+$$D(x,y,\sigma) = L(x,y,k\sigma) - L(x,y,\sigma)$$
+DoG (Difference of Gaussians) ile ölçek uzayı anahtar noktaları bulunur. $k=\sqrt{2}$.
+
+**Gradient Histogramı ve 128-boyutlu Descriptor:**
+$$m(x,y) = \sqrt{(L_{x+1}-L_{x-1})^2 + (L_{y+1}-L_{y-1})^2}$$
+$$\theta(x,y) = \arctan\left(\frac{L_{y+1}-L_{y-1}}{L_{x+1}-L_{x-1}}\right)$$
+16×16 pencere → 4×4 alt bölge × 8 yön histogramı = 128 boyut. L2 normalize edilir.
+
+**Lowe Oran Testi (Ratio Test):**
+İki en iyi eşleşme $d_1 < d_2$ ise: $d_1 / d_2 < 0.7$ koşuluyla iyi eşleşme kabul edilir.
+Yanlış eşleşmeleri (outlier) etkili biçimde eleme yöntemidir.
+
+Referans: Lowe, "Distinctive Image Features from Scale-Invariant Keypoints", IJCV 2004 (https://doi.org/10.1023/B:VISI.0000029664.99615.94)
+
 #### SIFT (Scale-Invariant Feature Transform - Ölçeklemeden Bağımsız Özellik Dönüşümü)
 
 SIFT algoritması David  Lowe tarafından 1999 yılında duyruldu. Bu algoritma sayesinde karşılaştırılan iki farklı giriş nesnesinin boyutu/ölçeği değişse veya belirli bir eşik seviyesine kadar gürültülü bile olsa başarılı olarak öznitelikler çıkarılıp eşleştirilebilmektedir. SIFT 3D Modelleme, nesne tanıma, nesne eşleme, nesne takibi vb. gibi bir çok alanda kullanılan bir algoritmadır. SIFT algoritmasının çalışması dört aşamada incelenir. Bu aşamalar; "Scale-Space Extrema Detection",  "Keypoint Localization", "Orientation Assignment" ve "Keypoint Descriptor".
@@ -183,8 +201,67 @@ if len(good) >= 4:
     cv2.polylines(img2_color, [np.int32(scene_corners)], True, (0, 255, 0), 3)
     cv2.imshow("Nesne Konumu", img2_color)
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
 else:
     print(f"Yeterli eşleşme yok: {len(good)} / 4")
 ```
 
+### SIFT + FLANN + ORB Kapsamlı Örnek
 
+```python
+import cv2
+import numpy as np
+
+img1 = cv2.imread("sorgu.jpg", cv2.IMREAD_GRAYSCALE)
+img2 = cv2.imread("sahne.jpg", cv2.IMREAD_GRAYSCALE)
+if img1 is None or img2 is None:
+    raise FileNotFoundError("sorgu.jpg veya sahne.jpg bulunamadı")
+
+# SIFT öznitelik çıkarımı
+sift = cv2.SIFT_create()
+kp1, des1 = sift.detectAndCompute(img1, None)
+kp2, des2 = sift.detectAndCompute(img2, None)
+print(f"Görüntü 1: {len(kp1)} anahtar nokta")
+print(f"Görüntü 2: {len(kp2)} anahtar nokta")
+
+# FLANN tabanlı eşleştirme
+FLANN_INDEX_KDTREE = 1
+index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
+search_params = dict(checks=50)
+flann = cv2.FlannBasedMatcher(index_params, search_params)
+matches = flann.knnMatch(des1, des2, k=2)
+
+# Lowe oran testi
+good = [m for m, n in matches if m.distance < 0.7 * n.distance]
+print(f"İyi eşleşme: {len(good)}/{len(matches)}")
+
+# Homografi (4+ iyi eşleşme gerekir)
+if len(good) >= 4:
+    src_pts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
+    dst_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
+    H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+    print(f"RANSAC inlier: {mask.sum()}/{len(good)}")
+
+# ORB — patent-free alternatif
+orb = cv2.ORB_create(nfeatures=500)
+kp1_orb, des1_orb = orb.detectAndCompute(img1, None)
+kp2_orb, des2_orb = orb.detectAndCompute(img2, None)
+bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+matches_orb = sorted(bf.match(des1_orb, des2_orb), key=lambda x: x.distance)
+
+# Eşleşmeleri görselleştir
+result = cv2.drawMatches(img1, kp1, img2, kp2,
+                          [m for m in good[:20]], None,
+                          flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+cv2.imshow("SIFT Eşleşmeleri", result)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+### Özet & İleri Okuma
+- SIFT ölçek ve rotasyon değişmez öznitelikler üretir; patent süresi dolmuştur (2020+)
+- DoG scale-space extrema ile anahtar noktalar bulunur; 128-boyutlu descriptor hesaplanır
+- Lowe oran testi (d1/d2 < 0.7) yanlış eşleşmeleri etkili biçimde eler
+- FLANN, BruteForce'tan çok daha hızlı büyük öznitelik setlerinde eşleştirme yapar
+- ORB patent-free ve SIFT'ten ~100x daha hızlıdır; gerçek zamanlı uygulamalar için idealdir
+- Referans: Lowe 2004 (https://doi.org/10.1023/B:VISI.0000029664.99615.94)
