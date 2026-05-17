@@ -1,0 +1,20 @@
+README.md
+  s_4051bb1c427589::t_df4ea988899d00 56-61
+  s_4051bb1c427589::t_8d5616d43101f4 333-345
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "5b8faf723a993417e029194b083443d779e30b88",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
