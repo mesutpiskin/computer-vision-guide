@@ -1,0 +1,19 @@
+docs/13-video-analiz.md
+  s_4051bb1c427589::t_0ec5fc6e0d114a 262-335
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "b8c858121bb5c32265b94d875ecbe9797a77944f",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
