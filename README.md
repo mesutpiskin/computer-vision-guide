@@ -53,6 +53,12 @@ OpenCV ile bilgisayarlı görü ve görüntü işleme eğitim dokümanı ile bir
 | [Segmentasyon](/docs/22-segmentasyon.md)                                         | YOLOv8-seg ile örnek segmentasyonu, SAM/SAM2 ile segment anything, DeepLab semantik segmentasyon.                                                                          |
 | [Edge Deployment](/docs/23-edge-deployment.md)                                   | ONNX Runtime ve TFLite ile model optimizasyonu ve Raspberry Pi/mobil deployment.                                                                                            |
 | [Artırılmış Gerçeklik](/docs/25-artirilmis-gerceklik.md)                       | ArUco marker tespiti, 3D eksen projeksiyon, görüntü giydirme ve MediaPipe yüz filtresi.                                                                                    |
+| [Vision Transformers](/docs/26-vision-transformers.md)                          | ViT patch embedding, multi-head self-attention, DETR, Swin Transformer — teorik temel ve HuggingFace ile uygulama.                                                         |
+| [Generatif Modeller ve Diffusion](/docs/27-generatif-modeller.md)               | GAN, VAE, DDPM matematiği, Stable Diffusion mimarisi ve ControlNet ile koşullu görüntü üretimi.                                                                            |
+| [3D Vision](/docs/28-3d-vision.md)                                              | Nokta bulutu (PointNet), Neural Radiance Fields (NeRF), monoküler derinlik tahmini.                                                                                        |
+| [Video Anlama ve Eylem Tanıma](/docs/29-video-siniflandirma.md)                 | SlowFast, VideoMAE mimarileri ve HuggingFace ile eylem tanıma uygulaması.                                                                                                  |
+| [Model Eğitimi ve Değerlendirme](/docs/30-model-egitimi-ve-degerlendirme.md)    | Transfer learning, augmentation, eğitim pipeline, Precision/Recall/F1/mAP metrikleri.                                                                                     |
+| [Vision-Language Modeller](/docs/31-vision-language-modeller.md)                | CLIP contrastive learning, LLaVA, BLIP-2 mimarileri ve zero-shot uygulamalar.                                                                                             |
 
 ## Örnek Projeler
 
@@ -323,6 +329,19 @@ Dokümanlar, kaynak kodlar veya her hangi bir konuda ki sorularınızı **issues
 Öncelikle [issues](https://github.com/mesutpiskin/opencv-tutorial/issues) bölümüne gidiniz. Sayfanın sağında yer alan **new issues** butonuna tıklayın. Açılan ilgili bölüme sorunuzu veya talebinizi açıklayıcı bir şekilde yazarak **Submit new issues** butonu aracılığıyla kaydedin.
 
 ## Sürüm Notları
+
+### v3.0 — Mayıs 2026 (Akademik Genişletme)
+
+**Revize Edilen Bölümler (15 bölüm):**
+- Tüm temel bölümler akademik referanslar, matematiksel formüller ve tam çalışan Python kodlarıyla zenginleştirildi.
+
+**Yeni Bölümler (6 bölüm):**
+- **Bölüm 26:** Vision Transformers (ViT, DETR, Swin)
+- **Bölüm 27:** Generatif Modeller ve Diffusion (GAN, VAE, Stable Diffusion, ControlNet)
+- **Bölüm 28:** 3D Vision (PointNet, NeRF, Derinlik Tahmini)
+- **Bölüm 29:** Video Anlama ve Eylem Tanıma (SlowFast, VideoMAE)
+- **Bölüm 30:** Model Eğitimi ve Değerlendirme
+- **Bölüm 31:** Vision-Language Modeller (CLIP, LLaVA, BLIP-2)
 
 ### v2.0 — Mayıs 2026 (Modernizasyon)
 
