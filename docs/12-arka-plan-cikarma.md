@@ -1,6 +1,66 @@
 **Arka Plan Çıkarma Algoritmaları** 
 -----------------------------------
 
+### Teorik Temel
+
+**Gaussian Mixture Model (GMM) — MOG2:**
+Her piksel $x$'in arkaplan olasılığı $K$ Gaussian bileşenin ağırlıklı toplamıdır:
+$$P(x) = \sum_{k=1}^{K} w_k \cdot \mathcal{N}(x; \mu_k, \sigma_k^2)$$
+$w_k$: bileşen ağırlığı, $\mu_k$: ortalama, $\sigma_k$: standart sapma.
+
+MOG2 her piksel için $K=5$ Gaussian tutar ve zamanla günceller:
+$$\mu_k^{t+1} = (1-\rho)\mu_k^t + \rho x_t, \quad \sigma_k^{t+1} = (1-\rho)\sigma_k^t + \rho(x_t - \mu_k^t)^2$$
+$\rho$: öğrenme hızı.
+
+Referans: Zivkovic, "Improved Adaptive Gaussian Mixture Model for Background Subtraction", ICPR 2004
+
+### Pratik Uygulama
+
+```python
+import cv2
+
+cap = cv2.VideoCapture("video.mp4")
+if not cap.isOpened():
+    raise RuntimeError("Video dosyası açılamadı")
+
+# MOG2 — Gaussian Mixture, gölge tespiti aktif
+mog2 = cv2.createBackgroundSubtractorMOG2(
+    history=500, varThreshold=16, detectShadows=True
+)
+
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    fg_mask = mog2.apply(frame)
+    # 127: gölge pikselleri, 255: ön plan
+    _, fg_only = cv2.threshold(fg_mask, 200, 255, cv2.THRESH_BINARY)
+
+    # Morfoloji ile gürültü temizleme
+    clean = cv2.morphologyEx(fg_only, cv2.MORPH_OPEN, kernel)
+
+    cv2.imshow("Orijinal", frame)
+    cv2.imshow("Ön Plan", clean)
+    if cv2.waitKey(30) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+```
+
+### Özet & İleri Okuma
+- MOG2, her piksel için K=5 Gaussian bileşenli istatistiksel model tutar
+- history parametresi geçmişe verilen ağırlığı, varThreshold ise duyarlılığı etkiler
+- detectShadows=True gölgeleri ön plandan ayırt eder (127 vs 255)
+- KNN tabanlı BackgroundSubtractorKNN MOG2'ye alternatif daha hızlı yöntemdir
+- Morfolojik opening ile fg_mask gürültüsü temizlenir
+- Referans: Zivkovic — ICPR 2004 (MOG2)
+
+---
+
 Arka plan çıkarma işlemi, 2 boyutlu bir görüntü üzerinde derinlik bilgisi olmaksızın görüntüde yer alan nesnelerin arka planını tespit etmektir. Peki arka plan çıkarma işlemine neden ihtiyaç duyarı? En temel sebeplerine bakarsak; görüntü üzerindeki nesneleri saymak, hareket halindeki bir nesneyi yakalamak ve analiz etmek, nesne tanımada ön işleyici olarak kullanmak, başlı başına hareket tespiti yapmak vb. 
 
 OpenCV ile arka plan tespit işlemi için eklenmiş birçok algoritma mevcuttur. Başlıcaları:
