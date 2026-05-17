@@ -1,6 +1,73 @@
 **Görüntü Manüpülasyonu ve Geometrik Dönüşümler** 
 ----------------------------
 
+### Teorik Temel
+
+**Affine Dönüşüm:**
+$$\begin{bmatrix} x' \\ y' \\ 1 \end{bmatrix} = \begin{bmatrix} a_{00} & a_{01} & t_x \\ a_{10} & a_{11} & t_y \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} x \\ y \\ 1 \end{bmatrix}$$
+
+Affine dönüşüm paralel çizgileri korur. 6 serbestlik derecesi vardır: öteleme (2), döndürme (1), ölçekleme (2), kesme (1).
+
+**Perspektif Dönüşüm (Homografi):**
+$$\begin{bmatrix} x' \\ y' \\ w' \end{bmatrix} = H \begin{bmatrix} x \\ y \\ 1 \end{bmatrix}, \quad H \in \mathbb{R}^{3\times3}$$
+
+Perspektif dönüşüm paralel çizgileri korumaz, 8 serbestlik derecesi vardır. En az 4 nokta çifti gereklidir.
+
+**İnterpolasyon Yöntemleri:**
+- En Yakın Komşu: $f(x,y) = f(\lfloor x \rceil, \lfloor y \rceil)$ — hızlı, pikselleşme
+- Bilineer: 2×2 komşuluk, pürüzsüz
+- Bicubic: 4×4 komşuluk, daha yüksek kalite
+
+Referans: Hartley & Zisserman, "Multiple View Geometry in Computer Vision" (https://www.robots.ox.ac.uk/~vgg/hzbook/)
+
+### Pratik Uygulama
+
+```python
+import cv2
+import numpy as np
+
+img = cv2.imread("resim.jpg")
+if img is None:
+    raise FileNotFoundError("resim.jpg bulunamadı")
+h, w = img.shape[:2]
+
+# Döndürme — merkez etrafında 45 derece
+center = (w // 2, h // 2)
+M_rot = cv2.getRotationMatrix2D(center, angle=45, scale=1.0)
+rotated = cv2.warpAffine(img, M_rot, (w, h))
+
+# Öteleme — 50px sağa, 30px aşağı
+M_trans = np.float32([[1, 0, 50], [0, 1, 30]])
+translated = cv2.warpAffine(img, M_trans, (w, h))
+
+# Perspektif dönüşüm — 4 kaynak → 4 hedef nokta
+src_pts = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
+dst_pts = np.float32([[50, 30], [w - 20, 10], [w - 50, h - 30], [20, h - 20]])
+H = cv2.getPerspectiveTransform(src_pts, dst_pts)
+warped = cv2.warpPerspective(img, H, (w, h))
+
+# Yeniden boyutlandırma — interpolasyon karşılaştırması
+small = cv2.resize(img, (w // 4, h // 4), interpolation=cv2.INTER_AREA)
+large_nn = cv2.resize(small, (w, h), interpolation=cv2.INTER_NEAREST)
+large_cubic = cv2.resize(small, (w, h), interpolation=cv2.INTER_CUBIC)
+
+cv2.imshow("Döndürülmüş", rotated)
+cv2.imshow("En Yakın Komşu", large_nn)
+cv2.imshow("Bicubic", large_cubic)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+### Özet & İleri Okuma
+- Affine dönüşüm 3×3 homojen matris ile temsil edilir ve paralel çizgileri korur
+- Perspektif dönüşüm (homografi) için en az 4 nokta çifti gereklidir
+- Interpolasyon kalitesi: Bicubic > Bilineer > En Yakın Komşu
+- cv2.INTER_AREA küçültme için, cv2.INTER_CUBIC büyütme için önerilir
+- getRotationMatrix2D merkez, açı ve ölçek parametrelerini alır
+- Referans: Hartley & Zisserman — Multiple View Geometry (https://www.robots.ox.ac.uk/~vgg/hzbook/)
+
+---
+
 **Piksel Manüpülasyonu**
 
 Piksel kavramını daha önce açıklamıştık, pikseller mat nesnesi içerisindeki dizi elemanlarına karşılık gelmektedir. Bir görüntü üzerinde işlem yapmak istediğimizde dizideki elemanları kullanmamız gerekmektedir. OpenCV içerisinde yer alan birçok metot piksel işlemlerini kendisi yapmaktadır. Örneğin bir görüntüyü kopyalamak istediğimizde copy metodunu kullanabiliriz fakat bu metotların nasıl çalıştığını anlamak için veya kendi algoritmanızı geliştirmek zorunda kaldığınızda bu bilgiler işinize yarayacaktır. Basit bir uygulama yazalım ve bu uygulama kameradan okunan görüntüyü mat nesnesi içerisinde tutalım ve bu nesneyi bir başka mat nesnesi içerisine kopyalayarak dosya sistemine kaydedelim. Bu örnek ile bir piksele nasıl ulaşabileceğimizi de öğrenmiş olacağız.
