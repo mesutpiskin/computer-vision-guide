@@ -1,6 +1,74 @@
 **Renk Uzayları, Renk Uzayı Dönüşümü ve Histogram** 
 ---------------------------------------------------
 
+### Teorik Temel
+
+**RGB → Gri Ton (ITU-R BT.601):**
+$$Y = 0.299R + 0.587G + 0.114B$$
+İnsan gözü yeşile daha duyarlıdır — Green katsayısı en büyük.
+
+**RGB → HSV:**
+$$V = \max(R,G,B)$$
+$$S = \frac{V - \min(R,G,B)}{V} \quad (V \neq 0)$$
+HSV avantajı: Hue (renk tonu) ve Value (parlaklık) ayrışır → renk tabanlı segmentasyon kolaylaşır.
+
+**Histogram Eşitleme (CDF tabanlı):**
+$$s_k = T(r_k) = (L-1)\sum_{j=0}^{k} p_r(r_j)$$
+$L$: toplam gri düzey (256), $p_r$: olasılık yoğunluğu. CDF tabanlı dönüşüm kontrastı dengeler.
+
+Referans: Poynton, "Digital Video and HD" (https://www.poynton.ca/ColorFAQ.html)
+
+### Pratik Uygulama
+
+```python
+import cv2
+import numpy as np
+
+img = cv2.imread("resim.jpg")
+if img is None:
+    raise FileNotFoundError("resim.jpg bulunamadı")
+
+# Renk uzayı dönüşümleri
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+hsv  = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+lab  = cv2.cvtColor(img, cv2.COLOR_BGR2Lab)
+
+# HSV ile renk maskesi — sarı nesneleri seç
+lower_yellow = np.array([20, 100, 100])
+upper_yellow = np.array([30, 255, 255])
+mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+result = cv2.bitwise_and(img, img, mask=mask)
+
+# Histogram eşitleme (gri ton)
+eq = cv2.equalizeHist(gray)
+
+# CLAHE — adaptif histogram eşitleme (daha iyi lokal kontrast)
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+clahe_img = clahe.apply(gray)
+
+# Lab renk uzayında CLAHE (renkli görüntü için)
+l, a, b = cv2.split(lab)
+l_eq = clahe.apply(l)
+lab_eq = cv2.merge([l_eq, a, b])
+result_color = cv2.cvtColor(lab_eq, cv2.COLOR_Lab2BGR)
+
+cv2.imshow("Orijinal", img)
+cv2.imshow("HSV Maske", result)
+cv2.imshow("CLAHE", clahe_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+### Özet & İleri Okuma
+- RGB→Gri dönüşümü ITU-R BT.601 katsayıları kullanır: Y=0.299R+0.587G+0.114B
+- HSV renk ve parlaklığı ayırır; renk tabanlı segmentasyon için idealdir
+- cv2.inRange ile HSV maskesi oluşturma en yaygın renk filtreleme yöntemidir
+- CLAHE, global histogram eşitlemeden üstündür: lokal kontrast korur
+- Lab renk uzayı perceptually uniform — insan algısıyla orantılı mesafe
+- Referans: Poynton — Digital Video and HD (https://www.poynton.ca/ColorFAQ.html)
+
+---
+
 Renk Uzayı: Renk çeşitliliğinin fazla olması nedeniyle bu renkleri gruplama ihtiyacı doğmuştur bu renkleri gruplamak ve standartlaştırmak için renk uzayı (color space) kavramı ortaya çıkmıştır.  Her renk uzayı, renk kümesini tanımlamak için kendine özgü bir yapıya sahiptir. Örneğin siyah beyaz bir görüntüyü dijitalleştirmek için çok fazla kavrama gerek yoktur. Görüntü siyah ve beyaz olmak üzere 2 adet değişkene sahiptir. 300×300 boyutunda dijital siyah beyaz bir görüntü dijitalleştirilip renklendirilirken, 300×300 boyutunda bir dizi oluşturulur. Renklendirme işlemi için ise 2 adet değişken olduğu için 1 ve 0 yeterlidir. Fakat renkli bir resim üzerinde farklı renk tonları olacağı için 1 ve 0 ile bu görüntüyü tanımlamak yetersiz olacaktır. Bu farklı durumlar için çeşitli renk uzayları belirlenmiştir. En çok kullanılan ve kitap boyunca yer alacak örneklerde de kullanılan renk uzaylarına göz atalım.
 
 
