@@ -138,6 +138,80 @@ cv2.destroyAllWindows()
 
 
 
+### Teorik Temel — Pinhole Model ve Kalibrasyon
+
+**Pinhole Kamera Modeli:**
+$$\begin{bmatrix} u \\ v \\ 1 \end{bmatrix} = \frac{1}{Z}\begin{bmatrix} f_x & 0 & c_x \\ 0 & f_y & c_y \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} X \\ Y \\ Z \end{bmatrix}$$
+$f_x, f_y$: odak uzunlukları (piksel), $(c_x, c_y)$: görüntü merkezi (principal point), $(X,Y,Z)$: 3D dünya noktası.
+
+**Radyal Lens Bozulması:**
+$$x_d = x(1+k_1r^2+k_2r^4+k_3r^6), \quad r^2=x^2+y^2$$
+$k_1, k_2, k_3$: radyal bozulma katsayıları. Balık gözü lenste $k_1 < 0$.
+
+**Reprojection Error (RMS):**
+$$\text{RMS} = \sqrt{\frac{1}{N}\sum_{i=1}^N \|p_i - \hat{p}_i\|^2}$$
+$p_i$: gerçek köşe, $\hat{p}_i$: hesaplanan köşe. İyi kalibrasyon için RMS < 1 piksel.
+
+Referans: Hartley & Zisserman, "Multiple View Geometry" (https://www.robots.ox.ac.uk/~vgg/hzbook/)
+
+```python
+import cv2
+import numpy as np
+import glob
+
+CHECKERBOARD = (9, 6)
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+
+obj_points, img_points = [], []
+objp = np.zeros((CHECKERBOARD[0] * CHECKERBOARD[1], 3), np.float32)
+objp[:, :2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
+
+image_files = glob.glob("calibration_images/*.jpg")
+if not image_files:
+    raise FileNotFoundError("calibration_images/ klasöründe .jpg dosyası bulunamadı")
+
+for fname in image_files:
+    img = cv2.imread(fname)
+    if img is None:
+        continue
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret, corners = cv2.findChessboardCorners(gray, CHECKERBOARD, None)
+    if ret:
+        obj_points.append(objp)
+        corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+        img_points.append(corners2)
+
+if len(obj_points) < 5:
+    raise ValueError("Kalibrasyon için en az 5 geçerli görüntü gerekli")
+
+ret, K, dist, rvecs, tvecs = cv2.calibrateCamera(
+    obj_points, img_points, gray.shape[::-1], None, None
+)
+print(f"Kalibrasyon hatası (RMS): {ret:.4f} piksel")
+print(f"Kamera matrisi K:\n{K}")
+print(f"Bozulma katsayıları: {dist.ravel()}")
+
+# Görüntü düzeltme
+test_img = cv2.imread("test.jpg")
+if test_img is not None:
+    h, w = test_img.shape[:2]
+    new_K, roi = cv2.getOptimalNewCameraMatrix(K, dist, (w, h), 1, (w, h))
+    undistorted = cv2.undistort(test_img, K, dist, None, new_K)
+    cv2.imshow("Düzeltilmiş", undistorted)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+```
+
+### Özet & İleri Okuma
+- Pinhole model, 3D dünya noktalarını 2D görüntü koordinatlarına eşler
+- Kamera matrisi K: focal length (fx, fy) ve principal point (cx, cy) içerir
+- Radyal bozulma katsayıları k1, k2, k3 ile modellenir; balık gözünde k1<0
+- RMS < 1 piksel iyi kalibrasyon göstergesidir; >2 ise yeniden kalibrasyon gerekir
+- undistort() ile lens bozulması düzeltilebilir
+- Referans: Hartley & Zisserman — Multiple View Geometry
+
+---
+
 ## Stereo Görü (Stereo Vision veya Stereoscopic Vision)
 
 Stereo görü insanlanrın sahip olduğu bir yetenekten yola çıkarak uyarlanmış bir kavram/teknolojidir. Mono bir fotoğraf düşününü cep telefonlarınızla çektiğiniz gibi. Fotoğrafa baktığınızda karede yer alan nesnelerin hangisini önce hangisinin arkada olduğunu ayırt edebiliyorsunuz değil mi. Bu derinlik kestirimi olarak adlandırılır. Derinlik kestirimi yeteneğimiz yani iki gözümüz olmasaydı, beynimiz bu derinlik algısını doğru hesaplayamazdı. Bir gözünüzü kapattığınızda önünüzde duran bir nesnenin bir noktasına dokunmaya çalışın bunu daha iyi anlayacaksınız.
