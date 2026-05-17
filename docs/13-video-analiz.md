@@ -259,6 +259,80 @@ while True:
         break
 ```
 
+### Teorik Temel — Optik Akış
+
+**Optik Akış Kısıtı (Brightness Constancy):**
+$$\frac{\partial I}{\partial x}u + \frac{\partial I}{\partial y}v + \frac{\partial I}{\partial t} = 0$$
+$I_x, I_y$: uzamsal gradyanlar, $I_t$: zamansal gradyan, $(u,v)$: akış vektörü. Bu denklem aperture problemi yaratır — tek denklem, iki bilinmeyen.
+
+**Lucas-Kanade Çözümü (Lokal Least Squares):**
+$$\begin{bmatrix} \sum I_x^2 & \sum I_xI_y \\ \sum I_xI_y & \sum I_y^2 \end{bmatrix} \begin{bmatrix} u \\ v \end{bmatrix} = -\begin{bmatrix} \sum I_xI_t \\ \sum I_yI_t \end{bmatrix}$$
+Pencere içindeki tüm piksellerin sabit akış paylaştığı varsayılır. Matris Harris köşe matrisiyle aynıdır.
+
+Referans: Lucas & Kanade, "An Iterative Image Registration Technique", IJCAI 1981
+
+```python
+import cv2
+import numpy as np
+
+cap = cv2.VideoCapture("video.mp4")
+if not cap.isOpened():
+    raise RuntimeError("Video açılamadı")
+
+ret, old_frame = cap.read()
+if not ret:
+    raise RuntimeError("İlk kare okunamadı")
+old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
+
+feature_params = dict(maxCorners=100, qualityLevel=0.3, minDistance=7, blockSize=7)
+p0 = cv2.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
+
+lk_params = dict(winSize=(15, 15), maxLevel=2,
+                 criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+
+mask = np.zeros_like(old_frame)
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+    frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    p1, st, err = cv2.calcOpticalFlowPyrLK(old_gray, frame_gray, p0, None, **lk_params)
+
+    if p1 is not None and st is not None:
+        good_new = p1[st == 1]
+        good_old = p0[st == 1]
+
+        for new, old in zip(good_new, good_old):
+            a, b_coord = new.ravel().astype(int)
+            c, d = old.ravel().astype(int)
+            mask = cv2.line(mask, (a, b_coord), (c, d), (0, 255, 0), 2)
+            frame = cv2.circle(frame, (a, b_coord), 5, (0, 0, 255), -1)
+
+        output = cv2.add(frame, mask)
+        cv2.imshow("Optik Akış (Lucas-Kanade)", output)
+
+        old_gray = frame_gray.copy()
+        p0 = good_new.reshape(-1, 1, 2)
+
+    if cv2.waitKey(30) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+```
+
+### Özet & İleri Okuma
+- Optik akış brightness constancy varsayımına dayanır: piksel yoğunluğu harekette korunur
+- Lucas-Kanade lokal pencerede least squares çözerek aperture problemini aşar
+- goodFeaturesToTrack Shi-Tomasi köşe noktalarını bulur
+- calcOpticalFlowPyrLK piramidal Lucas-Kanade uygular; çok ölçekli hareketi yakalar
+- ByteTrack ve DaSiamRPN modern deep learning tabanlı takipçilerdir
+- Referans: Lucas & Kanade — IJCAI 1981
+
+---
+
 ## Sonuç
 
 Yukarıda bazı takip algoritmalarını kısaca özetledik, peki ama hangi algoritmayı tercih etmeli? Böyle bir soru karşısında bir çok farklı cevap verilebilir ama OpenCV içerisinde bir algoritma arıyorsanız cevap **CSRT** diyebilirim. Nesne takibi için bir çok algoritma mevcut bunlardan yalnızca çok küçük bir kısmı OpenCV içerisinde yer alıyor, bu nedenle probleminize uygun bir takip algoritması arıyorsanız, neredeyse her yıl yapılan "The Visual Object Tracking VOT2017 Challenge" araştırması sonuçlarına göz atabilirsiniz. VOT hareketli videoların yer aldığı bir veri setidir ve bu karşılaştırma raporunda bir çok algoritma bu veri seti ile sınanır. 2017 yılındaki özet sonuca aşağıdaki görselden ulaşabilirsiniz. Rapora ise buradan (http://openaccess.thecvf.com/content_ICCV_2017_workshops/papers/w28/Kristan_The_Visual_Object_ICCV_2017_paper.pdf) ulaşabilirsiniz.
