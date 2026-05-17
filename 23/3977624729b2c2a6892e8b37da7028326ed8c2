@@ -1,0 +1,23 @@
+docs/6-giris-temel-kavramlar.md
+  s_4051bb1c427589::t_918e83c1d64ff4 371,377-378,382-385
+  s_4051bb1c427589::t_e9184ed7bf9fa3 200,205-206
+  s_4051bb1c427589::t_90abefae7d4ccc 318,326-327
+  s_4051bb1c427589::t_e43d022e74fd6b 390,392,394,396,398,400,402,404,406,408,410,412,414,416,418
+  s_4051bb1c427589::t_b651c826579efe 258,267-268
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "233977624729b2c2a6892e8b37da7028326ed8c2",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
