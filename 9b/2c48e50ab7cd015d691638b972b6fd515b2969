@@ -1,0 +1,20 @@
+docs/12-arka-plan-cikarma.md
+  s_4051bb1c427589::t_ebad57ce5fb8f1 206-207
+  s_4051bb1c427589::t_861a68a226d8c4 132-133,135-136,140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "9b2c48e50ab7cd015d691638b972b6fd515b2969",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "unknown"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
