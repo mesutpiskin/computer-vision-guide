@@ -1,0 +1,20 @@
+docs/21-poz-tahmini.md
+  s_4051bb1c427589::t_af6d6209ab7c0d 218-285
+  s_4051bb1c427589::t_a269d0e00a360d 16-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "0c13501cf4e1f59c0dd56e6679c4f21230ab9d36",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
