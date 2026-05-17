@@ -1,0 +1,20 @@
+docs/10-morfolojik-goruntu-isleme.md
+  s_4051bb1c427589::t_3a35dc400f1eb2 160-161,164-165,168
+  s_4051bb1c427589::t_e08ea52fefb159 111-112,119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "61a8538af9413fc0cc617205e7daab0540b465d8",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "unknown"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
