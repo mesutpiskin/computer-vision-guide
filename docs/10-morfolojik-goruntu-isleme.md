@@ -108,12 +108,15 @@ import cv2
 import numpy as np
 
 frame = cv2.imread('resim.png',0)
+if frame is None:
+    raise FileNotFoundError("Görüntü dosyası bulunamadı")
 #Numpy ile kernel matris tanımı
 kernel = np.ones((5,5),np.uint8)
 #Aşındırma işlemi
 sonuc = cv2.erode(frame,kernel,iterations = 1)
 cv2.imshow("Sonuc", sonuc)
 cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
 
 
@@ -154,13 +157,15 @@ import cv2
 import numpy as np
 
 frame = cv2.imread('resim.png',0)
+if frame is None:
+    raise FileNotFoundError("Görüntü dosyası bulunamadı")
 #Numpy ile kernel matris tanımı
 kernel = np.ones((15,15),np.uint8)
-#Aşındırma işlemi
-sonuc = cv2.dilate(img,kernel,iterations = 1)
+#Genişletme işlemi
+sonuc = cv2.dilate(frame,kernel,iterations = 1)
 cv2.imshow("Sonuc", sonuc)
 cv2.waitKey(0)
-
+cv2.destroyAllWindows()
 ```
 
 Aşağıdaki çıktıda sol tarafta bulunan görüntü 1.jpg olarak adlandırılan giriş mat nesnesi, sağındaki ise 2.jpg olarak işlem sonucunda oluşturulan çıktı görüntü. Gördüğünüz üzere giriş görüntüsünde bulunan beyaz şekiller dilation operatörü uygulandığında bir birlerine yaklaşmışlardır. Burada önemli nokta zeminin, siyah nesneler beyaz olması ve yapısal element. Yapısal element üzerindeki değişikler ile aralarındaki mesafe daha da azaltılıp birleştirilebilirdi.
