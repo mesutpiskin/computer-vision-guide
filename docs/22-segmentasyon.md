@@ -11,6 +11,29 @@ Nesne tespiti bir nesnenin nerede olduğunu dikdörtgen bir kutu ile gösterirke
 
 ---
 
+### Teorik Temel — Segmentasyon
+
+**Semantic vs Instance Segmentation:**
+- Semantic: her piksel → sınıf etiketi (aynı sınıf, tek renk)
+- Instance: her nesne örneği ayrı maske
+- Panoptic: ikisinin birleşimi
+
+**mIoU (Mean Intersection over Union):**
+$$\text{mIoU} = \frac{1}{C}\sum_{c=1}^C \frac{TP_c}{TP_c + FP_c + FN_c}$$
+$C$: sınıf sayısı. Segmentasyonun standart değerlendirme metriği.
+
+**SAM (Segment Anything Model) Bileşenleri:**
+1. Image Encoder: ViT-H ile görüntü embedding (1024 boyut)
+2. Prompt Encoder: nokta/kutu/maske prompt'u kodlar
+3. Mask Decoder: 2 katmanlı transformer ile maske üretir
+
+Zero-shot: eğitim görmediği nesneleri segmente eder.
+
+Referans: He et al., "Mask R-CNN", ICCV 2017 (https://arxiv.org/abs/1703.06870)
+Referans: Kirillov et al., "Segment Anything", ICCV 2023 (https://arxiv.org/abs/2304.02643)
+
+---
+
 ## YOLOv8 ile Instance Segmentasyon
 
 ```bash
@@ -167,3 +190,53 @@ cv2.waitKey(0)
 | YOLOv8-seg | Instance | ★★★★ | ★★★★ | Çoklu nesne |
 | SAM / SAM2 | Interactive | ★★ | ★★★★★ | Prompt tabanlı |
 | DeepLab DNN | Semantic | ★★★ | ★★★ | OpenCV ile doğrudan |
+
+---
+
+### YOLOv8-seg — Kapsamlı Örnek
+
+```python
+from ultralytics import YOLO
+import cv2
+import numpy as np
+
+model = YOLO("yolov8n-seg.pt")
+
+img = cv2.imread("resim.jpg")
+if img is None:
+    raise FileNotFoundError("resim.jpg bulunamadı")
+
+results = model.predict(img, conf=0.5, verbose=False)
+result = results[0]
+
+output = img.copy()
+if result.masks is not None:
+    masks = result.masks.data.cpu().numpy()   # (N, H, W)
+    classes = result.boxes.cls.cpu().numpy()
+    names = model.names
+
+    for i, (mask, cls) in enumerate(zip(masks, classes)):
+        mask_resized = cv2.resize(mask, (img.shape[1], img.shape[0]))
+        mask_bool = mask_resized > 0.5
+
+        color = np.random.randint(50, 200, 3).tolist()
+        output[mask_bool] = (output[mask_bool] * 0.5 + np.array(color) * 0.5).astype(np.uint8)
+
+        contours, _ = cv2.findContours(
+            mask_resized.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        cv2.drawContours(output, contours, -1, color, 2)
+        print(f"Nesne {i+1}: {names[int(cls)]}")
+
+cv2.imshow("YOLOv8 Segmentasyon", output)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+### Özet & İleri Okuma
+- Semantic segmentation her piksele sınıf, instance segmentation her nesneye ayrı maske atar
+- mIoU standart segmentasyon metriğidir; sınıf başına IoU ortalamasıdır
+- YOLOv8-seg tek geçişte nesne tespiti ve instance segmentation yapar
+- SAM zero-shot çalışır: nokta veya kutu prompt ile herhangi bir nesneyi segmente eder
+- Mask R-CNN ROIAlign ile piksel hizalı maske üretir
+- Referans: Mask R-CNN (https://arxiv.org/abs/1703.06870), SAM (https://arxiv.org/abs/2304.02643)
