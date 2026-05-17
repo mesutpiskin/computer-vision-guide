@@ -129,10 +129,15 @@ public class ArkaplanTemizle  {
 ```Python
 import cv2
 img1 = cv2.imread('resim.jpg')
+if img1 is None:
+    raise FileNotFoundError("Görüntü dosyası bulunamadı")
 img2 = cv2.imread('resim2.jpg')
+if img2 is None:
+    raise FileNotFoundError("Görüntü dosyası bulunamadı")
 fark = cv2.absdiff(img1, img2)
 cv2.imshow('Sonuc',fark)
 cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
 
 ![Absdiff](static/absdiff.jpg)
@@ -198,6 +203,8 @@ kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
 fgbg = cv2.createBackgroundSubtractorGMG()
 while(1):
     ret, frame = cap.read()
+    if not ret:
+        break
     fgmask = fgbg.apply(frame)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
     cv2.imshow('GORUNTU',fgmask)
