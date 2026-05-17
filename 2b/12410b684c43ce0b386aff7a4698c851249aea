@@ -1,0 +1,20 @@
+docs/22-segmentasyon.md
+  s_4051bb1c427589::t_8da59b530a7c47 193-242
+  s_4051bb1c427589::t_cd7696ba0d5ed7 14-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "2b12410b684c43ce0b386aff7a4698c851249aea",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
