@@ -74,6 +74,67 @@ Yukarıdaki projeyi çalıştırdığınızda görüntü metne çevrilecektir. D
 
 ---
 
+### Teorik Temel — OCR Algoritmaları
+
+**CTC (Connectionist Temporal Classification) Loss:**
+Değişken uzunluklu çıktı dizilerini etiketlemek için:
+$$p(l|x) = \sum_{\pi \in \mathcal{B}^{-1}(l)} p(\pi|x), \quad p(\pi|x) = \prod_{t=1}^T p(\pi_t|x)$$
+$\mathcal{B}$: blank sembolü kaldırma ve tekrar azaltma operatörü. Hizalama etiketi gerektirmez.
+
+**CRNN Mimarisi (CNN + RNN + CTC):**
+1. CNN: görüntü öznitelikleri → özellik haritası
+2. Sütun bazlı özellik vektörleri → sekans
+3. Bidirectional LSTM: bağlamsal kodlama
+4. CTC decoder: karakter olasılıkları → metin dizisi
+
+Referans: Shi et al., "An End-to-End Trainable Neural Network for Image-based Sequence Recognition", IEEE TPAMI 2017 (https://arxiv.org/abs/1507.05717)
+
+```python
+import easyocr
+import cv2
+import numpy as np
+
+# EasyOCR — Türkçe dahil 80+ dil
+reader = easyocr.Reader(["tr", "en"], gpu=False)
+results = reader.readtext("belge.jpg")
+
+img = cv2.imread("belge.jpg")
+if img is None:
+    raise FileNotFoundError("belge.jpg bulunamadı")
+
+for (bbox, text, confidence) in results:
+    if confidence > 0.5:
+        print(f"Metin: {text!r}, Güven: {confidence:.2f}")
+        pts = np.array([[int(p[0]), int(p[1])] for p in bbox])
+        cv2.polylines(img, [pts], True, (0, 255, 0), 2)
+
+cv2.imshow("OCR Sonuçları", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# Tesseract ile Türkçe OCR
+try:
+    import pytesseract
+    from PIL import Image
+
+    img_pil = Image.open("belge.jpg")
+    text = pytesseract.image_to_string(img_pil, lang="tur+eng")
+    print("Tesseract çıktısı:")
+    print(text)
+except ImportError:
+    print("pytesseract kurulu değil: pip install pytesseract")
+```
+
+### Özet & İleri Okuma
+- CTC loss hizalama etiketi olmadan sekans çıktısı öğrenmesini sağlar
+- CRNN (CNN+BiLSTM+CTC) metin tanımada temel mimari olmuştur
+- EasyOCR 80+ dili destekler; kutu koordinatlarıyla birlikte metin döndürür
+- Tesseract açık kaynak, Türkçe dahil çok dilli OCR sunar; tur.traineddata gerekir
+- PaddleOCR ve TrOCR modern transformer tabanlı alternatifleridir
+- Referans: Shi et al. 2017 (https://arxiv.org/abs/1507.05717)
+
+---
+
 ## EasyOCR ile Metin Tanıma
 
 EasyOCR, 80+ dil desteği ve derin öğrenme tabanlı mimarisi ile Tesseract'a güçlü bir alternatiftir. El yazısı ve zor fontlarda daha iyi sonuç verir.
