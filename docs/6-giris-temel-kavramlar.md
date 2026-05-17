@@ -197,11 +197,13 @@ imageArray=Highgui.imread("C:\\Users\\mesutpiskin\\resim.jpg");
 
 imread() ile dosyadan okuduğumuz resmi imshow ile görüntüleyelim.
 
-```Python
+```python
 import numpy as np
 import cv2
 
 img = cv2.imread('resim.jpg')
+if img is None:
+    raise FileNotFoundError("Görüntü dosyası bulunamadı: resim.jpg")
 
 cv2.imshow('image',img)
 cv2.waitKey(0)
@@ -253,7 +255,7 @@ public class VideoDosyasiOkumaOrnegi{
 
 *Python:*
 
-``` Python
+```python
 import cv2
 
 # Video dosyasını aç
@@ -262,6 +264,8 @@ cap = cv2.VideoCapture("videodosyasi.avi")
 while(True):
     # görüntü oku
     ret, frame = cap.read()
+    if not ret:
+        break
 
     # alınan görüntüyü göster
     cv2.imshow('frame',frame)
@@ -311,7 +315,7 @@ public class Kamera {
 
 *Python:*
 
-``` Python
+```python
 import cv2
 
 cap = cv2.VideoCapture(0)
@@ -319,6 +323,8 @@ cap = cv2.VideoCapture(0)
 while(cap.isOpened()):
 #Görüntüyü oku ve görüntüle
     ret, frame = cap.read()
+    if not ret:
+        break
     cv2.imshow('frame',frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
@@ -362,47 +368,52 @@ public static void main(String[] args) {
 ```
 
 *Python:*
-``` Python
+```python
 import cv2
 cap = cv2.VideoCapture('http://admin:admin@192.168.1.51/cgi/stream.mjpg')
 
 while True:
   ret, frame = cap.read()
+  if not ret:
+    break
   cv2.imshow('Video', frame)
 
   if cv2.waitKey(1) == 27:
-    exit(0)
+    break
+
+cap.release()
+cv2.destroyAllWindows()
 ```
 
 VideoCapture sınıfında bulunan set() metodu ile video aygıtları için bazı ayarları yapılandırabiliriz. int tipinde id ve paramtere değerini alır. get() metodu ile de değerleri görebilirsiniz. propId olarak tanımlanan int tipinde verilecek atanacak olan özelliğin id değeridir. Doğrudan int tipinde id değeri verilebileceği gibi 3.x öncesi sürümlerde Highgui 3.x sürümlerde ise Videoio içerisindeki int değişkenleride doğrudan kullanabilirsiniz. VideoCapture sınıfında kullanılabilecek bazı parametrelere göz atalım.
 
-- **CV_CAP_PROP_POS_MSEC:** Video dosyasından okuma yaparken mili saniye cinsinden o anki video zamanını yönetir.
+- **cv2.CAP_PROP_POS_MSEC:** Video dosyasından okuma yaparken mili saniye cinsinden o anki video zamanını yönetir.
 
-- **CV_CAP_PROP_FRAME_WIDTH:** Okunan görüntünün genişliğini yönetir. Görüntü genişliği değiştirilebilir yada okunan görüntünün genişliği öğrenilebilir.
+- **cv2.CAP_PROP_FRAME_WIDTH:** Okunan görüntünün genişliğini yönetir. Görüntü genişliği değiştirilebilir yada okunan görüntünün genişliği öğrenilebilir.
 
-- **CV_CAP_PROP_FRAME_HEIGHT:** Okunan görüntünün yüksekliğini yönetir. Görüntü yüksekliği değiştirilebilir yada okunan görüntünün yüksekliği öğrenilebilir.
+- **cv2.CAP_PROP_FRAME_HEIGHT:** Okunan görüntünün yüksekliğini yönetir. Görüntü yüksekliği değiştirilebilir yada okunan görüntünün yüksekliği öğrenilebilir.
 
-- **CV_CAP_PROP_FPS:** Görüntünün saniyedeki kare hızını ifade eden FPS değeri değiştirilebilir.
+- **cv2.CAP_PROP_FPS:** Görüntünün saniyedeki kare hızını ifade eden FPS değeri değiştirilebilir.
 
-- **CV_CAP_PROP_FOURCC:** Codec değiştirilebilir. Kodek dört karakterlik kod ile ifade edilir.
+- **cv2.CAP_PROP_FOURCC:** Codec değiştirilebilir. Kodek dört karakterlik kod ile ifade edilir.
 
-- **CV_CAP_PROP_FRAME_COUNT:** Görüntünün çerçeve (frame) sayısına erişilebilir.
+- **cv2.CAP_PROP_FRAME_COUNT:** Görüntünün çerçeve (frame) sayısına erişilebilir.
 
-- **CV_CAP_PROP_FORMAT:** Mat nesnesinin formatı değiştirilebilir.
+- **cv2.CAP_PROP_FORMAT:** Mat nesnesinin formatı değiştirilebilir.
 
-- **CV_CAP_PROP_BRIGHTNESS:** Görüntünün parlaklık değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
+- **cv2.CAP_PROP_BRIGHTNESS:** Görüntünün parlaklık değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
 
-- **CV_CAP_PROP_CONTRAST:** Görüntünün kontrast değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
+- **cv2.CAP_PROP_CONTRAST:** Görüntünün kontrast değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
 
-- **CV_CAP_PROP_SATURATION:** Görüntünün doygunluk değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
+- **cv2.CAP_PROP_SATURATION:** Görüntünün doygunluk değeri değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
 
-- **CV_CAP_PROP_HUE:** Görüntünün renk tonu değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
+- **cv2.CAP_PROP_HUE:** Görüntünün renk tonu değiştirilebilir. Bu parametre sadece kamera aygıtları için geçerlidir.
 
-- **CV_CAP_PROP_CONVERT_RGB:** Görüntünün RGB renk uzayına dönüştürülmesi gerekiyor ise kullanılır.
+- **cv2.CAP_PROP_CONVERT_RGB:** Görüntünün RGB renk uzayına dönüştürülmesi gerekiyor ise kullanılır.
 
-- **CV_CAP_PROP_WHITE_BALANCE:** Görüntünün beyaz dengesi değiştirilebilir.
+- **cv2.CAP_PROP_WHITE_BALANCE_BLUE_U:** Görüntünün beyaz dengesi değiştirilebilir.
 
-- **CV_CAP_PROP_ISO_SPEED:** Kameranın ISO hızı değiştirilebilir. Tüm aygıtlar için desteklenmemektedir.
+- **cv2.CAP_PROP_ISO_SPEED:** Kameranın ISO hızı değiştirilebilir. Tüm aygıtlar için desteklenmemektedir.
 
-- **CV_CAP_PROP_BUFFERSIZE:** Ara belleğe alınacak olan çerçeve (frame) miktarı değiştirilebilir. Bellek taşmaları için dikkatli olunmalıdır.
+- **cv2.CAP_PROP_BUFFERSIZE:** Ara belleğe alınacak olan çerçeve (frame) miktarı değiştirilebilir. Bellek taşmaları için dikkatli olunmalıdır.
 
