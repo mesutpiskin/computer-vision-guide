@@ -76,6 +76,65 @@ Derin öğrenme tabanlı yüz tanıma yaklaşımları;
 
 ---
 
+### Teorik Temel — Yüz Tanıma Algoritmaları
+
+**PCA (Eigenfaces) — Kovaryans Matrisi:**
+$$\Sigma = \frac{1}{N}\sum_{i=1}^N (x_i - \mu)(x_i - \mu)^T$$
+Özdeğer ayrışımı: $\Sigma v_k = \lambda_k v_k$. En büyük $k$ özdeğere ait özvektörler "eigenfaces" adını alır.
+
+**FaceNet Triplet Loss:**
+$$\mathcal{L} = \sum_{i} \left[\|f(x_i^a) - f(x_i^p)\|_2^2 - \|f(x_i^a) - f(x_i^n)\|_2^2 + \alpha\right]_+$$
+$x^a$: anchor, $x^p$: positive (aynı kişi), $x^n$: negative (farklı kişi), $\alpha$: margin.
+
+**ArcFace Açısal Margin:**
+$$\mathcal{L} = -\log \frac{e^{s\cos(\theta_{y_i}+m)}}{e^{s\cos(\theta_{y_i}+m)} + \sum_{j \neq y_i}e^{s\cos\theta_j}}$$
+Açısal margin $m$ ile sınıflar arası ayrım artırılır.
+
+Referans: Schroff et al., "FaceNet", CVPR 2015 (https://arxiv.org/abs/1503.03832)
+Referans: Deng et al., "ArcFace", CVPR 2019 (https://arxiv.org/abs/1801.07698)
+
+```python
+from deepface import DeepFace
+
+# Yüz doğrulama
+result = DeepFace.verify(
+    img1_path="kisi1.jpg",
+    img2_path="kisi2.jpg",
+    model_name="ArcFace",
+    detector_backend="retinaface"
+)
+print(f"Aynı kişi mi: {result['verified']}, Mesafe: {result['distance']:.4f}")
+
+# Yüz analizi (yaş, cinsiyet, duygu)
+analysis = DeepFace.analyze(
+    img_path="resim.jpg",
+    actions=["age", "gender", "emotion"]
+)
+print(f"Yaş: {analysis[0]['age']}")
+print(f"Cinsiyet: {analysis[0]['dominant_gender']}")
+print(f"Duygu: {analysis[0]['dominant_emotion']}")
+
+# Veritabanında yüz arama
+dfs = DeepFace.find(
+    img_path="sorgu.jpg",
+    db_path="yuzler_klasoru/",
+    model_name="ArcFace",
+    distance_metric="cosine"
+)
+if dfs and len(dfs[0]) > 0:
+    print(dfs[0][["identity", "distance"]].head())
+```
+
+### Özet & İleri Okuma
+- Eigenfaces PCA tabanlıdır; kovaryans matrisinin özdeğer ayrışımına dayanır
+- FaceNet triplet loss: aynı kişi embedding'lerini yaklaştırır, farklıları uzaklaştırır
+- ArcFace açısal margin ile sınırlar arası ayrımı artırır; modern SOTA yöntemidir
+- DeepFace kütüphanesi ArcFace, FaceNet, VGG-Face, DeepID modellerini sağlar
+- Cosine distance, Euclidean'dan genellikle daha kararlı yüz eşleşmesi verir
+- Referans: FaceNet (https://arxiv.org/abs/1503.03832), ArcFace (https://arxiv.org/abs/1801.07698)
+
+---
+
 ## Modern Yüz Tanıma Kütüphaneleri
 
 ### DeepFace ile Yüz Tanıma
