@@ -1,0 +1,20 @@
+docs/19-oznitelik-cikarimi.md
+  s_4051bb1c427589::t_c8776ca99e90f3 33-50
+  s_4051bb1c427589::t_b7cc979c1f2d6a 204,209-259,261-267
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "e3358bb1198f447804083231b48ef70984d9f63f",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
