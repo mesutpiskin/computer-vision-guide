@@ -1,6 +1,74 @@
 **Filtreleme ve Kenar Belirleme Algoritmaları** 
 -----------------------------------------------
 
+### Teorik Temel
+
+**Gaussian Filtresi:**
+$$G(x,y) = \frac{1}{2\pi\sigma^2} e^{-\frac{x^2+y^2}{2\sigma^2}}$$
+$\sigma$ (standart sapma) bulanıklık derecesini belirler. Büyük $\sigma$ → güçlü gürültü bastırma.
+
+**Sobel Operatörü — Gradyan:**
+$$G_x = \begin{bmatrix}-1&0&1\\-2&0&2\\-1&0&1\end{bmatrix} * I, \quad G_y = \begin{bmatrix}-1&-2&-1\\0&0&0\\1&2&1\end{bmatrix} * I$$
+$$|\nabla I| = \sqrt{G_x^2 + G_y^2}, \quad \theta = \arctan\left(\frac{G_y}{G_x}\right)$$
+
+**Canny Kenar Belirleme (4 Aşama):**
+1. Gaussian ile gürültü bastırma
+2. Sobel ile gradyan büyüklük/yönü
+3. Non-maximum suppression — gradyan yönünde yerel olmayan maksimumları sıfırla
+4. Double thresholding: güçlü kenar $>T_h$, zayıf kenar $T_l < \cdot < T_h$
+
+Referans: Canny, J. "A Computational Approach to Edge Detection", IEEE TPAMI 1986 (https://doi.org/10.1109/TPAMI.1986.4767851)
+
+### Pratik Uygulama
+
+```python
+import cv2
+import numpy as np
+
+img = cv2.imread("resim.jpg")
+if img is None:
+    raise FileNotFoundError("resim.jpg bulunamadı")
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Gaussian bulanıklaştırma
+blurred = cv2.GaussianBlur(gray, (5, 5), sigmaX=1.4)
+
+# Sobel gradyanları
+sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
+sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
+magnitude = np.sqrt(sobelx**2 + sobely**2).astype(np.uint8)
+
+# Laplacian
+laplacian = cv2.Laplacian(gray, cv2.CV_64F)
+laplacian_abs = np.uint8(np.absolute(laplacian))
+
+# Canny — T_low=50, T_high=150 (2:3 oranı önerilir)
+edges = cv2.Canny(blurred, threshold1=50, threshold2=150)
+
+# Otomatik eşik (medyan tabanlı)
+v = np.median(gray)
+sigma = 0.33
+lower = int(max(0, (1.0 - sigma) * v))
+upper = int(min(255, (1.0 + sigma) * v))
+auto_edges = cv2.Canny(gray, lower, upper)
+
+cv2.imshow("Sobel Magnitude", magnitude)
+cv2.imshow("Canny", edges)
+cv2.imshow("Auto Canny", auto_edges)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+### Özet & İleri Okuma
+- Gaussian filtresi σ parametresiyle bulanıklık derecesi ayarlanır
+- Sobel birinci türev, Laplacian ikinci türev tabanlı kenar belirleyicilerdir
+- Canny 4 aşamalı pipeline'ı ile en gürbüz kenar belirleyicidir
+- T_low:T_high oranı yaklaşık 1:2 veya 1:3 olarak seçilmesi önerilir
+- Medyan tabanlı otomatik eşik, farklı görüntülere adapte olur
+- Referans: Canny 1986 — https://doi.org/10.1109/TPAMI.1986.4767851
+
+---
+
 Bu bölümde görüntü üzerindeki gürültüleri temizlemek, görüntü üzerindeki nesnelerin kenarlarını tespit etmek veya görüntüyü ön işlem ile analiz etmek için kullanılabilecek algroritmaların OpenCV kütüphanesi ile nasıl kullanılabileceğine bakacağız.
 
  ## Filtreleme
