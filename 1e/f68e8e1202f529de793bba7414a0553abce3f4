@@ -1,0 +1,22 @@
+docs/8-goruntu-manipulasyonu.md
+  s_4051bb1c427589::t_8f8b3761c05fab 236-237,242
+  s_4051bb1c427589::t_aa420eddec8162 139-140
+  s_4051bb1c427589::t_251e137f77e62e 273-274,279
+  s_4051bb1c427589::t_910048026bbc18 309-310,316
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "1ef68e8e1202f529de793bba7414a0553abce3f4",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "unknown"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
