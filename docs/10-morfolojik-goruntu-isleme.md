@@ -1,5 +1,63 @@
 **Morfolojik Görüntü işleme** 
 -----------------------------
+
+### Teorik Temel
+
+**Erosion (Aşındırma) — Minkowski Farkı:**
+$$A \ominus B = \{z \mid B_z \subseteq A\}$$
+$B_z$: $B$ yapı elemanının $z$ noktasına ötelenmiş hali. Yalnızca yapı elemanının tamamen sığdığı yerlerde piksel 1 kalır.
+
+**Dilation (Genişletme) — Minkowski Toplamı:**
+$$A \oplus B = \{z \mid (\hat{B})_z \cap A \neq \emptyset\}$$
+Yapı elemanı herhangi bir 1-pikselini kapsayan her yerde çıkış 1 olur.
+
+**Opening:** $A \circ B = (A \ominus B) \oplus B$ — Küçük nesneleri siler, büyükleri korur.
+**Closing:** $A \bullet B = (A \oplus B) \ominus B$ — Küçük delikleri kapatır.
+**Morfolojik Gradyan:** $(A \oplus B) - (A \ominus B)$ — Nesne kenarlarını verir.
+
+Referans: Serra, J. "Image Analysis and Mathematical Morphology" (Academic Press, 1982)
+
+### Pratik Uygulama
+
+```python
+import cv2
+import numpy as np
+
+img = cv2.imread("resim.jpg", cv2.IMREAD_GRAYSCALE)
+if img is None:
+    raise FileNotFoundError("resim.jpg bulunamadı")
+_, binary = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+
+# Yapı elemanları
+kernel_rect    = cv2.getStructuringElement(cv2.MORPH_RECT,    (5, 5))
+kernel_ellipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+kernel_cross   = cv2.getStructuringElement(cv2.MORPH_CROSS,   (5, 5))
+
+eroded   = cv2.erode(binary, kernel_rect, iterations=1)
+dilated  = cv2.dilate(binary, kernel_rect, iterations=1)
+opened   = cv2.morphologyEx(binary, cv2.MORPH_OPEN,     kernel_ellipse)
+closed   = cv2.morphologyEx(binary, cv2.MORPH_CLOSE,    kernel_ellipse)
+gradient = cv2.morphologyEx(binary, cv2.MORPH_GRADIENT, kernel_rect)
+tophat   = cv2.morphologyEx(binary, cv2.MORPH_TOPHAT,   kernel_rect)
+blackhat = cv2.morphologyEx(binary, cv2.MORPH_BLACKHAT, kernel_rect)
+
+cv2.imshow("Orijinal", binary)
+cv2.imshow("Erosion", eroded)
+cv2.imshow("Dilation", dilated)
+cv2.imshow("Gradient", gradient)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+### Özet & İleri Okuma
+- Erosion Minkowski farkı, Dilation Minkowski toplamıdır
+- Opening (erosion→dilation) küçük nesneleri eler; Closing (dilation→erosion) boşlukları doldurur
+- Yapı elemanı şekli (dikdörtgen, elips, artı) sonucu doğrudan etkiler
+- Morfolojik gradyan nesne kenarlarını verir; Tophat parlak küçük yapıları bulur
+- Referans: Serra — Image Analysis and Mathematical Morphology (1982)
+
+---
+
 Morfoloji (İngilizce morphology) şekil bilimi olarak tanımlanmaktadır. Başlı başına bilim olan bu alanı tüm yöntemleri ile OpenCV Kütüphanesi içerisine taşımak elbette ki mantıklı bir seçim değildir bu yüzden ihtiyaç duyulabilecek bazı teknikler aktarılmıştır. Morfolojik görüntü işleme (morphology ) görüntü içindeki nesnelerin şekilleri (morfolojisi) ile ilgilenen bir dizi görüntü işleme tekniklerini tarif etmektedir.OpenCV içerisinde morfolojik işlem operatörleri Imgproc içerisinde bulunmaktadır.
 
 Morfoloji’nin bir şekil bilimi olduğunu söylemiştik, çalışılan görüntü üzerindeki şekillerin yorumlanması, analiz edilmesi, istenilen bilginin çıkartılması, inceltme, görüntü sıkıştırma, köşe analizi, bozuk görüntü onarma (eksik veya fazla piksellerin çıkarılması, eklenmesi), dokuların tespiti gibi işlemlerde sıklıkla başvurulmaktadır.
