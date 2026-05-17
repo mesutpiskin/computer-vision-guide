@@ -1,0 +1,19 @@
+docs/terimler.md
+  s_4051bb1c427589::t_eaaad51e105f1a 13-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "7eb158dc2f823e4515f740dd5335ce41e7ade8fa",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
