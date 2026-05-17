@@ -136,6 +136,8 @@ import numpy as np
 
  
 frame = cv2.imread('turkey-logo.jpg')
+if frame is None:
+    raise FileNotFoundError("Görüntü dosyası bulunamadı")
 #nump ile frame matrisi üzerinde kolayca karşılaştırma ve değer değiştirme yapabiliyoruz
 frame[np.where((frame == [255,255,255]).all(axis = 2))] = [0,0,0]
 #yeni görüntüyü kaydedelim
@@ -231,10 +233,13 @@ public class Dikdortgen {
 ```Python
 import cv2
 frame = cv2.imread('turkey-logo.jpg')
+if frame is None:
+    raise FileNotFoundError("Görüntü dosyası bulunamadı")
 cv2.line(frame,(0,0),(511,511),(255,255,0),5)
 cv2.rectangle(frame,(384,0),(510,128),(0,255,255),3)
 cv2.imshow("Cikti",frame)
 cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
 
 
@@ -265,11 +270,13 @@ public static void Kirp(String[] args) {
 ```Python
 import cv2
 frame = cv2.imread("kiz_kulesi.png")
+if frame is None:
+    raise FileNotFoundError("Görüntü dosyası bulunamadı")
 #Alınan görüntüyü 10,100 - 100,200 şeklinde kırp
 kesilmis_frame = frame[10:100, 100:200]
 cv2.imshow("Kırpilmis Goruntu", kesilmis_frame)
 cv2.waitKey(0)
-
+cv2.destroyAllWindows()
 ```
 
 ![Crop](static/crop.jpg)
@@ -299,9 +306,12 @@ Imgcodecs.imwrite("C:\\2.jpg", hedef);
 import numpy as np
 import cv2 as cv
 img = cv.imread('turkey-logo.jpg')
+if img is None:
+    raise FileNotFoundError("Görüntü dosyası bulunamadı")
 height, width = img.shape[:2]
 #Orijinal boyutunu 2 kat büyütelim (2*width, 2*height)
 sonuc = cv.resize(img,(2*width, 2*height), interpolation = cv.INTER_CUBIC)
 cv.imshow("Boyutlandirilmis Goruntu", sonuc)
 cv.waitKey(0)
+cv.destroyAllWindows()
 ```
