@@ -53,18 +53,18 @@ Every chapter follows the same structure: **real-world problem** → intuitive e
 | [Face Recognition](/docs/17-face-recognition.en-US.md) | Eigenfaces/LBPH, FaceNet embedding intuition, ArcFace angular margin, DeepFace integration. |
 | [Optical Character Recognition (OCR)](/docs/18-optic-character-recognition.en-US.md) | OCR pipeline, image preprocessing, Tesseract PSM modes, EasyOCR, EAST text detection. |
 | [Feature Extraction and Matching](/docs/19-feature-extraction.en-US.md) | SIFT DoG scale space, ORB, FLANN matching, Lowe ratio test, RANSAC homography; image stitching. |
-| [GPU and Parallel Computing](/docs/20-gpu-paralel-hesaplama.md) | CUDA module, OpenVINO model acceleration, threading for parallel image processing. |
-| [Pose Estimation](/docs/21-poz-tahmini.md) | 17 COCO keypoints, MediaPipe Pose skeleton detection, angle calculation, rep counter, YOLOv8-Pose. |
-| [Segmentation](/docs/22-segmentasyon.md) | Semantic/instance/panoptic differences, Watershed, YOLOv8-seg, SAM (Segment Anything), IoU and mIoU. |
-| [Edge Deployment](/docs/23-edge-deployment.md) | Model optimization with ONNX Runtime and TFLite, Raspberry Pi and mobile deployment. |
-| [OpenCV Mobile](/docs/24-opencv-mobil.md) | OpenCV on Android and iOS, camera stream processing, TFLite integration. |
-| [Augmented Reality](/docs/25-artirilmis-gerceklik.md) | ArUco marker detection, 3D axis projection, image overlay, MediaPipe face filter. |
-| [Vision Transformers](/docs/26-vision-transformers.md) | Attention mechanism intuition, ViT patch embedding and CLS token, Swin shifted window, DETR, CNN vs ViT. |
-| [Generative Models and Diffusion](/docs/27-generatif-modeller.md) | GAN minimax game intuition, VAE latent space, DDPM noise process, Stable Diffusion, ControlNet. |
-| [3D Vision](/docs/28-3d-vision.md) | Stereo and monocular depth estimation, Open3D point cloud, PointNet permutation invariance, NeRF. |
-| [Video Understanding and Action Recognition](/docs/29-video-siniflandirma.md) | Two-Stream, SlowFast dual-pathway architecture, VideoMAE tube masking, HuggingFace action classification. |
-| [Model Training and Evaluation](/docs/30-model-egitimi-ve-degerlendirme.md) | Data preparation, augmentation, Mixup, ResNet50 fine-tuning, Cosine Annealing, confusion matrix. |
-| [Vision-Language Models](/docs/31-vision-language-modeller.md) | CLIP contrastive loss, zero-shot classification, LLaVA, BLIP-2 Q-Former; visual question answering. |
+| [GPU and Parallel Computing](/docs/20-gpu-parallel-computing.en-US.md) | CUDA module, OpenVINO model acceleration, threading for parallel image processing. |
+| [Pose Estimation](/docs/21-pose-estimation.en-US.md) | 17 COCO keypoints, MediaPipe Pose skeleton detection, angle calculation, rep counter, YOLOv8-Pose. |
+| [Segmentation](/docs/22-segmentation.en-US.md) | Semantic/instance/panoptic differences, Watershed, YOLOv8-seg, SAM (Segment Anything), IoU and mIoU. |
+| [Edge Deployment](/docs/23-edge-deployment.en-US.md) | Model optimization with ONNX Runtime and TFLite, Raspberry Pi and mobile deployment. |
+| [OpenCV Mobile](/docs/24-opencv-mobile.en-US.md) | OpenCV on Android and iOS, camera stream processing, TFLite integration. |
+| [Augmented Reality](/docs/25-augmented-reality.en-US.md) | ArUco marker detection, 3D axis projection, image overlay, MediaPipe face filter. |
+| [Vision Transformers](/docs/26-vision-transformers.en-US.md) | Attention mechanism intuition, ViT patch embedding and CLS token, Swin shifted window, DETR, CNN vs ViT. |
+| [Generative Models and Diffusion](/docs/27-generative-models.en-US.md) | GAN minimax game intuition, VAE latent space, DDPM noise process, Stable Diffusion, ControlNet. |
+| [3D Vision](/docs/28-3d-vision.en-US.md) | Stereo and monocular depth estimation, Open3D point cloud, PointNet permutation invariance, NeRF. |
+| [Video Understanding and Action Recognition](/docs/29-video-understanding.en-US.md) | Two-Stream, SlowFast dual-pathway architecture, VideoMAE tube masking, HuggingFace action classification. |
+| [Model Training and Evaluation](/docs/30-model-training.en-US.md) | Data preparation, augmentation, Mixup, ResNet50 fine-tuning, Cosine Annealing, confusion matrix. |
+| [Vision-Language Models](/docs/31-vision-language-models.en-US.md) | CLIP contrastive loss, zero-shot classification, LLaVA, BLIP-2 Q-Former; visual question answering. |
 
 ---
 
@@ -345,18 +345,18 @@ The most comprehensive update since the repository's launch in 2018. Migration t
 **Rewritten chapters (15):** 1, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 21, 22
 
 **New chapters (11):**
-- **Chapter 20:** [GPU and Parallel Computing](/docs/20-gpu-paralel-hesaplama.md) — CUDA, OpenVINO, Threading
-- **Chapter 21:** [Pose Estimation](/docs/21-poz-tahmini.md) — MediaPipe Pose, YOLOv8-Pose, angle calculation
-- **Chapter 22:** [Segmentation](/docs/22-segmentasyon.md) — YOLOv8-seg, SAM, DeepLab
-- **Chapter 23:** [Edge Deployment](/docs/23-edge-deployment.md) — ONNX Runtime, TFLite, quantization
-- **Chapter 24:** [OpenCV Mobile](/docs/24-opencv-mobil.md) — Android, iOS
-- **Chapter 25:** [Augmented Reality](/docs/25-artirilmis-gerceklik.md) — ArUco, 3D Overlay, Face Filter
-- **Chapter 26:** [Vision Transformers](/docs/26-vision-transformers.md) — ViT, Swin Transformer, DETR
-- **Chapter 27:** [Generative Models and Diffusion](/docs/27-generatif-modeller.md) — GAN, VAE, DDPM, Stable Diffusion
-- **Chapter 28:** [3D Vision](/docs/28-3d-vision.md) — PointNet, NeRF, Depth Estimation
-- **Chapter 29:** [Video Understanding and Action Recognition](/docs/29-video-siniflandirma.md) — SlowFast, VideoMAE
-- **Chapter 30:** [Model Training and Evaluation](/docs/30-model-egitimi-ve-degerlendirme.md) — Transfer Learning, Augmentation
-- **Chapter 31:** [Vision-Language Models](/docs/31-vision-language-modeller.md) — CLIP, LLaVA, BLIP-2
+- **Chapter 20:** [GPU and Parallel Computing](/docs/20-gpu-parallel-computing.en-US.md) — CUDA, OpenVINO, Threading
+- **Chapter 21:** [Pose Estimation](/docs/21-pose-estimation.en-US.md) — MediaPipe Pose, YOLOv8-Pose, angle calculation
+- **Chapter 22:** [Segmentation](/docs/22-segmentation.en-US.md) — YOLOv8-seg, SAM, DeepLab
+- **Chapter 23:** [Edge Deployment](/docs/23-edge-deployment.en-US.md) — ONNX Runtime, TFLite, quantization
+- **Chapter 24:** [OpenCV Mobile](/docs/24-opencv-mobile.en-US.md) — Android, iOS
+- **Chapter 25:** [Augmented Reality](/docs/25-augmented-reality.en-US.md) — ArUco, 3D Overlay, Face Filter
+- **Chapter 26:** [Vision Transformers](/docs/26-vision-transformers.en-US.md) — ViT, Swin Transformer, DETR
+- **Chapter 27:** [Generative Models and Diffusion](/docs/27-generative-models.en-US.md) — GAN, VAE, DDPM, Stable Diffusion
+- **Chapter 28:** [3D Vision](/docs/28-3d-vision.en-US.md) — PointNet, NeRF, Depth Estimation
+- **Chapter 29:** [Video Understanding and Action Recognition](/docs/29-video-understanding.en-US.md) — SlowFast, VideoMAE
+- **Chapter 30:** [Model Training and Evaluation](/docs/30-model-training.en-US.md) — Transfer Learning, Augmentation
+- **Chapter 31:** [Vision-Language Models](/docs/31-vision-language-models.en-US.md) — CLIP, LLaVA, BLIP-2
 
 ---
 
