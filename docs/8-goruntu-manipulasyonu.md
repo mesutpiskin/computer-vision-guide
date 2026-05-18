@@ -1,317 +1,297 @@
-**Görüntü Manüpülasyonu ve Geometrik Dönüşümler** 
-----------------------------
+# Görüntü Manipülasyonu ve Geometrik Dönüşümler
 
-### Teorik Temel
+Tarayıcı uygulamanız bir belge fotoğrafı çekti ama belge eğik durmuş. Ya da nesne tanıma modelinizi her açıdan tutarlı çalıştırmanız gerekiyor ama kamera sabit değil. Geometrik dönüşümler bu sorunların çözümüdür: bir görüntüdeki pikselleri sistematik kurallara göre yeni konumlara taşır. Bu bölümde yeniden boyutlandırmadan perspektif düzeltmeye kadar temel dönüşümleri ve görüntü üzerine çizim işlemlerini ele alıyoruz.
 
-**Affine Dönüşüm:**
-$$\begin{bmatrix} x' \\ y' \\ 1 \end{bmatrix} = \begin{bmatrix} a_{00} & a_{01} & t_x \\ a_{10} & a_{11} & t_y \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} x \\ y \\ 1 \end{bmatrix}$$
+## Neden Geometrik Dönüşüm?
 
-Affine dönüşüm paralel çizgileri korur. 6 serbestlik derecesi vardır: öteleme (2), döndürme (1), ölçekleme (2), kesme (1).
+İki pratik senaryo düşünün: Birincisi, taranmış bir belge fotoğrafı — kamera tam yukarıdan bakmadığı için belge yamuk görünür, OCR kalitesi düşer. İkincisi, konveyör bandındaki ürünlerin kalite kontrolü — kamera farklı açılardan görüntü alıyor ama modelinizin açıdan bağımsız çalışması gerekiyor. Her iki durumda da geometrik dönüşüm, piksel koordinatlarını yeni bir düzene oturtarak problemi çözer.
 
-**Perspektif Dönüşüm (Homografi):**
-$$\begin{bmatrix} x' \\ y' \\ w' \end{bmatrix} = H \begin{bmatrix} x \\ y \\ 1 \end{bmatrix}, \quad H \in \mathbb{R}^{3\times3}$$
+## Temel Dönüşümler
 
-Perspektif dönüşüm paralel çizgileri korumaz, 8 serbestlik derecesi vardır. En az 4 nokta çifti gereklidir.
+### Yeniden Boyutlandırma
 
-**İnterpolasyon Yöntemleri:**
-- En Yakın Komşu: $f(x,y) = f(\lfloor x \rceil, \lfloor y \rceil)$ — hızlı, pikselleşme
-- Bilineer: 2×2 komşuluk, pürüzsüz
-- Bicubic: 4×4 komşuluk, daha yüksek kalite
-
-Referans: Hartley & Zisserman, "Multiple View Geometry in Computer Vision" (https://www.robots.ox.ac.uk/~vgg/hzbook/)
-
-### Pratik Uygulama
+Görüntüyü küçülteceğinizde bilgi kaybediyorsunuz — bu kaçınılmaz. Ama bu kaybın kalitesini enterpolasyon yöntemi belirler.
 
 ```python
 import cv2
 import numpy as np
 
-img = cv2.imread("resim.jpg")
+path = "test_image.jpg"
+img = cv2.imread(path)
+
 if img is None:
-    raise FileNotFoundError("resim.jpg bulunamadı")
+    raise FileNotFoundError(f"{path} bulunamadı")
+
 h, w = img.shape[:2]
 
-# Döndürme — merkez etrafında 45 derece
-center = (w // 2, h // 2)
-M_rot = cv2.getRotationMatrix2D(center, angle=45, scale=1.0)
-rotated = cv2.warpAffine(img, M_rot, (w, h))
+# Piksel boyutu ile yeniden boyutlandırma
+kucuk = cv2.resize(img, (320, 240), interpolation=cv2.INTER_AREA)
 
-# Öteleme — 50px sağa, 30px aşağı
-M_trans = np.float32([[1, 0, 50], [0, 1, 30]])
-translated = cv2.warpAffine(img, M_trans, (w, h))
+# Oran ile yeniden boyutlandırma (yüzde 150'ye büyüt)
+buyuk = cv2.resize(img, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_LINEAR)
 
-# Perspektif dönüşüm — 4 kaynak → 4 hedef nokta
-src_pts = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
-dst_pts = np.float32([[50, 30], [w - 20, 10], [w - 50, h - 30], [20, h - 20]])
-H = cv2.getPerspectiveTransform(src_pts, dst_pts)
-warped = cv2.warpPerspective(img, H, (w, h))
+print(f"Orijinal: {img.shape[:2]}, Küçük: {kucuk.shape[:2]}, Büyük: {buyuk.shape[:2]}")
 
-# Yeniden boyutlandırma — interpolasyon karşılaştırması
-small = cv2.resize(img, (w // 4, h // 4), interpolation=cv2.INTER_AREA)
-large_nn = cv2.resize(small, (w, h), interpolation=cv2.INTER_NEAREST)
-large_cubic = cv2.resize(small, (w, h), interpolation=cv2.INTER_CUBIC)
-
-cv2.imshow("Döndürülmüş", rotated)
-cv2.imshow("En Yakın Komşu", large_nn)
-cv2.imshow("Bicubic", large_cubic)
+cv2.imshow("Kucuk", kucuk)
+cv2.imshow("Buyuk", buyuk)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 ```
 
-### Özet & İleri Okuma
-- Affine dönüşüm 3×3 homojen matris ile temsil edilir ve paralel çizgileri korur
-- Perspektif dönüşüm (homografi) için en az 4 nokta çifti gereklidir
-- Interpolasyon kalitesi: Bicubic > Bilineer > En Yakın Komşu
-- cv2.INTER_AREA küçültme için, cv2.INTER_CUBIC büyütme için önerilir
-- getRotationMatrix2D merkez, açı ve ölçek parametrelerini alır
-- Referans: Hartley & Zisserman — Multiple View Geometry (https://www.robots.ox.ac.uk/~vgg/hzbook/)
+`INTER_AREA` küçültürken piksel bloklarını ortalar — en temiz küçültme. `INTER_LINEAR` büyütürken çevresindeki 4 pikseli enterpolasyon yapar — hızlı ve yeterince kaliteli. Kalite öncelikliyse `INTER_CUBIC` veya `INTER_LANCZOS4` kullanın, daha yavaştır.
 
----
+| Enterpolasyon | Kullanım Durumu | Hız |
+|---------------|-----------------|-----|
+| `INTER_NEAREST` | Piksel sanatı, maske görüntüler | En hızlı |
+| `INTER_LINEAR` | Genel büyütme | Hızlı |
+| `INTER_AREA` | Küçültme | Orta |
+| `INTER_CUBIC` | Kaliteli büyütme | Yavaş |
+| `INTER_LANCZOS4` | Maksimum kalite | En yavaş |
 
-**Piksel Manüpülasyonu**
+### Çevirme
 
-Piksel kavramını daha önce açıklamıştık, pikseller mat nesnesi içerisindeki dizi elemanlarına karşılık gelmektedir. Bir görüntü üzerinde işlem yapmak istediğimizde dizideki elemanları kullanmamız gerekmektedir. OpenCV içerisinde yer alan birçok metot piksel işlemlerini kendisi yapmaktadır. Örneğin bir görüntüyü kopyalamak istediğimizde copy metodunu kullanabiliriz fakat bu metotların nasıl çalıştığını anlamak için veya kendi algoritmanızı geliştirmek zorunda kaldığınızda bu bilgiler işinize yarayacaktır. Basit bir uygulama yazalım ve bu uygulama kameradan okunan görüntüyü mat nesnesi içerisinde tutalım ve bu nesneyi bir başka mat nesnesi içerisine kopyalayarak dosya sistemine kaydedelim. Bu örnek ile bir piksele nasıl ulaşabileceğimizi de öğrenmiş olacağız.
+Görüntüyü yatay, dikey veya her iki eksende aynalama işlemi:
 
-ÖN BİLGİ: Her görüntü renk uzayına göre çeşitli formatlarda, dijital olarak dizi şeklinde tutulur. Her piksel bir dizi elamanıdır ve görüntü üzerinde yapılan her işlem için dizi elemanları arasında dönülür ve istenilen işlem piksel bazında gerçekleştirilir. Görüntü işlemenin temelinde bu vardır.
-
-*Java:*
-
-```Java
-public static void main(String[] args) {
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		Mat imageArray = new Mat();
-		VideoCapture videoDevice = new VideoCapture();
-		videoDevice.open(0);		
-		if (videoDevice.isOpened()) {			
-			videoDevice.read(imageArray);
-			videoDevice.release();
-		} else {
-			System.out.println("Video aygıtına bağlanılamadı.");
-			return;
-		}
-		//Okunan görüntüyü kopyalamak için yeni bir mat nesnesi
-		Mat newimageArray=new Mat();
-		/*
-		 * Yeni nesnenin satır ve sutun sayısını alınan görüntünün satır sutun sayısına eşitliyoruz
-		 * create  metodu ile oluşturakacaj nat nesnesinin satır ve sütünunu veriyoruz.
-		*/
-		newimageArray.create(imageArray.rows(), imageArray.cols(), CvType.CV_8UC1);
-		//Döngü ile alınan görüntü dizisinin tüm elemanları arasında dönüyoruz
-		for(int i=0; i<imageArray.rows();i++)
-		{
-			for(int j=0;j<imageArray.cols();j++)
-			{
-			/* put ile  verilen indise yani piksele değer atanır
-			 * get ile  verilen indisdeki piksel değeri okunur
-			 */       
-			    newimageArray.put(i, j, imageArray.get(i, j));
-			}			
-		}
-		Imgcodecs.imwrite("KopyaGoruntu.jpg", newimageArray);
-		System.out.println("Görüntü dosya sistemine yazıldı.");
-	}
-```
-
-Bir piksele yani dizi elemanına erişmek için get() metodu, belirli indisteki bir piksele değer yazmak için ise set() metodu kullanılır.
-
-Doğrudan hedef pikselin RGB değerlerini bu şekilde alabilir veya değiştirebiliriz. Unutmamanız gerek bir nokta ise OpenCV de RGB kodları BGR olarak tersen kullanılmaktadır, yani 255 255 0 sarı değerini atamak için 0 255 255 şeklinde tanımlamalıyız, aynı şekilde rgb kodunu çağırdığımızdada 0 255 255 olarak gelecektir.
-
-```Java
-double[] rgb = matNesnesi.get(300, 200);
-//Renk kodları artık bu dizi içerisinde tutulmaktadır
-rgb[0]
-rgb[1]
-rgb[2]
-//255 255 0 RGB kodunu bu 222 333 pikseline atar
-matNesnesi.put(222, 333, new double[]{255, 255, 0});
-```
-RGB yerine  farklı bir renk uzayı kullanılmışsa get metodu o renk uzayının renklerini döndürür. Örneğin siyah beyaz renk uzayına sahip bir görüntü ise, get metodu sonucunda 2 elemanlı bir double dizi oluşacaktır.
-
-
-Python ile bir örnek yapalım görüntü üzerindeki beyaz pikselleri siyah olarak değiştirelim. Öncelikli olarak görüntüyü okuyup, tüm pikseller içerisinde dönerek RGB renk değeri beyaz yani 255,255,255 olanları bulup RGB siyah yani 0,0,0 ile değiştireceğiz. Burada numpy kütüphanesini de kullanacağız numpy bize çok boyutlu dizilerde kolay işlem yapmayı sağlayan bir kütüphanedir, yeri geldikçe özelliklerine değineceğim.
-
-```Python
+```python
 import cv2
-import numpy as np
 
- 
-frame = cv2.imread('turkey-logo.jpg')
-if frame is None:
-    raise FileNotFoundError("Görüntü dosyası bulunamadı")
-#nump ile frame matrisi üzerinde kolayca karşılaştırma ve değer değiştirme yapabiliyoruz
-frame[np.where((frame == [255,255,255]).all(axis = 2))] = [0,0,0]
-#yeni görüntüyü kaydedelim
-cv2.imwrite('turkey-logo-output.jpg', frame)
-```
+path = "test_image.jpg"
+img = cv2.imread(path)
 
-Girdi görüntü:
-
-![InputLogo](static/turkey-logo.jpg)
-
-Çıktı görüntü:
-
-![OutputLogo](static/turkey-logo-output.jpg)
-
-
-**Görüntü Üzerine Geometrik Çizim**
-
-Mat nesnesi üzerinde çizim yapmak yani dikdörtgen, daire, kare, çizgi çizmek veya metin yazdırmak gibi işlemler için imgproc sınıfı kullanılmaktadır. Bu sınıf içerisinde yer alan metotlardın farklı parametrelere sahip aşırı yüklenmiş (override) alternatifleri bulunmaktadır.
-
-Dikdörtgen çizmek için imgproc içerisindeki rectangle metodunu kullanacağız. Aşağıdaki örnekte dosyadan bir resim dosyası okunuyor ve bu resim dosyası üzerine belirlenen konuma belirlenen renk ile bir kare çiziliyor. İşlemin ardından düzenlenen görüntü tekrardan dosya dizinine yazılıyor.
-
-Point tipinde dikdörtgenin köşe koordinatlarını (x,y), scalar ile de dikdörtgenin rengini veriyoruz. Buradaki önemli nokta renkleri belirtmek için kullandığımız scalar sınıfı. Bu sınıf core paketi içerisinde bulunmaktadır ve RGB renkleri belirtmek için kullanılabilir. Scalar üç parametre almaktadır ve bu parametreler tahmin edebileceğiniz üzer RGB  (Kırmızı Yeşil Mavi) değerleridir. Fakat RGB değerlerini BGR (Mavi Yeşil Kırmızı)olarak tersten vermemiz gerekmektedir.
-
-Not:Point, koordinatları kolay bir şekilde tanımlamak için geliştirilmiş içerisinde x ve y noktalarını barındıran sınıftır. Bir çok programlama dili için ortaktır veya benzerleri mevcuttur. https://docs.oracle.com/javase/7/docs/api/java/awt/Point.html
-
-Çizgi çizmek için ise line() metodu bulunmaktadır. Üzerinde işlem yapılmak için bir mat nesnesi ve point tipinde x, y koordinatları ve rengini parametre olarak almaktadır.
-
-``` Java
-Imgproc.line(mat, point, point, color);
-cv2.line(...)
-```
- 
-
-Daire çizmek için circle() metodu bulunmaktadır. Parametre olarak işlem yapılacak mat tipinde görüntü,  point tipinde merkez koordinat, int tipinde yarıçap ve renk almaktadır.
-
- 
-``` Java
-Imgproc.circle(mat, point, int, color);
-cv2.circle(...)
-```
- 
-
-Çokgen (Poligon) çizmek için polylines() metodu bulunmaktadır. Parametre olarak işlem yapılacak mat tipinde görüntü nesnesi, MatOfPoint tipinde liste olarak köşe koordinatları, bool tipinde açıklık kapalılık durumu ve renk almaktadır. Buradaki isClosed kapalı olarak atanırsa her eğrinin son köşesine bir çizgi çizer.
-
- 
-``` Java
-Imgproc.polylines(mat, point, isClosed, color);
-cv2.polylines(...)
-```
- 
-
-Yazı yazmak için ise putText() metodu bulunmaktadır.  Parametre olarak işlem yapılacak mat nesnesi, yazılacak olan string metin, point olarak koordinat, metinsel ifadenin fontu, double tipinde fontun ölçeği ve renk almaktadır.
-
- 
-``` Java
-Imgproc.putText(mat, text, point, fontFace, fontScale, color);
-cv2.putText(...)
-```
- 
-
-Ok çizmek için ise yine çizgi çizmek için kullanılana benzer arrowedLine() metodu bulunmaktadır. Bu metot bir mat nesnesi,  point tipinde 2 adet koordinat ve renk almaktadır.
-
- 
-``` Java
-Imgproc.arrowedLine(mat, point1, point2, color);
-cv2.arrowedLine(...)
-```
-
-``` Java
-public class Dikdortgen {
-
-	public static void main(String[] args) {
-
-	System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-	Mat goruntuDizisi=new Mat();
-	goruntuDizisi=Imgcodecs.imread("C:\\kiz_kulesi.jpg");	
-	/* rectangle metodu paramatetre olarak, üzerinde çizim yapılacak bir mat nesnesi
-	 * dikdörtgen çizimi için gerekli olan 4 köşenin koordinatı [(x1,y1),(x2,y2)] ve rengini almaktadır.
-	 * */
-	Imgproc.rectangle(goruntuDizisi, new Point(10,100), new Point(100,200),new Scalar(76,255,0));
-	Imgcodecs.imwrite("C:\\Yeni_kiz_kulesi.jpg", goruntuDizisi);
-	System.out.println("Düzenlenen görüntü dosya sistemine yazıldı.");
-	}
-}
-```
-
-
-![InputLogo](static/rectangle-draw.jpg)
-
-
-*Python:*
-
-```Python
-import cv2
-frame = cv2.imread('turkey-logo.jpg')
-if frame is None:
-    raise FileNotFoundError("Görüntü dosyası bulunamadı")
-cv2.line(frame,(0,0),(511,511),(255,255,0),5)
-cv2.rectangle(frame,(384,0),(510,128),(0,255,255),3)
-cv2.imshow("Cikti",frame)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-```
-
-
-**Görüntü Kırpma**
-
-Biraz önce matris üzerinde çizim işlemlerinde kız kulesi üzerine bir dikdörtgen çizmiştik, şimdi bir örnek yapalım ve bu geometrik şekillerin kullanım alanlarını daha iyi kavrayalım.  Bir dikdörtgen nesnesi oluşturacağız ve okunana görüntüyü bu dikdörtgen boyutlarında kırparak görüntü içerisinden çıkartacağız.
-
-*Java:*
-
-```Java
-public static void Kirp(String[] args) {
-
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-
-		Mat goruntuDizisi = new Mat();
-		goruntuDizisi = Imgcodecs.imread("C:\\kiz_kulesi.jpg");
-		//Dikdörtgen olluşturuyoruz ve koordinatlarını belirliyoruz
-		Rect dikdortgen=new Rect(new Point(10,100),new Point(100,200));
-		//Yeni bir mat nesnesi oluşturuyoruz ve okunan görüntüye dikdörtgen ebatlarında kırpma işlemi uyguluyoruz
-		Mat yeniGoruntu=new Mat(goruntuDizisi,dikdortgen);	         
-		Imgcodecs.imwrite("C:\\Yeni_kiz_kulesi.jpg", yeniGoruntu);
-		
-	}
-```
-
-*Python:*
-
-```Python
-import cv2
-frame = cv2.imread("kiz_kulesi.png")
-if frame is None:
-    raise FileNotFoundError("Görüntü dosyası bulunamadı")
-#Alınan görüntüyü 10,100 - 100,200 şeklinde kırp
-kesilmis_frame = frame[10:100, 100:200]
-cv2.imshow("Kırpilmis Goruntu", kesilmis_frame)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-```
-
-![Crop](static/crop.jpg)
-
-
-**Yeniden Boyutlandırma**
-
-Bazı durumlarda okunan görüntünün tekrardan boyutlandırılması istenilebilir bunun için imgproc sınıfı içerisinde resize() metodu bulunmaktadır. Parametre olarak giriş mat nesnesi, çıkış mat nesnesi ve size olarak boyut almaktadır.
-
-
-![Resize](static/resize.jpg)
-
-*Java:*
-
-```Java
-System.loadLibrary(Core.NATIVE_LIBRARY_NAME );	
-Mat kaynak = Imgcodecs.imread("C:\\1.jpg");
-Mat hedef = new Mat(); 
-//Görüntünün boyutlarını 300x400 yapalım      
-Imgproc.resize(kaynak, hedef, new Size(300,400));       
-Imgcodecs.imwrite("C:\\2.jpg", hedef);	
-```
-
-*Python:*
-
-```Python
-import numpy as np
-import cv2 as cv
-img = cv.imread('turkey-logo.jpg')
 if img is None:
-    raise FileNotFoundError("Görüntü dosyası bulunamadı")
-height, width = img.shape[:2]
-#Orijinal boyutunu 2 kat büyütelim (2*width, 2*height)
-sonuc = cv.resize(img,(2*width, 2*height), interpolation = cv.INTER_CUBIC)
-cv.imshow("Boyutlandirilmis Goruntu", sonuc)
-cv.waitKey(0)
-cv.destroyAllWindows()
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+dikey_cevir = cv2.flip(img, 0)    # 0: dikey eksen (yukarı-aşağı)
+yatay_cevir = cv2.flip(img, 1)    # 1: yatay eksen (sol-sağ ayna)
+her_iki = cv2.flip(img, -1)       # -1: her iki eksen
+
+karsilastirma = np.hstack([img, yatay_cevir, dikey_cevir])
+cv2.imshow("Orijinal | Yatay | Dikey", karsilastirma)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
+
+Üç görüntü yan yana gelince farkı anında görürsünüz: yatay çevirme aynaya bakmak gibi, dikey çevirme ise baş aşağı.
+
+### Döndürme
+
+Döndürme işleminin arkasındaki fikir: görüntüdeki her pikseli seçilen merkez noktası etrafında belirli bir açı kadar döndürmek. Matematiksel olarak:
+
+$$[x', y'] = R \cdot [x, y]^T$$
+
+Burada $R$ döndürme matrisidir. OpenCV merkez ve ölçek parametrelerini de içeren genişletilmiş bir form kullanır.
+
+```python
+import cv2
+
+path = "test_image.jpg"
+img = cv2.imread(path)
+
+if img is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+h, w = img.shape[:2]
+merkez = (w // 2, h // 2)
+
+# Merkez: görüntü ortası, açı: 45°, ölçek: 1.0 (boyut değişmesin)
+M = cv2.getRotationMatrix2D(merkez, 45, 1.0)
+dondurulmus = cv2.warpAffine(img, M, (w, h))
+
+# Kırpılmadan döndür — canvas'ı büyüt
+M2 = cv2.getRotationMatrix2D(merkez, 30, 1.0)
+dondurulmus2 = cv2.warpAffine(img, M2, (w, h), borderMode=cv2.BORDER_REPLICATE)
+
+cv2.imshow("Dondurulmus 45", dondurulmus)
+cv2.imshow("Dondurulmus 30 Replicate", dondurulmus2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+`warpAffine`'in son iki argümanı çıktı boyutudur. Görüntü köşelerinin kesilmesini istemiyorsanız köşegen uzunluğunu canvas boyutu olarak kullanabilirsiniz: `int(np.sqrt(h**2 + w**2))`.
+
+## Affine Dönüşüm
+
+Affine dönüşüm bir görüntüdeki paralel çizgilerin çıkışta da paralel kalacağını garanti eder. Ölçekleme, döndürme, kaydırma ve yansıma hepsi affine dönüşümlerdir. Anahtar nokta: 3 kaynak noktası ve onların hedef konumları yeterli — 6 bilinmeyeni çözmek için 3 nokta çifti yetişir.
+
+Sezgi: Üçgen şeklindeki üç noktayı tutup çekiyorsunuz, görüntünün geri kalanı bu harekete uygun şekilde gerilip bükülüyor, ama paralel çizgiler paralel kalıyor.
+
+```python
+import cv2
+import numpy as np
+
+path = "test_image.jpg"
+img = cv2.imread(path)
+
+if img is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+h, w = img.shape[:2]
+
+# Kaynak noktalari: sol üst, sağ üst, sol alt
+src_pts = np.float32([
+    [0, 0],
+    [w - 1, 0],
+    [0, h - 1]
+])
+
+# Hedef noktalar: hafif yamultma efekti
+dst_pts = np.float32([
+    [0, 0],
+    [w - 1, 0],
+    [50, h - 1]
+])
+
+M = cv2.getAffineTransform(src_pts, dst_pts)
+affine_sonuc = cv2.warpAffine(img, M, (w, h))
+
+cv2.imshow("Orijinal", img)
+cv2.imshow("Affine", affine_sonuc)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+Sol alt köşeyi 50 piksel sağa kaydırdık — görüntü yamultulmuş ama üst kenar düz kaldı. Dikkat edin: affine dönüşümde paralel çizgiler korunur.
+
+## Perspektif Dönüşümü (Homografi)
+
+Perspektif dönüşümü daha güçlü bir araçtır — artık paralel çizgilerin korunmasını garanti etmez, ama gerçek dünya perspektifini modellemenizi sağlar. Akıllı telefon belge tarayıcıları tam bunu yapar: fotoğraftaki belgenin 4 köşesini tespit edip "düzleştirir".
+
+Matematiksel olarak 3×3 homografi matrisi, kaynak ve hedef düzlemler arasındaki dönüşümü kodlar. 4 nokta çifti 8 bilinmeyeni çözmeye yeter.
+
+Senaryo: Eğik çekilen bir tahta fotoğrafını düzeltelim. Tahtanın 4 köşesini biliyoruz.
+
+```python
+import cv2
+import numpy as np
+
+path = "tahta.jpg"
+img = cv2.imread(path)
+
+if img is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+# Orijinal görüntüdeki 4 köşe (saat yönünde: sol üst, sağ üst, sağ alt, sol alt)
+src_pts = np.float32([
+    [120, 50],   # sol üst
+    [620, 80],   # sağ üst
+    [580, 430],  # sağ alt
+    [80, 400]    # sol alt
+])
+
+# Hedef: düzgün dikdörtgen
+cikti_gen, cikti_yuk = 600, 400
+dst_pts = np.float32([
+    [0, 0],
+    [cikti_gen - 1, 0],
+    [cikti_gen - 1, cikti_yuk - 1],
+    [0, cikti_yuk - 1]
+])
+
+M = cv2.getPerspectiveTransform(src_pts, dst_pts)
+duzlenmis = cv2.warpPerspective(img, M, (cikti_gen, cikti_yuk))
+
+cv2.imshow("Orijinal (Egik)", img)
+cv2.imshow("Duzlenmis", duzlenmis)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+`warpPerspective` 3×3 homografi matrisini alır ve her kaynak pikselini hedef koordinata dönüştürür. Çıktı boyutunu kendiniz belirliyorsunuz — belgenin gerçek en-boy oranını biliyorsanız buna göre ayarlayın.
+
+> **💡 İpucu:** Gerçek uygulamada köşeleri elle girmek yerine `cv2.findContours` ile belge sınırlarını otomatik tespit edebilirsiniz. 4 köşeli kontur en büyük alan ile en iyi belge adayıdır.
+
+> **⚠️ Dikkat:** Perspektif dönüşümü bilgi kaybeder — özellikle köşelerin dışında kalan alanlar. Döküman tarama gibi uygulamalarda kaynak koordinatlarını mümkün olduğunca doğru seçin.
+
+## Görüntü Üzerine Çizim
+
+OpenCV'de tüm çizim fonksiyonları görüntüyü yerinde (in-place) değiştirir. Orijinali korumak istiyorsanız önce `img.copy()` alın.
+
+```python
+import cv2
+import numpy as np
+
+# Boş siyah kanvas oluştur
+kanvas = np.zeros((500, 700, 3), dtype=np.uint8)
+
+# Dikdörtgen: sol üst köşe, sağ alt köşe, renk (BGR), kalınlık (-1 = dolu)
+cv2.rectangle(kanvas, (50, 50), (300, 200), (0, 255, 0), 2)
+cv2.rectangle(kanvas, (350, 50), (650, 200), (255, 0, 0), -1)  # dolu mavi
+
+# Daire: merkez, yarıçap, renk, kalınlık
+cv2.circle(kanvas, (150, 350), 80, (0, 0, 255), 3)
+cv2.circle(kanvas, (500, 350), 60, (0, 255, 255), -1)  # dolu sarı
+
+# Çizgi: başlangıç, bitiş, renk, kalınlık
+cv2.line(kanvas, (0, 480), (700, 480), (200, 200, 200), 1)
+
+# Metin: text, konum (sol alt köşe), font, ölçek, renk, kalınlık
+cv2.putText(
+    kanvas, "OpenCV Cizim", (50, 470),
+    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2
+)
+
+cv2.imshow("Cizim Ornekleri", kanvas)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+Renk argümanı her zaman `(B, G, R)` tuple'ıdır. `thickness=-1` şekli doldurur. `cv2.putText` koordinatı metnin sol alt köşesidir — üst değil.
+
+> **⚠️ Dikkat:** `cv2.putText` Türkçe karakterleri (ş, ğ, ü, ç, ö, ı) desteklemez. Türkçe metin için PIL/Pillow kütüphanesi kullanın.
+
+### Çizim Fonksiyonları Özeti
+
+| Fonksiyon | Temel Parametreler | Not |
+|-----------|-------------------|-----|
+| `cv2.rectangle` | sol üst, sağ alt, renk, kalınlık | `-1` kalınlık = dolu |
+| `cv2.circle` | merkez, yarıçap, renk, kalınlık | `-1` kalınlık = dolu |
+| `cv2.line` | başlangıç, bitiş, renk, kalınlık | |
+| `cv2.ellipse` | merkez, eksenler, açı, başlangıç, bitiş | |
+| `cv2.polylines` | nokta dizisi, kapalı mı, renk, kalınlık | |
+| `cv2.putText` | metin, konum, font, ölçek, renk, kalınlık | ASCII karakterler |
+
+## ROI Kırpma
+
+ROI (Region of Interest — İlgi Bölgesi) belirli bir bölgeyi görüntüden çıkarmanın en basit yoludur. NumPy dilimleme kullanır.
+
+```python
+import cv2
+
+path = "test_image.jpg"
+img = cv2.imread(path)
+
+if img is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+# img[y1:y2, x1:x2] — önce dikey (satır), sonra yatay (sütun)
+roi = img[80:280, 100:400].copy()
+
+print(f"Orijinal: {img.shape[:2]}, ROI: {roi.shape[:2]}")
+
+# Orijinal üzerinde ROI sınırını göster
+gosterim = img.copy()
+cv2.rectangle(gosterim, (100, 80), (400, 280), (0, 255, 0), 2)
+
+cv2.imshow("ROI Gosterim", gosterim)
+cv2.imshow("ROI", roi)
+cv2.imwrite("kirpilan_bolge.jpg", roi)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+ROI kırpma sıfır maliyetli değerlendirme (lazy evaluation) yapar — `.copy()` çağırana kadar yeni bellek ayrılmaz, sadece orijinal diziye bir "pencere" açılır. İşlem hattında ROI üzerinde işlem yapıp sonucu geri koyacaksanız bu özelliği kullanabilirsiniz: `img[y1:y2, x1:x2] = islenmis_roi`.
+
+## Özet & İleri Okuma
+
+- Enterpolasyon seçimi görüntü kalitesini doğrudan etkiler: küçültürken `INTER_AREA`, büyütürken `INTER_LINEAR` veya `INTER_CUBIC`.
+- Affine dönüşüm paralel çizgileri korur — 3 nokta çifti yeterli; `cv2.getAffineTransform` + `cv2.warpAffine`.
+- Perspektif dönüşümü (homografi) paralel çizgileri korumaz ama 4 köşe ile düzlem-düzlem dönüşümü modeller — belge tarama uygulamasının temelidir.
+- `cv2.warpPerspective` perspektif düzeltme için, `cv2.warpAffine` affine/döndürme/kaydırma için kullanılır.
+- Çizim fonksiyonları görüntüyü yerinde değiştirir; orijinali korumak için önce `.copy()` alın.
+- ROI kırpma `img[y1:y2, x1:x2]` — bağımsız kopya için `.copy()` zorunlu.
+- `cv2.putText` ASCII-only; Türkçe karakterler için PIL/Pillow kullanın.
+
+**Referanslar**
+
+- Bradski, G. & Kaehler, A. (2017). *Learning OpenCV 3*. O'Reilly Media.
+- OpenCV Geometric Transformations: [docs.opencv.org/4.x/da/d6e/tutorial_py_geometric_transformations.html](https://docs.opencv.org/4.x/da/d6e/tutorial_py_geometric_transformations.html)
