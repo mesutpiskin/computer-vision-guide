@@ -1,285 +1,342 @@
-**Poz Tahmini (Pose Estimation)**
-----------------------------------
+# Poz Tahmini
 
-Poz tahmini, görüntü veya video üzerindeki insan vücudunun eklem noktalarını (keypoint) tespit ederek iskelet yapısını çıkarmayı amaçlar. Güvenlik kameraları, spor analizi, rehabilitasyon takibi ve insan-bilgisayar etkileşimi gibi alanlarda yaygın kullanım alanı bulur.
+Spor salonunda squat yapan bir kişinin diz açısını gerçek zamanlı olarak ölçmek istiyorsunuz: açı 90°'nin altına inince sayacı artırın, tekrar 160°'nin üstüne çıkınca hazır duruma geçin. Ya da bir fizik tedavi kliniğinde hastanın omuz hizasını ve bel açısını otomatik olarak değerlendirin. Her iki senaryo da aynı temel soruyu sorar: görüntüdeki insan vücudunun eklem noktaları nerede? Bu bölümde bu soruyu gerçek zamanlı çözen araçları öğreneceğiz.
 
-## Temel Kavramlar
+## Poz Tahmini Nedir?
 
-**Keypoint (Anahtar Nokta):** Dirsek, diz, omuz, kalça gibi vücut eklemlerinin görüntü üzerindeki koordinatları.
+İnsan vücudundaki anatomik anahtar noktaların (keypoint) görüntü koordinatlarını tespit etmek ve bu noktalardan iskelet yapısını oluşturmak, poz tahminin (pose estimation) tanımıdır.
 
-**Skeleton (İskelet):** Anahtar noktaların birbirine bağlanmasıyla oluşan stick-figure temsil.
+**COCO veri seti standardı** 17 anahtar nokta tanımlar: burun, sol/sağ göz, sol/sağ kulak, sol/sağ omuz, sol/sağ dirsek, sol/sağ bilek, sol/sağ kalça, sol/sağ diz, sol/sağ ayak bileği. Her nokta için model üç değer çıkarır: piksel koordinatları `(x, y)` ve güven skoru `visibility`.
 
-**Single-person vs Multi-person:** Tek kişi veya çoklu kişi tespiti. Çoklu kişi tespiti (bottom-up veya top-down yaklaşım) daha karmaşıktır.
+Güven skoru 0 ile 1 arasındadır — noktanın görüntüde var olup olmadığını ve modelin ne kadar emin olduğunu gösterir. Kameranın dışında kalan veya başka bir nesnenin arkasında gizlenen uzuvlar düşük güven skoruyla işaretlenir.
 
----
+> **📌 Not:** Poz tahmini, nesne tespitinden farklıdır. Nesne tespiti "burada bir insan var" der; poz tahmini "bu insanın diz noktası şurada" der. İkisi genellikle ardışık çalışır.
 
-### Teorik Temel — Poz Tahmini
+## MediaPipe Pose
 
-**Keypoint Heatmap:**
-Her keypoint $k$ için Gaussian heatmap:
-$$S_k(p) = \exp\left(-\frac{\|p - p_k^*\|_2^2}{2\sigma^2}\right)$$
-$p_k^*$: gerçek keypoint konumu, $\sigma$: yayılım parametresi.
-
-**OKS (Object Keypoint Similarity) — COCO Metriği:**
-$$\text{OKS} = \frac{\sum_i \exp\left(-d_i^2 / 2s^2\sigma_i^2\right) \cdot \delta(v_i > 0)}{\sum_i \delta(v_i > 0)}$$
-$d_i$: tahmin/gerçek mesafesi, $s$: nesne ölçeği, $\sigma_i$: keypoint tipine özgü sabit.
-OKS, IoU'nun keypoint tespitine uyarlanmış halidir.
-
-Referans: Cao et al., "OpenPose: Realtime Multi-Person 2D Pose Estimation", IEEE TPAMI 2021 (https://arxiv.org/abs/1812.08008)
-
----
-
-## MediaPipe Pose ile Poz Tahmini
-
-MediaPipe Pose, Google tarafından geliştirilen ve mobil cihazlarda gerçek zamanlı çalışabilen hafif bir poz tahmini çözümüdür. 33 anahtar nokta tespit eder.
+Google'ın MediaPipe kütüphanesi, poz tahmini için hafif ve gerçek zamanlı bir çözüm sunar. Masaüstü bilgisayarlarda 30+ FPS'de çalışırken mobil cihazlarda da akıcı kalır. COCO'nun 17 noktasına ek olarak el parmaklarını ve yüz noktalarını da kapsayan **33 landmark** tanımlar.
 
 ```bash
-pip install mediapipe
+pip install mediapipe opencv-python numpy
 ```
-
-### Gerçek Zamanlı Poz Tespiti
 
 ```python
 import cv2
 import mediapipe as mp
+import numpy as np
 
-mp_pose = mp.solutions.pose
-mp_drawing = mp.solutions.drawing_utils
-mp_styles = mp.solutions.drawing_styles
+def kamera_poz_tespiti() -> None:
+    """MediaPipe Pose ile kameradan gerçek zamanlı iskelet tespiti."""
+    mp_pose = mp.solutions.pose
+    mp_drawing = mp.solutions.drawing_utils
 
-cap = cv2.VideoCapture(0)
+    pose = mp_pose.Pose(
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5
+    )
 
-with mp_pose.Pose(
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5,
-    model_complexity=1  # 0=Lite, 1=Full, 2=Heavy
-) as pose:
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        raise RuntimeError("Kamera açılamadı")
 
-    while cap.isOpened():
+    while True:
         ret, frame = cap.read()
         if not ret:
             break
 
+        # MediaPipe RGB bekler — BGR'den dönüştür
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = pose.process(rgb)
 
         if results.pose_landmarks:
+            # İskeleti çiz
             mp_drawing.draw_landmarks(
                 frame,
                 results.pose_landmarks,
-                mp_pose.POSE_CONNECTIONS,
-                landmark_drawing_spec=mp_styles.get_default_pose_landmarks_style()
+                mp_pose.POSE_CONNECTIONS
             )
 
+            # Sol omuz koordinatlarını al
+            landmarks = results.pose_landmarks.landmark
+            sol_omuz = landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER]
+
+            if sol_omuz.visibility > 0.5:
+                h, w = frame.shape[:2]
+                cx = int(sol_omuz.x * w)
+                cy = int(sol_omuz.y * h)
+                cv2.circle(frame, (cx, cy), 8, (0, 255, 255), -1)
+                cv2.putText(frame, "Sol Omuz", (cx + 10, cy),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1)
+
         cv2.imshow("MediaPipe Pose", frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
-cap.release()
-cv2.destroyAllWindows()
+    cap.release()
+    cv2.destroyAllWindows()
+    pose.close()
+
+if __name__ == "__main__":
+    kamera_poz_tespiti()
 ```
 
-### Anahtar Nokta Koordinatlarına Erişim
+> **⚠️ Dikkat:** Görünürlük (`visibility`) skoru 0.5'in altındaki noktaları hesaplara katmayın — o nokta kameranın dışında veya başka bir nesnenin arkasında olabilir. Düşük güven skorlu nokta koordinatları anlamsız olabilir.
 
-```python
-import mediapipe as mp
-import cv2
+MediaPipe landmark koordinatları **normalize** gelir: `x` ve `y` değerleri görüntü genişliği/yüksekliğine bölünmüş 0-1 aralığındadır. Piksel koordinatına çevirmek için `int(landmark.x * width)` kullanın.
 
-mp_pose = mp.solutions.pose
+## Açı Hesaplama
 
-img = cv2.imread("insan.jpg")
-rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+İskelet noktaları elimizde; şimdi eklem açılarını ölçeceğiz. Üç nokta ver: A (omuz), B (dirsek), C (bilek) — dirsek açısını hesapla.
 
-with mp_pose.Pose(static_image_mode=True) as pose:
-    results = pose.process(rgb)
+İki vektör tanımlanır: **BA** (dirseğden omuza) ve **BC** (dirseğden bileğe). Bu vektörler arasındaki açı, eklem açısıdır.
 
-    if results.pose_landmarks:
-        landmarks = results.pose_landmarks.landmark
-        h, w = img.shape[:2]
-
-        # Sol omuz koordinatları
-        sol_omuz = landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER]
-        x = int(sol_omuz.x * w)
-        y = int(sol_omuz.y * h)
-        print(f"Sol Omuz: ({x}, {y}), Görünürlük: {sol_omuz.visibility:.2f}")
-
-        # Tüm landmark isimleri
-        for idx, lm in enumerate(mp_pose.PoseLandmark):
-            print(f"{idx}: {lm.name}")
-```
-
-### Açı Hesaplama (Hareket Analizi)
+`np.arccos` yaklaşımı, büyük açılarda sayısal kararsızlığa yol açabilir. `np.arctan2` ise iki bileşeni ayrı ayrı aldığı için tüm açı aralığında kararlıdır ve işaret belirsizliği yaşamaz.
 
 ```python
 import numpy as np
-import mediapipe as mp
+
+def aci_hesapla(a: list, b: list, c: list) -> float:
+    """
+    Üç nokta verilen B'deki açıyı derece cinsinden hesapla.
+    a, b, c: [x, y] koordinat listeleri
+    """
+    a = np.array(a, dtype=float)
+    b = np.array(b, dtype=float)
+    c = np.array(c, dtype=float)
+
+    # b merkezli vektörler
+    ba = a - b
+    bc = c - b
+
+    # arctan2 ile kararlı açı hesabı
+    # np.cross → vektörler arası z-bileşeni (sin θ'ya orantılı)
+    # np.dot   → iç çarpım (cos θ'ya orantılı)
+    aci = np.degrees(
+        np.arctan2(np.cross(ba, bc), np.dot(ba, bc))
+    )
+
+    return abs(float(aci))
+
+# Test
+print(aci_hesapla([0, 2], [0, 0], [2, 0]))   # Beklenen: 90.0
+print(aci_hesapla([0, 1], [0, 0], [1, 0]))   # Beklenen: 90.0
+```
+
+## Gerçek Zamanlı Dirsek Açısı Ekranında Göster
+
+```python
 import cv2
+import mediapipe as mp
+import numpy as np
 
-def calculate_angle(a, b, c):
-    """Üç nokta arasındaki açıyı hesapla (b merkez nokta)"""
-    a, b, c = np.array(a), np.array(b), np.array(c)
-    radians = np.arctan2(c[1]-b[1], c[0]-b[0]) - np.arctan2(a[1]-b[1], a[0]-b[0])
-    angle = np.abs(radians * 180.0 / np.pi)
-    return 360 - angle if angle > 180 else angle
+def aci_hesapla(a, b, c) -> float:
+    a, b, c = np.array(a, float), np.array(b, float), np.array(c, float)
+    ba, bc = a - b, c - b
+    return abs(np.degrees(np.arctan2(np.cross(ba, bc), np.dot(ba, bc))))
 
-mp_pose = mp.solutions.pose
-cap = cv2.VideoCapture(0)
+def dirsek_acisi_goster() -> None:
+    """Kameradan sol dirsek açısını gerçek zamanlı göster."""
+    mp_pose = mp.solutions.pose
+    mp_drawing = mp.solutions.drawing_utils
+    pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-with mp_pose.Pose(min_detection_confidence=0.5) as pose:
-    while cap.isOpened():
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        raise RuntimeError("Kamera açılamadı")
+
+    while True:
         ret, frame = cap.read()
         if not ret:
             break
 
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = pose.process(rgb)
+        h, w = frame.shape[:2]
+        results = pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+
+        if results.pose_landmarks:
+            mp_drawing.draw_landmarks(frame, results.pose_landmarks,
+                                      mp_pose.POSE_CONNECTIONS)
+            lm = results.pose_landmarks.landmark
+
+            sol_omuz = lm[mp_pose.PoseLandmark.LEFT_SHOULDER]
+            sol_dirsek = lm[mp_pose.PoseLandmark.LEFT_ELBOW]
+            sol_bilek = lm[mp_pose.PoseLandmark.LEFT_WRIST]
+
+            if all(p.visibility > 0.5 for p in [sol_omuz, sol_dirsek, sol_bilek]):
+                a = [sol_omuz.x * w, sol_omuz.y * h]
+                b = [sol_dirsek.x * w, sol_dirsek.y * h]
+                c = [sol_bilek.x * w, sol_bilek.y * h]
+
+                aci = aci_hesapla(a, b, c)
+
+                # Dirsek noktasında açıyı yaz
+                bx, by = int(b[0]), int(b[1])
+                cv2.putText(frame, f"{aci:.1f}",
+                            (bx - 30, by - 15),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
+
+        cv2.imshow("Dirsek Açısı", frame)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+    pose.close()
+
+if __name__ == "__main__":
+    dirsek_acisi_goster()
+```
+
+## Squat Sayacı
+
+Açı hesabını durum makinesine bağlayarak sayaç oluşturabiliriz. Diz açısı 90°'nin altına inince "aşağı" durumuna geç; 160°'nin üstüne çıkınca "yukarı" durumuna geç ve sayacı artır.
+
+```python
+import cv2
+import mediapipe as mp
+import numpy as np
+
+def aci_hesapla(a, b, c) -> float:
+    a, b, c = np.array(a, float), np.array(b, float), np.array(c, float)
+    ba, bc = a - b, c - b
+    return abs(np.degrees(np.arctan2(np.cross(ba, bc), np.dot(ba, bc))))
+
+def squat_sayaci() -> None:
+    """Sol diz açısına göre squat tekrar sayacı."""
+    mp_pose = mp.solutions.pose
+    pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        raise RuntimeError("Kamera açılamadı")
+
+    sayac = 0
+    asama = None   # "asagi" veya "yukari"
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        h, w = frame.shape[:2]
+        results = pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
         if results.pose_landmarks:
             lm = results.pose_landmarks.landmark
-            h, w = frame.shape[:2]
 
-            # Dirsek açısı (sol kol)
-            omuz = [lm[mp_pose.PoseLandmark.LEFT_SHOULDER].x * w,
-                    lm[mp_pose.PoseLandmark.LEFT_SHOULDER].y * h]
-            dirsek = [lm[mp_pose.PoseLandmark.LEFT_ELBOW].x * w,
-                      lm[mp_pose.PoseLandmark.LEFT_ELBOW].y * h]
-            bilek = [lm[mp_pose.PoseLandmark.LEFT_WRIST].x * w,
-                     lm[mp_pose.PoseLandmark.LEFT_WRIST].y * h]
+            kalca = lm[mp_pose.PoseLandmark.LEFT_HIP]
+            diz = lm[mp_pose.PoseLandmark.LEFT_KNEE]
+            ayak = lm[mp_pose.PoseLandmark.LEFT_ANKLE]
 
-            angle = calculate_angle(omuz, dirsek, bilek)
-            cv2.putText(frame, f"{angle:.1f}°",
-                        tuple(map(int, dirsek)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
+            if all(p.visibility > 0.5 for p in [kalca, diz, ayak]):
+                a = [kalca.x * w, kalca.y * h]
+                b = [diz.x * w, diz.y * h]
+                c = [ayak.x * w, ayak.y * h]
+                aci = aci_hesapla(a, b, c)
 
-        cv2.imshow("Açı Analizi", frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+                # Durum makinesi
+                if aci < 90:
+                    asama = "asagi"
+                if aci > 160 and asama == "asagi":
+                    asama = "yukari"
+                    sayac += 1
+
+                # HUD
+                cv2.rectangle(frame, (0, 0), (200, 80), (0, 0, 0), -1)
+                cv2.putText(frame, f"Tekrar: {sayac}", (10, 35),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+                cv2.putText(frame, str(asama or "-"), (10, 65),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                cv2.putText(frame, f"Aci: {aci:.1f}", (10, 100),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 0), 1)
+
+        cv2.imshow("Squat Sayaci", frame)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
-cap.release()
-cv2.destroyAllWindows()
+    cap.release()
+    cv2.destroyAllWindows()
+    pose.close()
+
+if __name__ == "__main__":
+    squat_sayaci()
 ```
 
----
+> **💡 İpucu:** Açı eşiği değerleri (90° ve 160°) bireyden bireye değişir. Gerçek bir uygulamada kullanıcı kalibrasyonu veya ayarlanabilir eşikler düşünün.
 
-## YOLOv8 Pose ile Çoklu Kişi Poz Tespiti
+## YOLOv8-Pose: Çok Kişili Senaryolar
 
-Ultralytics YOLOv8-pose modeli, aynı anda birden fazla kişinin poz tespitini yapar.
+MediaPipe tek kişi için tasarlanmıştır — karede birden fazla insan varsa yalnızca en belirgin kişiyi işler. Çok kişili senaryolarda YOLOv8-Pose kullanın: her kişiyi ayrı bir tespit kutusu içinde bulur ve her birine ayrı iskelet çıkarır.
 
 ```bash
 pip install ultralytics
 ```
 
 ```python
-from ultralytics import YOLO
 import cv2
-
-model = YOLO("yolov8n-pose.pt")
-
-cap = cv2.VideoCapture(0)
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
-
-    results = model(frame, stream=True)
-    for result in results:
-        annotated = result.plot()
-        cv2.imshow("YOLOv8 Pose", annotated)
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-cap.release()
-cv2.destroyAllWindows()
-```
-
-Tespit edilen her kişi için 17 anahtar nokta (COCO formatı) döndürülür.
-
-```python
-for result in results:
-    if result.keypoints is not None:
-        for person_kps in result.keypoints.xy:
-            # person_kps: (17, 2) tensor — her satır bir anahtar noktanın x,y koordinatı
-            burun = person_kps[0]
-            sol_omuz = person_kps[5]
-            sag_omuz = person_kps[6]
-            print(f"Burun: {burun}, Sol Omuz: {sol_omuz}")
-```
-
----
-
-## Karşılaştırma
-
-| Çözüm | Kişi Sayısı | Hız | Doğruluk | Notlar |
-|-------|------------|-----|---------|--------|
-| MediaPipe Pose | Tek/Çoklu | ★★★★★ | ★★★★ | Mobil uyumlu |
-| YOLOv8-pose | Çoklu | ★★★★ | ★★★★★ | GPU önerilir |
-| OpenPose | Çoklu | ★★ | ★★★★★ | CUDA zorunlu |
-
----
-
-### MediaPipe Açı Hesaplama — Kapsamlı Örnek
-
-```python
-import cv2
-import mediapipe as mp
 import numpy as np
+from ultralytics import YOLO
 
-mp_pose = mp.solutions.pose
-mp_drawing = mp.solutions.drawing_utils
+def yolov8_poz_tespiti(video_yolu: str) -> None:
+    """YOLOv8-Pose ile çok kişili poz tespiti."""
+    model = YOLO("yolov8n-pose.pt")   # Hafif model; yolov8x-pose.pt daha doğru
 
-def calculate_angle(a, b, c):
-    """Üç nokta arasındaki açıyı hesapla (derece)."""
-    v1 = np.array(a) - np.array(b)
-    v2 = np.array(c) - np.array(b)
-    cos_angle = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2) + 1e-8)
-    return np.degrees(np.arccos(np.clip(cos_angle, -1.0, 1.0)))
+    cap = cv2.VideoCapture(video_yolu)
+    if not cap.isOpened():
+        raise FileNotFoundError(f"{video_yolu} bulunamadı")
 
-cap = cv2.VideoCapture(0)
-if not cap.isOpened():
-    raise RuntimeError("Kamera açılamadı")
-
-with mp_pose.Pose(
-    static_image_mode=False,
-    model_complexity=1,
-    smooth_landmarks=True,
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
-) as pose:
-
-    while cap.isOpened():
+    while True:
         ret, frame = cap.read()
         if not ret:
             break
 
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = pose.process(rgb)
+        results = model(frame, verbose=False)
+        annotated = results[0].plot()   # İskeleti ve kutuları çiz
 
-        if results.pose_landmarks:
-            mp_drawing.draw_landmarks(
-                frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS
-            )
-            lms = results.pose_landmarks.landmark
-            # Sol dirsek açısı: omuz (11) → dirsek (13) → bilek (15)
-            shoulder = [lms[11].x, lms[11].y]
-            elbow    = [lms[13].x, lms[13].y]
-            wrist    = [lms[15].x, lms[15].y]
-            angle = calculate_angle(shoulder, elbow, wrist)
-            cv2.putText(frame, f"Dirsek: {angle:.1f}",
-                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        # Ham keypoint koordinatlarına erişim
+        if results[0].keypoints is not None:
+            kp_xy = results[0].keypoints.xy    # (N_kisi, 17, 2) tensör
+            kp_conf = results[0].keypoints.conf  # (N_kisi, 17) güven skorları
+            kisi_sayisi = kp_xy.shape[0]
+            print(f"Karede {kisi_sayisi} kişi tespit edildi", end="\r")
 
-        cv2.imshow("Poz Tahmini", frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        cv2.imshow("YOLOv8-Pose", annotated)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
-cap.release()
-cv2.destroyAllWindows()
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    yolov8_poz_tespiti("spor_salonu.mp4")
 ```
 
-### Özet & İleri Okuma
-- Keypoint heatmap her eklem için Gaussian olasılık haritası üretir
-- OKS, IoU'nun keypoint tespitine uyarlanmış versiyonudur; COCO benchmark kullanır
-- MediaPipe 33 vücut landmarkını gerçek zamanlı tespit eder
-- Landmark koordinatları normalize [0,1] aralığında; görüntü boyutuna çarpılmalı
-- calculate_angle fonksiyonu herhangi üç landmark arası açı hesaplar
-- Referans: OpenPose (https://arxiv.org/abs/1812.08008)
+`results[0].keypoints.xy` bir PyTorch tensörüdür; `.cpu().numpy()` ile NumPy dizisine dönüştürülebilir. Keypoint sırası COCO standardını izler.
+
+> **⚠️ Dikkat:** `yolov8n-pose.pt` (nano) hızlıdır ama hassasiyet düşüktür. Ölçüm gerektiren uygulamalarda (fizik tedavi, spor analizi) `yolov8m-pose.pt` veya `yolov8x-pose.pt` kullanın.
+
+## Yöntem Karşılaştırması
+
+| Yöntem | Kişi Sayısı | Hız (CPU) | Doğruluk | Platform |
+|--------|-------------|-----------|----------|----------|
+| **MediaPipe Pose** | 1 (varsayılan) | ~30 FPS | Yüksek | Mobil, masaüstü, web |
+| **YOLOv8n-Pose** | Çok kişi | ~20 FPS | Orta | Masaüstü, sunucu |
+| **YOLOv8x-Pose** | Çok kişi | ~5 FPS | Çok yüksek | GPU gerektirir |
+
+> **📌 Not:** Masaüstünde GPU varsa YOLOv8 hız/doğruluk dengesi açısından öne geçer. Mobil veya tarayıcı hedefli projelerde MediaPipe tercih edilir.
+
+## Özet & İleri Okuma
+
+- Poz tahmini, görüntüdeki insan vücudunun anatomik noktalarını `(x, y, visibility)` üçlüsü olarak tespit eder.
+- MediaPipe Pose 33 landmark ile gerçek zamanlı çalışır; mobil cihazlarda da akıcıdır.
+- Landmark koordinatları normalize gelir (0-1); piksel koordinatına dönüştürmek için görüntü boyutuyla çarpılır.
+- Görünürlük skoru 0.5'in altındaki noktalar hesaba katılmamalıdır.
+- Eklem açısı için `np.arctan2` kullanan vektör yöntemi, `arccos`'tan daha kararlıdır.
+- Sayaç uygulamalarında durum makinesi (aşama: "aşağı" / "yukarı") histerezis sağlar — gürültüden kaynaklanan sahte sayımları engeller.
+- Çok kişili senaryolarda YOLOv8-Pose MediaPipe'a kıyasla daha iyi performans gösterir.
+
+### Referanslar
+
+- Cao, Z. et al. (2021). "OpenPose: Realtime Multi-Person 2D Pose Estimation." *IEEE TPAMI*: https://arxiv.org/abs/1812.08008
+- Lugaresi, C. et al. (2019). "MediaPipe: A Framework for Building Perception Pipelines." https://arxiv.org/abs/1906.08172
+- Jocher, G. et al. (2023). "Ultralytics YOLOv8." https://github.com/ultralytics/ultralytics
+- MediaPipe Pose Belgeleri: https://developers.google.com/mediapipe/solutions/vision/pose_landmarker
