@@ -44,7 +44,7 @@ Every chapter follows the same structure: **real-world problem** → intuitive e
 | [Video Recorders and Codecs](/docs/7-video-recorder-codec.en-US.md) | Codec, FourCC, and video recording with `cv2.VideoWriter`. |
 | [Image Manipulation](/docs/8-pixel-manipulation.en-US.md) | Resize, rotate, affine and perspective transforms; document scanner scenario. |
 | [Color Spaces and Histogram](/docs/9-color-spaces.en-US.md) | BGR, HSV, Lab color spaces; color-mask object detection; histogram equalization and CLAHE. |
-| [Morphological Image Processing](/docs/10-morphological-operators.en-US.en-US.md) | Erosion, dilation, opening, closing, morphological gradient; Otsu and adaptive thresholding. |
+| [Morphological Image Processing](/docs/10-morphological-operators.en-US.md) | Erosion, dilation, opening, closing, morphological gradient; Otsu and adaptive thresholding. |
 | [Filters and Edge Detection](/docs/11-filtering-and-edge-detection.en-US.md) | Convolution intuition, Gaussian/Median/Bilateral blur, Sobel, four-stage Canny pipeline. |
 | [Background Subtraction](/docs/12-background-subtraction.en-US.md) | Frame differencing, MOG2 Gaussian mixture model, KNN subtractor; security camera scenario. |
 | [Video Analysis and Object Tracking](/docs/13-object-tracking.en-US.md) | Optical flow constraint, Lucas-Kanade pyramidal LK, Farneback dense flow, CSRT and KCF trackers. |
