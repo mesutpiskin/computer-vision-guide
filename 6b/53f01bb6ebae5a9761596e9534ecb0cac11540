@@ -1,0 +1,9 @@
+docs/29-video-understanding.en-US.md
+  ai_agent 1-159
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "6b53f01bb6ebae5a9761596e9534ecb0cac11540",
+  "prompts": {}
+}
