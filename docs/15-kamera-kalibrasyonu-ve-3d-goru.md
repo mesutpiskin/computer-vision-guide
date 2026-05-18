@@ -1,248 +1,217 @@
-**Kamera Kalibrasyonu ve 3D Görü** 
-----------------------------------
+# Kamera Kalibrasyonu ve 3D Görü
 
-Bu bölümde; kameralardan kaynaklanan görüntü bozulmalarını ve nasıl düzeltilebileceğini, stero görüntünün ne olduğu ve stero görüntü ile nasıl derinlik haritası elde edilebileceğini, 3D görüntüler üzerinde nasıl görüntü işleme yapılabileceğini göreceğiz.
+Aksiyon kameranızla çektiğiniz fotoğraflarda düz çizgiler eğri görünür. Robot kolunun kamerası mesafeyi hatalı hesaplıyor ve kol yanlış yere iniyor. Bu iki problem aynı kaynaktan gelir: kamera modeli bilinmeden piksel koordinatları gerçek dünya koordinatlarına çevrilemez. Kalibrasyon bu modeli öğrenir; stereo görü ise iki kalibre edilmiş kameradan derinlik bilgisi çıkarır.
 
-## Görüntü Bozulmaları ve Kamera Kalibrasyonu
+## Pinhole Kamera Modeli
 
-Bozuk görüntü, görüntü işleme süreçlerini zorlaştıran bir durumdur bu yüzden çoğu zaman bu bozuklukları düzeltmek gerekir. Düzeltme işlemini lens, kamera, kayıt cihazı değiştirerek düzeltmek çoğu zaman sonuç versede bizim amacımız bunu yazılımsal olarak düzeltmektir. Bu yazıda görüntü bozukluklarını, kamera kalibrasyonu ile gerekli matrisleri hesaplamayı ve bozuk görüntüyü düzeltmeye çalışacağız.
+Karanlık bir odanın duvarına küçük bir delik açın — dışarının ters ve canlı bir görüntüsü oluşur. Kamera obscura olarak bilinen bu ilke modern kamera modelinin temelidir.
 
-örüntü bozuklukları kullanılan kamera, lens, açı, ışık vb. gibi bir çok etkene bağlı olarak farklı gruplara ayrılırlar. En sık karşılaşılan ve bu yazıdada ele alacağımız bozukluklar radyal bozulmalar olacak. Radyal bozulmalar genellikle kamera lensi kaynaklıdır ve kendi içerisinde üç başlığa ayrılmaktadır;
+Odak uzaklığı (f) bu analojide deliğin duvara olan mesafesi gibidir: büyük f dar açıyı (telefoto), küçük f geniş açıyı (balık gözü) tanımlar. Gerçek dünya noktası (X, Y, Z) görüntü pikseliyle (u, v) şu ilişkiyle bağlıdır:
 
-* Fıçı Yaklaşımı Bozunum (Barrel Distortion)
-* Yastık/İçbükey Bozunum (Pincushion Distortion)
-* Bıyık Biçiminde Bozunum (Mustache Distortion)
+$$\begin{bmatrix} u \\ v \\ 1 \end{bmatrix} = K \cdot \begin{bmatrix} X/Z \\ Y/Z \\ 1 \end{bmatrix}$$
 
-![Bozulmalar](static/lens_bozulmaları.png)
+Burada **K kamera iç parametreleri matrisidir**:
 
+$$K = \begin{bmatrix} f_x & 0 & c_x \\ 0 & f_y & c_y \\ 0 & 0 & 1 \end{bmatrix}$$
 
-**Barrel Distortion:** Fıçı yaklaşımı bozulması veya varil distorsiyonu olarak adlandırılan bu bozulma şekline en çok balık gözü (fisheye) lenslerde raslanır, aşağıdaki görüntüde de görebileceğiniz üzere yaklaştırma efekti uygulanmışcasına nesneler merkeze doğru yaklaştıkça büyürken kenarlara doğru küçülürler.
+$f_x, f_y$: piksel cinsinden odak uzaklığı (sensör fiziksel boyutu ve piksel büyüklüğüne bağlı); $c_x, c_y$: görüntü merkezi. Bu matrisi bilmeden "pikselde 150 birim uzakta" ifadesinin gerçekte kaç metre olduğunu hesaplayamazsınız.
 
-![Barrel Bozulması](static/fici_bozunumu.png)
+## Lens Bozulmaları
 
-**Pincushion Distortion:** Yastık veya içbükey bozulma olarak adlandırılan bu bozulma şeklinde, merkezden kenarara doğru gidildikçe düz çizgiler iç bükey hale gelir böylelikle bu çizgiler yastık şekli oluşturur.
+Gerçek lensler mükemmel pinhole değildir. İki ana bozulma türü vardır:
 
-![Pincushion Bozulması](static/yastik_bozunumu.jpg)
+**Radyal bozulma:** Görüntü merkezinden uzaklaştıkça hatalar büyür.
+- *Barrel (fıçı):* Kenarlar dışa şişer. Aksiyon kameral arının karakteristik balık gözü görünümü.
+- *Pincushion (iğne yastığı):* Kenarlar içe çöker. Eski telefoto lenslerde yaygın.
 
-**Mustache Distortion:** Bıyık şeklinde bozulma olarak adlandırılan bu bozulmada, çizgiler merkezden köşelere doğru “Gidon Bıyık” şekline benzer bir eğri biçimindedir. Görüntü üzerinde bu bozulmayı çoğu zaman tespit edemeyebilirsiniz. Bu durumun çözümü için genellikle lens değişimi gerekir. Aşağıdaki resimde raylara ve iki duvarın kesişim noktasına bakarsanız bu bozulmayı çok net görebilirsiniz.
+**Teğetsel bozulma:** Lens ile sensör tam paralel olmadığında oluşur; görüntü bir yönde hafifçe yamulur.
 
-![Mustache Bozulması](static/biyik_bozunumu_Mustache_Distortion.png)
+Düzelme formülü radyal için: $x_{corrected} = x(1 + k_1 r^2 + k_2 r^4 + k_3 r^6)$
 
+$k_1, k_2, k_3$ katsayıları kalibrasyonla öğrenilir. Bunlara teğetsel katsayılar $p_1, p_2$ eklenerek `dist = [k1, k2, p1, p2, k3]` vektörü oluşur.
 
-**Kamera Kalibrasyonu**
+## Satranç Tahtası Kalibrasyonu
 
-Kamera kalibrasyonu görüntü bozukluğunu düzeltmek için gerekli bazı verilere ulaşmak için yapılır. Kamera kalibrasyonu, bozuk görüntü kaynağı yani kamera üzerinde uygulanır ve bu kalibrasyon verileri kameraya özeldir yani hangi kameradaki görüntü düzeltmek isteniyorsa kalibrasyon işlemide o kamera üzerinde uygulanmalıdır.  Kalibrasyon işlemi ile aşağıdaki verilere ulaşırız;
-
-Kamera Matrisi: Bozulma katsayılarının çıkış vektörü (k1, k2, k3, k4).
-Kamera matrisi 3×3 boyutunda bir matristir genellikle “K” olarak da adlandırılır. Çıkış vektörü ise genellikle “D” olarak adlandırılır. OpenCV dökümanlarında bu değerlere “camera matrix” ve “dist coeff” denildiğinide görebilirsiniz.   Elde ettiğimiz bu veriler ile bozuk görüntüyü düzeltebiliriz. Şimdi bu verilere nasıl ulaşabileceğimize bakalım. Kamera kalibrasyonu için bir çok farklı algoritma geliştirilmiştir, bu algoritmalar referans noktaları kullanarak oluşan bozulmayı hesaplamaya çalışır. Bizde kalibrasyonu satranç tahtası ile gerçekleştireceğiz. OpenCV içerisinde gelen kalibrasyon modülü ile bizim için gerekli olan K ve D değerlerini elde etmeye çalışacağız.
-
-**Kalibrasyon Süreci**
-
-Öncelikle satır ve sütün sayısını bildiğimiz bir santraç tahtası görseline ihtiyacımız var, ben aşağıdakini kullanacağım sizde bunu tam boy olarak çıktı alıp kullanabilirsiniz, farklı ölçülerde bir desen kullanmak istiyorsanız kaynak kodda ilgili satır ve sütün alanını değiştirmelisiniz.
-
-![santrac_tahtasi](static/santrac_tahtasi.png)
-
-Kalibrasyon için bozulmaya neden olan kameranın karşısına (santraç deseninin tamamı görülebilecek şekilde) geçilir.  findChessboardCorners() metodu ile giriş olarak vereceğimiz görüntü üzerindeki köşeler hesaplanır. Eğer belirttiğimiz satır ve sütün sayısınca köşe doğru olarak tespit edilmişse cornerSubPix() metodu ile köşelerin veya radyal sırt noktalarının alt pikselinin, doğru konumunu bulmak için kendi içerisinde yineler. Elde ettiğimiz bu noktaları ve değerleri kalibrasyon verisi olarak saklayabiliriz. Bu kalibrasyon işlemini kendi belirleyeceğimiz bir iterasyon adeti boyunca tekrarlarız her tekrarlama periyodunda farklı bir açıdan alınmış görüntüyü kullanarak bu noktaların doğruluğunu sağlarız aksi taktirde kalibrasyon verisi yanlış olacak ve düzeltilmeye çalışılan görüntü daha kötü hale gelecektir.
-
-![calibration](static/calibration.png)
-
-
-Kalibrasyon işlemi esnasında drawChessboardCorners() metodunu kullanarak tespit edilen noktaları görüntü üzerinde işaretleyebiliriz bu metot ile hangi frame için hesaplanan kalibrasyon verisinin işinize yarayıp yaramayacağına karar verebilirsiniz.  Bu metot aşağıdaki gibi bir çıktı verecektir.
-
-![calibration_draw_corners](static/calibration_draw_corners.png)
-
-
-Görüntü Düzeltme
-Kalibrasyon ile elde ettiğimiz K ve D verileri ve OpenCV undistort* metotlarını kullanarak bozuk görüntüyü düzeltebiliriz. Bu metotlar parametre olarak K ve D verilerine ihtiyaç duyar, sonuç olarak ise size düzeltilmiş görüntü dönecektir.
-
-*Python:*
-
-```Python
-import cv2
-import numpy as np
-
-# Santraç tahtasının satır ve sütün sayısı 
-rows = 9
-cols = 6
-
-# Kendi içerisinde yinelemeli olarak çalışan algoritmalar için durdurma/karar verme ölçütü
-criteria = (cv2.TERM_CRITERIA_MAX_ITER + cv2.TERM_CRITERIA_EPS, 30, 0.001)
-
-# İhtiyaç duyacağımız değişkenler
-objectPoints = np.zeros((rows * cols, 3), np.float32)
-objectPoints[:, :2] = np.mgrid[0:rows, 0:cols].T.reshape(-1, 2)
-objectPointsArray = []
-imgPointsArray = []
-
-capture = cv2.VideoCapture(0) # Varsayılan kameraya bağlanır
-found = 0 
-# 10 defa başarılı kalibrasyon yapılana kadar tekrarlansın
-while(found < 10):
-    # Kameradan bir frame alıp bunu gri renk uzayına çevirir
-    retCam,img = capture.read()
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # Frame içerisindeki santraç tahtasının köşelerini bul 
-    isSucces, corners = cv2.findChessboardCorners(gray, (rows, cols), None)
-
-    # Köşeler bulunabildi mi?
-    if isSucces:
-        '''
-        Eğer belirttiğimiz satır ve sütün sayısınca köşe doğru olarak tespit edilmişse 
-        cornerSubPix() metodu ile köşelerin veya radyal sırt noktalarının alt pikselinin, 
-        doğru konumunu bulmak için kendi içerisinde yineler.
-        '''
-        corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-        # Elde ettiğimiz bu noktaları saklayalım
-        objectPointsArray.append(objectPoints)
-        imgPointsArray.append(corners)
-
-        # Testip edilen köşeleri çizelim
-        cv2.drawChessboardCorners(img, (rows, cols), corners, isSucces)
-        found += 1
-    
-    
-    cv2.imshow('Kalibrasyon', img)
-    cv2.waitKey(500)
-cv2.destroyAllWindows()
-# Elde ettiğimiz K ve D değerlerini npz arşivi olarak kaydedelim (txt, xml, yaml da kullanabilirsiniz)
-ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objectPointsArray, imgPointsArray, gray.shape[::-1], None, None)
-np.savez('calibrationdata.npz', mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
-
-
-# Kalibrasyon verilerini kullanarak görüntüyü düzeltelim
-cap = cv2.VideoCapture(0)
-while True:
-    # Gri renk uzayında frame okuyalım
-    ret3,img = cap.read()
-    h, w = img.shape[:2]
-	
-    '''
-    Kalibrasyon ile elde ettiğimiz K ve D verileri ve OpenCV undistort* metotlarını kullanarak 
-    bozuk görüntüyü düzeltebiliriz. Bu metotlar parametre olarak K ve D verilerine ihtiyaç duyar, 
-    sonuç olarak ise size düzeltilmiş görüntü dönecektir.
-    '''
-    newCameraMtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
-    undistortedImg = cv2.undistort(img, mtx, dist, None, newCameraMtx)
-	
-    cv2.imshow('Duzeltilmis Goruntu', undistortedImg)
-    cv2.waitKey(0)
-    
-cv2.destroyAllWindows()
-```
-
-
-![fisheye](static/fisheye.png)
-
-
-
-
-
-### Teorik Temel — Pinhole Model ve Kalibrasyon
-
-**Pinhole Kamera Modeli:**
-$$\begin{bmatrix} u \\ v \\ 1 \end{bmatrix} = \frac{1}{Z}\begin{bmatrix} f_x & 0 & c_x \\ 0 & f_y & c_y \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} X \\ Y \\ Z \end{bmatrix}$$
-$f_x, f_y$: odak uzunlukları (piksel), $(c_x, c_y)$: görüntü merkezi (principal point), $(X,Y,Z)$: 3D dünya noktası.
-
-**Radyal Lens Bozulması:**
-$$x_d = x(1+k_1r^2+k_2r^4+k_3r^6), \quad r^2=x^2+y^2$$
-$k_1, k_2, k_3$: radyal bozulma katsayıları. Balık gözü lenste $k_1 < 0$.
-
-**Reprojection Error (RMS):**
-$$\text{RMS} = \sqrt{\frac{1}{N}\sum_{i=1}^N \|p_i - \hat{p}_i\|^2}$$
-$p_i$: gerçek köşe, $\hat{p}_i$: hesaplanan köşe. İyi kalibrasyon için RMS < 1 piksel.
-
-Referans: Hartley & Zisserman, "Multiple View Geometry" (https://www.robots.ox.ac.uk/~vgg/hzbook/)
+Neden satranç tahtası? Köşe noktaları matematiksel kesinlikle bulunabilir — köşe tam olarak iki siyah ve iki beyaz karenin buluştuğu noktadır. 15-20 farklı açı ve mesafeden fotoğraf, kamera parametrelerini güvenilir biçimde kısıtlar.
 
 ```python
 import cv2
 import numpy as np
 import glob
 
-CHECKERBOARD = (9, 6)
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+# Satranç tahtası iç köşe sayısı (6x9 tahta için 5x8)
+BOARD_W, BOARD_H = 9, 6
+SQUARE_SIZE = 25.0  # mm cinsinden kare boyutu
 
-obj_points, img_points = [], []
-objp = np.zeros((CHECKERBOARD[0] * CHECKERBOARD[1], 3), np.float32)
-objp[:, :2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
+# 3D dünya koordinatları — Z=0 düzleminde
+objp = np.zeros((BOARD_H * BOARD_W, 3), np.float32)
+objp[:, :2] = np.mgrid[0:BOARD_W, 0:BOARD_H].T.reshape(-1, 2) * SQUARE_SIZE
 
-image_files = glob.glob("calibration_images/*.jpg")
-if not image_files:
-    raise FileNotFoundError("calibration_images/ klasöründe .jpg dosyası bulunamadı")
+obj_points = []  # 3D gerçek dünya noktaları
+img_points = []  # 2D görüntü noktaları
+img_size = None
 
-for fname in image_files:
-    img = cv2.imread(fname)
-    if img is None:
-        continue
+images = glob.glob("kalibrasyon/*.jpg")
+if not images:
+    raise FileNotFoundError("kalibrasyon/ klasöründe görüntü bulunamadı")
+
+for path in images:
+    img = cv2.imread(path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret, corners = cv2.findChessboardCorners(gray, CHECKERBOARD, None)
+    img_size = gray.shape[::-1]  # (genişlik, yükseklik)
+
+    ret, corners = cv2.findChessboardCorners(gray, (BOARD_W, BOARD_H), None)
+
     if ret:
+        # Köşe konumlarını alt-piksel hassasiyetiyle iyileştir
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+        corners_refined = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+
         obj_points.append(objp)
-        corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-        img_points.append(corners2)
+        img_points.append(corners_refined)
 
-if len(obj_points) < 5:
-    raise ValueError("Kalibrasyon için en az 5 geçerli görüntü gerekli")
+print(f"{len(obj_points)} kalibrasyon görüntüsü kullanıldı")
 
-ret, K, dist, rvecs, tvecs = cv2.calibrateCamera(
-    obj_points, img_points, gray.shape[::-1], None, None
+# Kamera matrisini ve bozulma katsayılarını hesapla
+rms, K, dist, rvecs, tvecs = cv2.calibrateCamera(
+    obj_points, img_points, img_size, None, None
 )
-print(f"Kalibrasyon hatası (RMS): {ret:.4f} piksel")
-print(f"Kamera matrisi K:\n{K}")
-print(f"Bozulma katsayıları: {dist.ravel()}")
 
-# Görüntü düzeltme
-test_img = cv2.imread("test.jpg")
-if test_img is not None:
-    h, w = test_img.shape[:2]
-    new_K, roi = cv2.getOptimalNewCameraMatrix(K, dist, (w, h), 1, (w, h))
-    undistorted = cv2.undistort(test_img, K, dist, None, new_K)
-    cv2.imshow("Düzeltilmiş", undistorted)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+print(f"RMS yeniden projeksiyon hatası: {rms:.4f} piksel")
+print("Kamera matrisi K:\n", K)
+print("Bozulma katsayıları:", dist.ravel())
+
+# Kalibrasyonu dosyaya kaydet
+np.save("camera_matrix.npy", K)
+np.save("dist_coeffs.npy", dist)
+
+# Örnek görüntüye undistort uygula
+test_img = cv2.imread(images[0])
+undistorted = cv2.undistort(test_img, K, dist)
+
+comparison = np.hstack([test_img, undistorted])
+cv2.imshow("Orijinal | Düzeltilmiş", comparison)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
 
-### Özet & İleri Okuma
-- Pinhole model, 3D dünya noktalarını 2D görüntü koordinatlarına eşler
-- Kamera matrisi K: focal length (fx, fy) ve principal point (cx, cy) içerir
-- Radyal bozulma katsayıları k1, k2, k3 ile modellenir; balık gözünde k1<0
-- RMS < 1 piksel iyi kalibrasyon göstergesidir; >2 ise yeniden kalibrasyon gerekir
-- undistort() ile lens bozulması düzeltilebilir
-- Referans: Hartley & Zisserman — Multiple View Geometry
+RMS hatası < 0.5 piksel iyi kalibrasyon göstergesidir. 1.0'ın üzerindeyse daha fazla ve daha çeşitli açılardan görüntü ekleyin.
 
----
+> **⚠️ Dikkat:** Kalibrasyon görüntülerini aynı odak uzaklığında çekin. Zoom yaptıysanız veya kamera ayarları değiştiyse yeniden kalibre edin — K matrisi lens ayarına bağlıdır.
 
-## Stereo Görü (Stereo Vision veya Stereoscopic Vision)
+> **💡 İpucu:** `cv2.getOptimalNewCameraMatrix()` undistort sonrası kaybolan kenar piksellerini telafi eden daha geniş bir alan hesaplar. Görüntü kenarları önemliyse bu fonksiyonu kullanın.
 
-Stereo görü insanlanrın sahip olduğu bir yetenekten yola çıkarak uyarlanmış bir kavram/teknolojidir. Mono bir fotoğraf düşününü cep telefonlarınızla çektiğiniz gibi. Fotoğrafa baktığınızda karede yer alan nesnelerin hangisini önce hangisinin arkada olduğunu ayırt edebiliyorsunuz değil mi. Bu derinlik kestirimi olarak adlandırılır. Derinlik kestirimi yeteneğimiz yani iki gözümüz olmasaydı, beynimiz bu derinlik algısını doğru hesaplayamazdı. Bir gözünüzü kapattığınızda önünüzde duran bir nesnenin bir noktasına dokunmaya çalışın bunu daha iyi anlayacaksınız.
+## Stereo Görü ve Derinlik
 
-|![stereo görme](static/stereogorme.jpg) | 
-|:--:| 
-|*Görsel Kaynağı: Howstuffworks*|
+Sağ gözünüzü kapayın, sol gözünüzle bir kaleme bakın. Sonra gözleri değiştirin — kalem yer değiştirmiş gibi görünür. Bu paralaks (disparity) etkisi, beynin iki göz arasındaki farkı kullanarak derinliği algılamasının temelidir.
 
+İki kamera aynı ilkeyi uygular: soldan ve sağdan bakılan aynı noktanın görüntü koordinatları arasındaki fark (disparity) derinliği verir:
 
-Bilgisayarlı görü alanında da bir nesnenin kameraya olan mesafesini veya sahnedeki tüm herşeyin kameraya olan mesafesini hesaplayabilmek için bu teknolojiden yararlanılmaktadır. Bunun için OpenCV içerisinde bir çok algoritma hali hazırda kullanılabilir durumdadır, tek yapmanız gereken bir stereo kamera kullanmak veya stereo kamera düzeneği kurmak. Aşağıda örnek stereo kameralar görülebilir.
+$$Z = \frac{f \cdot B}{d}$$
 
+Burada $f$ odak uzaklığı, $B$ iki kamera arasındaki mesafe (baseline), $d$ ise disparity'dir. Disparity büyüdükçe nesne yakınlaşır.
 
+```python
+import cv2
+import numpy as np
 
-|<div style="width:50%; height:50%">![stereo kamera 1](static/sterokamera-1.jpg) ![stereo kamera 2](static/sterokamera-2.jpg) </div>| 
-|:--:| 
-|*Farklı stereo kameralar*|
+# Stereo görüntüleri yükle
+left_img = cv2.imread("stereo_left.jpg")
+right_img = cv2.imread("stereo_right.jpg")
+if left_img is None or right_img is None:
+    raise FileNotFoundError("Stereo görüntü dosyaları bulunamadı")
 
+left_gray = cv2.cvtColor(left_img, cv2.COLOR_BGR2GRAY)
+right_gray = cv2.cvtColor(right_img, cv2.COLOR_BGR2GRAY)
 
+# Semi-Global Block Matching — SGBM
+stereo = cv2.StereoSGBM_create(
+    minDisparity=0,
+    numDisparities=128,   # 16'nın katı olmalı
+    blockSize=11,
+    P1=8 * 3 * 11**2,    # Küçük disparity değişimi için ceza
+    P2=32 * 3 * 11**2,   # Büyük disparity değişimi için ceza
+    disp12MaxDiff=1,
+    uniquenessRatio=10,
+    speckleWindowSize=100,
+    speckleRange=32,
+)
 
-**Derinlik Nasıl Hesaplanır?**
+disparity = stereo.compute(left_gray, right_gray).astype(np.float32) / 16.0
 
+# Normalize et ve renklendir
+disp_normalized = cv2.normalize(disparity, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+disp_color = cv2.applyColorMap(disp_normalized, cv2.COLORMAP_JET)
 
-Aşağıdaki görselde bir stereo kamera düzeneği ve belirli bir mesafadeki nesne resmedilmiştir. **O ve O^**  sol ve sağ kameraları,  **X** ise belirli bir noktadaki nesneyi, **X ve X^** nesnenin sol ve sağ kameralarına olan iz düşümlerini, **f** ise kameraların odak uzaklığını, **B** ise iki kamera merceğinin birbirlerine olan mesafeini, **Z** ise kameranın nesneye olan uzaklığını yani derinlik bilgisini temsil etmektedir. Bu değişkenlerden; f yani odak uzaklığı, B yani mercekler arası mesafe önceden bilinen değişkenlerdir. Bu değişkenlere göre;
+cv2.imshow("Sol Görüntü", left_img)
+cv2.imshow("Derinlik Haritası", disp_color)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
 
-![stereo derinlik](static/stereo_depth.jpg)
+Derinlik haritasında sıcak renkler (kırmızı) yakın nesneleri, soğuk renkler (mavi) uzak nesneleri temsil eder. Düz yüzeylerde ve kenar bölgelerde hesaplama güçleşir.
 
+> **📌 Not:** Stereo derinliğinin güvenilir olması için iki kameranın rektifiye edilmesi gerekir — yani sol ve sağ kamera görüntülerinin aynı yatay epipolar çizgiye hizalanması. `cv2.stereoRectify()` ve `cv2.initUndistortRectifyMap()` bu işlemi yapar.
 
-*Z = (f * B) / d*
+## Pratik: Piksel Boyutundan Gerçek Boyuta
 
-Bilinmeyen **d** değişkeni görüntü düzlemine düşen iz düşümlerin bir birlerine olan mesafesidir. Buna göre;
+Kalibrasyon sayesinde görüntüdeki bir nesnenin gerçek boyutunu ölçebilirsiniz. Yöntem: bilinen boyutlu referans nesneyi aynı karede tutun, pikselden metreye dönüşüm katsayısını hesaplayın.
 
-*d (disparity) = X - X^ = (B * f) / Z*
+```python
+import cv2
+import numpy as np
 
-Bu denklemler sayesinde hedeflediğimiz derinlik bilgisini çıkartabiliriz.
+# Referans nesne: bilinen genişliği W_mm olan bir kart
+W_mm = 85.6  # Kredi kartı genişliği (mm)
+
+img = cv2.imread("olcum.jpg")
+if img is None:
+    raise FileNotFoundError("olcum.jpg bulunamadı")
+
+# Kayıtlı kamera matrisini yükle
+K = np.load("camera_matrix.npy")
+dist = np.load("dist_coeffs.npy")
+
+# Bozulmayı gider
+img = cv2.undistort(img, K, dist)
+
+# Referans nesnenin piksel genişliğini manuel veya otomatik ölç
+# Burada örnek olarak elle belirtiyoruz
+ref_pixel_width = 320  # Ölçülen piksel genişliği
+focal_length_px = K[0, 0]  # f_x
+
+# Derinlik kestirimi — nesne kameranın önünde Z mesafesinde
+# Gerçek uygulamada stereo veya bilinen mesafe kullanılır
+Z_mm = 500.0  # Nesne 500 mm uzakta
+
+# Piksel / mm dönüşüm katsayısı
+px_per_mm = ref_pixel_width / W_mm
+
+print(f"Ölçek: {px_per_mm:.2f} piksel/mm")
+print(f"1 piksel ≈ {1/px_per_mm:.3f} mm bu mesafede")
+```
+
+## Yöntem Karşılaştırması
+
+| Konu | Yöntem | Ne Zaman |
+|------|--------|----------|
+| Lens bozulması giderme | `cv2.undistort()` | Her zaman, kalibrasyon sonrası |
+| Tek kamera derinlik | Monoküler derinlik (DPT, MiDaS) | Stereo kamera yoksa |
+| Stereo derinlik | StereoSGBM | Yüksek doğruluk, kontrollü ortam |
+| 3D nokta bulutu | `cv2.reprojectImageTo3D()` | Stereo sonrası 3D model |
+
+## Özet
+
+- Kamera iç parametreleri K matrisi piksel koordinatlarını gerçek dünya koordinatlarına bağlar.
+- Radyal bozulma kenarları şişirir (barrel) veya çökertir (pincushion); teğetsel bozulma görüntüyü yamultur.
+- Satranç tahtası kalibrasyonu 15-20 görüntüyle K matrisini ve bozulma katsayılarını öğrenir.
+- RMS yeniden projeksiyon hatası < 0.5 piksel iyi kalibrasyon kalitesini gösterir.
+- Stereo görüde disparity derinliği verir: yakın nesne büyük disparity, uzak nesne küçük disparity.
+- SGBM stereo eşleşme algoritması OpenCV'de direkt kullanılabilir; rektifikasyon şarttır.
+- Kalibrasyon tamamlandıktan sonra piksel ölçümlerini milimetreye çevirmek mümkündür.
+
+## İleri Okuma
+
+- Hartley & Zisserman, "Multiple View Geometry in Computer Vision" (2. baskı, 2004) — alandaki temel kaynak kitap
+- Zhang, Z., "A Flexible New Technique for Camera Calibration" (IEEE TPAMI 2000) — satranç tahtası kalibrasyonunun matematiksel temeli
+- OpenCV Kamera Kalibrasyon Dokümantasyonu: https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html
