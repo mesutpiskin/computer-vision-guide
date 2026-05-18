@@ -1,0 +1,19 @@
+docs/27-generatif-modeller.md
+  s_4051bb1c427589::t_5361bda41f7a93 1,3,5,7,9-11,13,15,17,20,22-26,28-33,36,38,40,42-43,45-48,52,54,56,58-60,62,65,67,71-125,127-196,199-226,229-242
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "7420ee4288a241e6d28d1eed4fcc5f8151a1a4ce",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
