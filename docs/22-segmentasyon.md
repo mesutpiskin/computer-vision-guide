@@ -1,242 +1,289 @@
-**Segmentasyon (Semantic & Instance Segmentation)**
-----------------------------------------------------
+# Segmentasyon
 
-Nesne tespiti bir nesnenin nerede olduğunu dikdörtgen bir kutu ile gösterirken, segmentasyon piksel düzeyinde nesnelerin sınırlarını çizer. Bu bölümde semantik segmentasyon, örnek segmentasyonu ve segment anything modelini ele alacağız.
+Patoloji laboratuvarında bir mikroskop görüntüsünde tümör hücrelerini tespit etmek istiyorsunuz. Nesne tespiti size "bu bölgede tümör var" diyebilir, ama "tam olarak hangi pikseller tümöre ait?" sorusunu yanıtlamaz. Hücre sınırını piksel düzeyinde çizmeniz gerekir: kaç hücre var, toplam alan ne kadar, birbirine bitişik mi? Bu bölümde görüntüdeki her pikseli doğru nesne veya sınıfa atayan segmentasyon yöntemlerini öğreneceğiz.
 
 ## Segmentasyon Türleri
 
-* **Semantik Segmentasyon:** Her piksele bir sınıf etiketi atar. Yol, araç, insan gibi. Birden fazla insanı birbirinden ayırt etmez.
-* **Örnek Segmentasyonu (Instance Segmentation):** Her nesne örneğini ayrı ayrı maskeler. 3 farklı insan, 3 farklı maske.
-* **Panoptik Segmentasyon:** Semantik + Instance — hem saydılabilir hem sayılamaz nesneleri birlikte işler.
+Üç farklı segmentasyon yaklaşımı vardır ve hangi soruyu sorduğunuza göre seçim yapılır.
 
----
+**Semantik segmentasyon:** Her piksel bir sınıfa atanır. Görüntüde beş insan varsa hepsi "insan" sınıfına girer — birbirinden ayırt edilmez. "Bu görüntünün neresinde yol var, neresinde bina var?" sorusunu yanıtlar.
 
-### Teorik Temel — Segmentasyon
+**Örnek segmentasyonu (Instance segmentation):** Her nesne bağımsızdır. Beş insan varsa "insan_1", "insan_2", ... olarak ayrı maskeler alır. "Kaç hücre var ve her biri nerede?" sorusunu yanıtlar.
 
-**Semantic vs Instance Segmentation:**
-- Semantic: her piksel → sınıf etiketi (aynı sınıf, tek renk)
-- Instance: her nesne örneği ayrı maske
-- Panoptic: ikisinin birleşimi
+**Panoptik segmentasyon:** İkisini birleştirir. Sayılabilir nesneler (insan, araba) örnek segmentasyonuyla; arka plan sınıfları (gökyüzü, yol, zemin) semantik segmentasyonla işlenir.
 
-**mIoU (Mean Intersection over Union):**
-$$\text{mIoU} = \frac{1}{C}\sum_{c=1}^C \frac{TP_c}{TP_c + FP_c + FN_c}$$
-$C$: sınıf sayısı. Segmentasyonun standart değerlendirme metriği.
+| Tür | Her nesne ayrı mı? | Arka plan sınıfı var mı? | Örnek Kullanım |
+|-----|-------------------|--------------------------|----------------|
+| Semantik | Hayır | Evet | Sürücüsüz araç şerit tespiti |
+| Örnek | Evet | Hayır | Hücre sayma, kalabalık analizi |
+| Panoptik | Evet | Evet | Sahne anlama, otonom navigasyon |
 
-**SAM (Segment Anything Model) Bileşenleri:**
-1. Image Encoder: ViT-H ile görüntü embedding (1024 boyut)
-2. Prompt Encoder: nokta/kutu/maske prompt'u kodlar
-3. Mask Decoder: 2 katmanlı transformer ile maske üretir
+## Klasik Yöntem: Watershed
 
-Zero-shot: eğitim görmediği nesneleri segmente eder.
-
-Referans: He et al., "Mask R-CNN", ICCV 2017 (https://arxiv.org/abs/1703.06870)
-Referans: Kirillov et al., "Segment Anything", ICCV 2023 (https://arxiv.org/abs/2304.02643)
-
----
-
-## YOLOv8 ile Instance Segmentasyon
-
-```bash
-pip install ultralytics
-```
+Görüntüyü bir arazi haritası gibi düşünün: parlak bölgeler dağ tepesi, karanlık bölgeler vadi. Vadiyi su ile doldurun — suların birleşmeden önce kenarlar oluşturduğu sınırlar, nesnelerin sınırlarıdır. Bu sezgiden türeyen Watershed algoritması, şekli önceden bilinen nesneleri (hücreler, mineral tanecikleri) ayırmak için kullanılır.
 
 ```python
-from ultralytics import YOLO
 import cv2
 import numpy as np
 
-model = YOLO("yolov8n-seg.pt")
+def watershed_hucre_say(goruntu_yolu: str) -> int:
+    """Watershed ile parlak nesneleri (hücreler) say ve say."""
+    img = cv2.imread(goruntu_yolu)
+    if img is None:
+        raise FileNotFoundError(f"{goruntu_yolu} bulunamadı")
 
-img = cv2.imread("sahne.jpg")
-results = model(img)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-for result in results:
-    if result.masks is not None:
-        masks = result.masks.data.cpu().numpy()
-        boxes = result.boxes
-        for i, mask in enumerate(masks):
-            mask = (mask * 255).astype(np.uint8)
-            mask = cv2.resize(mask, (img.shape[1], img.shape[0]))
-            color = np.random.randint(0, 255, 3).tolist()
-            colored = np.zeros_like(img)
-            colored[:] = color
-            img = np.where(mask[:, :, np.newaxis] > 128,
-                           cv2.addWeighted(img, 0.5, colored, 0.5, 0),
-                           img)
+    # Eşikleme — parlak hücreler beyaz
+    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-cv2.imshow("YOLOv8 Segmentasyon", img)
-cv2.waitKey(0)
-```
+    # Gürültü gider
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
 
-**Görsel çıktıyı otomatik oluştur:**
-```python
-results = model("sahne.jpg")
-for result in results:
-    annotated = result.plot()
-    cv2.imshow("Segmentasyon", annotated)
+    # Kesin arka plan ve ön plan bölgeleri
+    sure_bg = cv2.dilate(opening, kernel, iterations=3)
+    dist = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
+    _, sure_fg = cv2.threshold(dist, 0.5 * dist.max(), 255, 0)
+    sure_fg = sure_fg.astype(np.uint8)
+
+    # Belirsiz bölge
+    unknown = cv2.subtract(sure_bg, sure_fg)
+
+    # İşaretçi (marker) matrisi
+    _, markers = cv2.connectedComponents(sure_fg)
+    markers += 1
+    markers[unknown == 255] = 0
+
+    # Watershed uygula
+    cv2.watershed(img, markers)
+    img[markers == -1] = [0, 0, 255]   # Sınırları kırmızı yap
+
+    # Her bölgeye farklı renk ver
+    hucre_sayisi = markers.max() - 1   # 1 = arka plan
+    print(f"Tespit edilen hücre sayısı: {hucre_sayisi}")
+
+    cv2.imshow("Watershed Sonucu", img)
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    return int(hucre_sayisi)
+
+if __name__ == "__main__":
+    sayi = watershed_hucre_say("hucreler.jpg")
 ```
 
----
+> **💡 İpucu:** Watershed, nesnelerin birbirine yakın veya temas hâlinde olduğu durumlarda (hücreler, mineral tanecikleri) klasik eşiklemenin başarısız olduğu yerlerde parlar. Mesafe dönüşümü (distance transform) her pikselin en yakın arka plana olan uzaklığını hesaplar — bu uzaklık haritasındaki tepe noktaları her nesnenin merkezi olur.
 
-## SAM (Segment Anything Model) ile Segmentasyon
+## YOLOv8-seg: Gerçek Zamanlı Örnek Segmentasyonu
 
-SAM, Meta AI tarafından geliştirilen ve herhangi bir nesneyi nokta veya kutu verilen prompt ile segmente edebilen temel bir modeldir.
+YOLOv8, nesne tespiti boru hattının üstüne piksel maskesi üretmeyi de ekler. Nesne tespit başlığı (head) yanında bir maske başlığı daha çalışır — her tespit kutusu için ikili (binary) piksel maskesi üretir.
+
+```bash
+pip install ultralytics opencv-python numpy
+```
+
+```python
+import cv2
+import numpy as np
+from ultralytics import YOLO
+
+def yolov8_segmentasyon_kamera() -> None:
+    """YOLOv8-seg ile kameradan gerçek zamanlı örnek segmentasyonu."""
+    model = YOLO("yolov8n-seg.pt")   # Nano model; hız öncelikli
+
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        raise RuntimeError("Kamera açılamadı")
+
+    # Renk paleti — her sınıfa sabit renk
+    np.random.seed(42)
+    colors = np.random.randint(0, 255, size=(80, 3), dtype=np.uint8)
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        results = model(frame, verbose=False)
+        overlay = frame.copy()
+
+        if results[0].masks is not None:
+            masks = results[0].masks.data.cpu().numpy()    # (N, H, W)
+            boxes = results[0].boxes
+            h, w = frame.shape[:2]
+
+            for i, mask in enumerate(masks):
+                # Maske orijinal boyuta ölçeklendir
+                mask_resized = cv2.resize(mask, (w, h))
+                mask_bool = mask_resized > 0.5
+
+                # Sınıf rengini al
+                cls_id = int(boxes.cls[i].item())
+                color = colors[cls_id % len(colors)].tolist()
+
+                # Yarı saydam renk bindirme
+                overlay[mask_bool] = (
+                    overlay[mask_bool] * 0.4 + np.array(color) * 0.6
+                ).astype(np.uint8)
+
+                # Etiket
+                conf = float(boxes.conf[i].item())
+                label = f"{model.names[cls_id]} {conf:.2f}"
+                x1, y1 = int(boxes.xyxy[i][0]), int(boxes.xyxy[i][1])
+                cv2.putText(overlay, label, (x1, y1 - 5),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+
+        # Orijinal ve overlay'i karıştır
+        result_frame = cv2.addWeighted(frame, 0.3, overlay, 0.7, 0)
+        cv2.imshow("YOLOv8-seg", result_frame)
+
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    yolov8_segmentasyon_kamera()
+```
+
+`results[0].masks.data` tensörü `(N, H, W)` boyutundadır — N tespit sayısı, H ve W küçük ölçekli maske boyutlarıdır. Orijinal görüntü boyutuna ölçeklendirmek için `cv2.resize` gerekir.
+
+> **⚠️ Dikkat:** Maske tensörü CUDA'daysa önce `.cpu()` ile CPU'ya, sonra `.numpy()` ile NumPy dizisine dönüştürün. Aynı anda ikisini atlarsanız hata alırsınız.
+
+## SAM: Evrensel Segmentasyon
+
+Meta'nın Segment Anything Model (SAM) modeli eğitim gerektirmeyen bir segmentasyon paradigması sunar: bir noktaya tıklayın, o noktanın ait olduğu nesnenin maskesi çıkar. Dikdörtgen çizin, içindeki nesneyi segmente eder. 1 milyarı aşkın maskeli görüntü üzerinde eğitilen SAM, hiç görmediği nesne türlerinde de genelleme yapar.
 
 ```bash
 pip install segment-anything
-# Model ağırlığı: https://github.com/facebookresearch/segment-anything#model-checkpoints
+# Model ağırlıkları (vit_b ≈ 375 MB)
 # wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
 ```
-
-**Nokta tabanlı segmentasyon:**
 
 ```python
 import cv2
 import numpy as np
 from segment_anything import sam_model_registry, SamPredictor
 
-sam = sam_model_registry["vit_b"](checkpoint="sam_vit_b_01ec64.pth")
-predictor = SamPredictor(sam)
+def sam_nokta_segmentasyon(goruntu_yolu: str, nokta_x: int, nokta_y: int) -> None:
+    """SAM ile tek nokta girerek nesne segmentasyonu yap."""
+    img = cv2.imread(goruntu_yolu)
+    if img is None:
+        raise FileNotFoundError(f"{goruntu_yolu} bulunamadı")
 
-img = cv2.imread("nesne.jpg")
-predictor.set_image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    # SAM RGB bekler
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-# Nesnenin üzerindeki bir noktayı ver
-input_point = np.array([[250, 300]])  # x, y koordinatı
-input_label = np.array([1])  # 1=ön plan, 0=arka plan
+    # Model yükleme (vit_b, vit_l, vit_h)
+    sam = sam_model_registry["vit_b"](checkpoint="sam_vit_b_01ec64.pth")
+    predictor = SamPredictor(sam)
+    predictor.set_image(img_rgb)
 
-masks, scores, logits = predictor.predict(
-    point_coords=input_point,
-    point_labels=input_label,
-    multimask_output=True
-)
+    # Tahmin — nokta koordinatı ve etiket (1 = ön plan, 0 = arka plan)
+    masks, scores, _ = predictor.predict(
+        point_coords=np.array([[nokta_x, nokta_y]]),
+        point_labels=np.array([1]),
+        multimask_output=True   # 3 alternatif maske üret
+    )
 
-# En iyi maskeyi seç
-best_mask = masks[np.argmax(scores)]
-overlay = img.copy()
-overlay[best_mask] = [0, 120, 255]
-result = cv2.addWeighted(img, 0.6, overlay, 0.4, 0)
-cv2.imshow("SAM Segmentasyon", result)
-cv2.waitKey(0)
+    # En yüksek skorlu maskeyi seç
+    en_iyi = np.argmax(scores)
+    maske = masks[en_iyi]
+
+    print(f"Maske skoru   : {scores[en_iyi]:.3f}")
+    print(f"Maske alanı   : {maske.sum()} piksel "
+          f"({100 * maske.mean():.1f}% görüntü)")
+
+    # Görselleştir
+    overlay = img.copy()
+    overlay[maske] = (overlay[maske] * 0.4 + np.array([0, 120, 255]) * 0.6).astype(np.uint8)
+    cv2.circle(overlay, (nokta_x, nokta_y), 8, (255, 0, 0), -1)
+
+    cv2.imshow("SAM Segmentasyon", overlay)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    cv2.imwrite("sam_sonuc.jpg", overlay)
+    print("sam_sonuc.jpg kaydedildi.")
+
+if __name__ == "__main__":
+    sam_nokta_segmentasyon("laboratuvar.jpg", nokta_x=320, nokta_y=240)
 ```
 
-**Kutu tabanlı segmentasyon:**
+`multimask_output=True` ile SAM üç farklı granülaritede maske üretir (parça, nesne, grup). Çoğu durumda en yüksek skorlu maske istenen segmenti verir.
+
+> **📌 Not:** SAM büyük model ağırlıkları gerektirir (vit_b: 375 MB, vit_h: 2.4 GB). Gerçek zamanlı uygulamalar için daha hafif MobileSAM veya EfficientSAM türevlerini inceleyebilirsiniz.
+
+## Değerlendirme: IoU ve mIoU
+
+Tahmin maskesi ne kadar doğru? Bunu ölçmek için **IoU (Intersection over Union)** kullanılır.
+
+Sezgi: Modelin tahmin ettiği maske ile gerçek maskenin örtüşme oranı. Tam örtüşme → 1, hiç örtüşme yok → 0.
+
+$$\text{IoU} = \frac{|P \cap G|}{|P \cup G|}$$
+
+Payı kesişim (her iki maskede de 1 olan piksel sayısı), paydası birleşim (en az birinde 1 olan piksel sayısı).
 
 ```python
-input_box = np.array([100, 150, 400, 500])  # x1, y1, x2, y2
-
-masks, scores, _ = predictor.predict(
-    box=input_box[np.newaxis, :],
-    multimask_output=False
-)
-```
-
-**SAM2 (2024):**
-SAM2, video segmentasyonu desteği ekleyen güncel versiyondur.
-
-```bash
-pip install sam2
-```
-
-```python
-from sam2.build_sam import build_sam2
-from sam2.sam2_image_predictor import SAM2ImagePredictor
-
-model = build_sam2("sam2_hiera_small.yaml", "sam2_hiera_small.pt")
-predictor = SAM2ImagePredictor(model)
-predictor.set_image(img_rgb)
-masks, scores, _ = predictor.predict(point_coords=input_point,
-                                      point_labels=input_label)
-```
-
----
-
-## OpenCV DNN ile Semantik Segmentasyon
-
-```python
-import cv2
 import numpy as np
 
-# DeepLab v3+ PASCAL VOC modeli
-net = cv2.dnn.readNetFromTensorflow(
-    "deeplabv3_mnv2_pascal_train_aug_2018_01_29.pb"
-)
+def iou_hesapla(tahmin: np.ndarray, gercek: np.ndarray) -> float:
+    """
+    İki ikili maske arasında IoU hesapla.
+    tahmin, gercek: bool veya uint8 (0/1) ndarray
+    """
+    tahmin = tahmin.astype(bool)
+    gercek = gercek.astype(bool)
 
-img = cv2.imread("sahne.jpg")
-blob = cv2.dnn.blobFromImage(img, 1.0/127.5, (513, 513), (127.5, 127.5, 127.5))
-net.setInput(blob)
-score = net.forward()
+    kesisim = (tahmin & gercek).sum()
+    birlesim = (tahmin | gercek).sum()
 
-# Sınıf haritası
-classmap = np.argmax(score[0], axis=0)
-classmap = cv2.resize(classmap.astype(np.uint8),
-                      (img.shape[1], img.shape[0]),
-                      interpolation=cv2.INTER_NEAREST)
+    if birlesim == 0:
+        return 1.0   # Her ikisi de boşsa mükemmel örtüşme
 
-# Renklendirme
-colored = cv2.applyColorMap(classmap * 10, cv2.COLORMAP_JET)
-result = cv2.addWeighted(img, 0.5, colored, 0.5, 0)
-cv2.imshow("Semantik Segmentasyon", result)
-cv2.waitKey(0)
+    return float(kesisim) / float(birlesim)
+
+def miou_hesapla(tahminler: list, gercekler: list) -> float:
+    """Birden fazla sınıf veya örnek için mIoU hesapla."""
+    iou_degerleri = [iou_hesapla(t, g) for t, g in zip(tahminler, gercekler)]
+    return float(np.mean(iou_degerleri))
+
+# Test
+pred = np.array([[1, 1, 0], [1, 0, 0]], dtype=bool)
+gt   = np.array([[1, 1, 1], [0, 0, 0]], dtype=bool)
+print(f"IoU: {iou_hesapla(pred, gt):.3f}")   # 2/4 = 0.5
 ```
 
----
+**mIoU (mean IoU)**, tüm sınıflar veya örnekler üzerinden IoU değerlerinin ortalamasıdır. Segmentasyon modellerinin standart değerlendirme metriğidir; raporlarda "COCO val mIoU" olarak görürsünüz.
 
-## Karşılaştırma
+> **💡 İpucu:** IoU 0.5 eşiği yaygın kabul görmüş bir başarı kriteri olarak kullanılır (PASCAL VOC standardı). Tıbbi görüntülemede genellikle daha yüksek eşikler (0.7-0.9) beklenir.
 
-| Yöntem | Tip | Hız | Doğruluk | Notlar |
-|--------|-----|-----|---------|--------|
-| YOLOv8-seg | Instance | ★★★★ | ★★★★ | Çoklu nesne |
-| SAM / SAM2 | Interactive | ★★ | ★★★★★ | Prompt tabanlı |
-| DeepLab DNN | Semantic | ★★★ | ★★★ | OpenCV ile doğrudan |
+## Yöntem Karşılaştırması
 
----
+| Yöntem | Hız | Doğruluk | Eğitim Gerekir mi? | En İyi Kullanım |
+|--------|-----|----------|-------------------|-----------------|
+| **Watershed** | Çok hızlı | Sınırlı | Hayır | Bilinen şekilli nesneler, hücre sayımı |
+| **YOLOv8n-seg** | Hızlı (~30 FPS GPU) | Orta-yüksek | Fine-tune opsiyonel | Gerçek zamanlı, çok sınıflı |
+| **YOLOv8x-seg** | Yavaş (~5 FPS GPU) | Çok yüksek | Fine-tune opsiyonel | Hassasiyet kritik uygulamalar |
+| **SAM (vit_b)** | Orta | Çok yüksek | Hayır | İnteraktif segmentasyon, veri etiketleme |
 
-### YOLOv8-seg — Kapsamlı Örnek
+> **📌 Not:** SAM gerçek zamanlı video için çok yavaştır; ancak veri etiketleme araçlarına (Roboflow, Label Studio) entegre edilerek etiketleme iş yükünü büyük ölçüde azaltır.
 
-```python
-from ultralytics import YOLO
-import cv2
-import numpy as np
+## Özet & İleri Okuma
 
-model = YOLO("yolov8n-seg.pt")
+- Semantik segmentasyon piksel sınıfını verir, örnek segmentasyonu her nesneyi ayrı tutar, panoptik ise ikisini birleştirir.
+- Watershed, mesafe dönüşümü ve işaretçi tabanlı yaklaşımıyla temas eden nesneleri ayırmada klasik bir araçtır.
+- YOLOv8-seg `results[0].masks.data` ile `(N, H, W)` boyutlu maske tensörü döndürür; orijinal boyuta `cv2.resize` ile ölçeklendirilir.
+- Yarı saydam maske bindirmesi için `cv2.addWeighted` veya NumPy alfa karıştırması kullanılır.
+- SAM eğitim gerektirmeden nokta/kutu girdisiyle herhangi bir nesneyi segmente eder; vit_b modeli 375 MB'tır.
+- IoU, tahmin ve gerçek maske örtüşmesini 0-1 arasında ölçer; mIoU tüm sınıflar üzerinden ortalamasıdır.
+- Maske tensörü CUDA'daysa `.cpu().numpy()` dönüşümü unutulmamalıdır.
 
-img = cv2.imread("resim.jpg")
-if img is None:
-    raise FileNotFoundError("resim.jpg bulunamadı")
+### Referanslar
 
-results = model.predict(img, conf=0.5, verbose=False)
-result = results[0]
-
-output = img.copy()
-if result.masks is not None:
-    masks = result.masks.data.cpu().numpy()   # (N, H, W)
-    classes = result.boxes.cls.cpu().numpy()
-    names = model.names
-
-    for i, (mask, cls) in enumerate(zip(masks, classes)):
-        mask_resized = cv2.resize(mask, (img.shape[1], img.shape[0]))
-        mask_bool = mask_resized > 0.5
-
-        color = np.random.randint(50, 200, 3).tolist()
-        output[mask_bool] = (output[mask_bool] * 0.5 + np.array(color) * 0.5).astype(np.uint8)
-
-        contours, _ = cv2.findContours(
-            mask_resized.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-        )
-        cv2.drawContours(output, contours, -1, color, 2)
-        print(f"Nesne {i+1}: {names[int(cls)]}")
-
-cv2.imshow("YOLOv8 Segmentasyon", output)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-```
-
-### Özet & İleri Okuma
-- Semantic segmentation her piksele sınıf, instance segmentation her nesneye ayrı maske atar
-- mIoU standart segmentasyon metriğidir; sınıf başına IoU ortalamasıdır
-- YOLOv8-seg tek geçişte nesne tespiti ve instance segmentation yapar
-- SAM zero-shot çalışır: nokta veya kutu prompt ile herhangi bir nesneyi segmente eder
-- Mask R-CNN ROIAlign ile piksel hizalı maske üretir
-- Referans: Mask R-CNN (https://arxiv.org/abs/1703.06870), SAM (https://arxiv.org/abs/2304.02643)
+- He, K. et al. (2017). "Mask R-CNN." *ICCV 2017*: https://arxiv.org/abs/1703.06870
+- Kirillov, A. et al. (2023). "Segment Anything." *ICCV 2023*: https://arxiv.org/abs/2304.02643
+- Jocher, G. et al. (2023). "Ultralytics YOLOv8." https://github.com/ultralytics/ultralytics
+- Watershed Belgeleri (OpenCV): https://docs.opencv.org/4.x/d3/db4/tutorial_py_watershed.html
