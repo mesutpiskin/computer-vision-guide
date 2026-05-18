@@ -1,0 +1,9 @@
+docs/27-generative-models.en-US.md
+  ai_agent 1-244
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "a386951a11ab91a0363c083adf08f50d8d931579",
+  "prompts": {}
+}

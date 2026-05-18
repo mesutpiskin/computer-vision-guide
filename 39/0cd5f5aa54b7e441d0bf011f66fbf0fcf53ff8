@@ -1,0 +1,31 @@
+README.en-US.md
+  s_4051bb1c427589::t_e97fcd634d4a7a 63
+  s_4051bb1c427589::t_e06928f0b26a5f 65
+  s_4051bb1c427589::t_037fdeb7031a6b 62
+  s_4051bb1c427589::t_6094cfc42418b9 348-359
+  s_4051bb1c427589::t_b328ee40401d3b 64
+  s_4051bb1c427589::t_fd28485fd15d17 67
+  s_4051bb1c427589::t_0ce30bc088ecbc 66
+  s_4051bb1c427589::t_0d0eb07c8efc10 59
+  s_4051bb1c427589::t_61b66593959071 61
+  s_4051bb1c427589::t_e358d7b09fc6b8 58
+  s_4051bb1c427589::t_8a6394c6b3d2cf 56
+  s_4051bb1c427589::t_fd2fc6979bc023 60
+  s_4051bb1c427589::t_dd8d362ca65692 57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "390cd5f5aa54b7e441d0bf011f66fbf0fcf53ff8",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}

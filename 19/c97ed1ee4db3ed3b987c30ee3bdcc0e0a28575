@@ -1,0 +1,9 @@
+docs/25-augmented-reality.en-US.md
+  ai_agent 1-234
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "19c97ed1ee4db3ed3b987c30ee3bdcc0e0a28575",
+  "prompts": {}
+}

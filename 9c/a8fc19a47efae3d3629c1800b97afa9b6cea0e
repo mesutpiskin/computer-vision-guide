@@ -1,0 +1,9 @@
+docs/26-vision-transformers.en-US.md
+  ai_agent 1-191
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "9ca8fc19a47efae3d3629c1800b97afa9b6cea0e",
+  "prompts": {}
+}

@@ -1,0 +1,33 @@
+docs/14-object-detection.en-US.md
+  s_4051bb1c427589::t_482bf6f6355d15 1-199
+docs/11-filtering-and-edge-detection.en-US.md
+  s_4051bb1c427589::t_74a8ce8628e2cb 1-337
+docs/13-object-tracking.en-US.md
+  s_4051bb1c427589::t_fd52f0dd422f9d 1-249
+docs/10-morphological-operators.en-US.md
+  s_4051bb1c427589::t_4a885d93c69900 1-299
+docs/9-color-spaces.en-US.md
+  s_4051bb1c427589::t_dfffea16ff8c04 1-295
+docs/15-image-distortion-and-camera-calibration.en-US.md
+  s_4051bb1c427589::t_8f416d53aa2750 1-218
+docs/12-background-subtraction.en-US.md
+  s_4051bb1c427589::t_005d8682198913 1-217
+docs/8-pixel-manipulation.en-US.md
+  s_4051bb1c427589::t_41f1ea4537795b 1-299
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "6dcd24aaf6ff575c351a18c205ca8d21ba38ff68",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}

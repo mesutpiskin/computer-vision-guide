@@ -1,0 +1,9 @@
+docs/28-3d-vision.en-US.md
+  ai_agent 1-309
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "0bfd14cac79325f1745d4e0af484f5208c9ca108",
+  "prompts": {}
+}

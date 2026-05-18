@@ -1,0 +1,9 @@
+docs/30-model-training.en-US.md
+  ai_agent 1-326
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "844244403ffa7eecebbea28c4f3ebb69e30ff808",
+  "prompts": {}
+}
