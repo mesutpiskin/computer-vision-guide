@@ -1,214 +1,215 @@
-**Arka Plan Çıkarma Algoritmaları** 
------------------------------------
+# Arka Plan Çıkarma ve Hareket Tespiti
 
-### Teorik Temel
+Bir otopark güvenlik kamerası saatler boyunca kayıt yapıyor. Kaydın büyük bölümü boş bir otopark — sizi ilgilendiren sadece araçların gelip gittiği anlar. Her kareyi ayrı ayrı analiz etmek hem yavaş hem gereksiz. Arka plan çıkarma bu problemi şu yaklaşımla çözer: "normal durumu" öğren, değişen pikselleri ön plan (hareket eden nesne) say. Bu bölümde üç farklı arka plan çıkarma yöntemi ele alınacak.
 
-**Gaussian Mixture Model (GMM) — MOG2:**
-Her piksel $x$'in arkaplan olasılığı $K$ Gaussian bileşenin ağırlıklı toplamıdır:
-$$P(x) = \sum_{k=1}^{K} w_k \cdot \mathcal{N}(x; \mu_k, \sigma_k^2)$$
-$w_k$: bileşen ağırlığı, $\mu_k$: ortalama, $\sigma_k$: standart sapma.
+## Frame Differencing — Kare Farkı
 
-MOG2 her piksel için $K=5$ Gaussian tutar ve zamanla günceller:
-$$\mu_k^{t+1} = (1-\rho)\mu_k^t + \rho x_t, \quad \sigma_k^{t+1} = (1-\rho)\sigma_k^t + \rho(x_t - \mu_k^t)^2$$
-$\rho$: öğrenme hızı.
+En basit yöntem: art arda iki kareyi birbirinden çıkar. Fark büyükse o piksel hareket ediyor demektir.
 
-Referans: Zivkovic, "Improved Adaptive Gaussian Mixture Model for Background Subtraction", ICPR 2004
-
-### Pratik Uygulama
+Sezgi: Durağan arka plan kare kare değişmez, dolayısıyla iki kare farkı sıfıra yakındır. Hareket eden bir nesne ise bir karede sağda, sonraki karede solda — fark büyük.
 
 ```python
 import cv2
+import numpy as np
 
-cap = cv2.VideoCapture("video.mp4")
+cap = cv2.VideoCapture("traffic.mp4")
+
 if not cap.isOpened():
-    raise RuntimeError("Video dosyası açılamadı")
+    raise IOError("Video açılamadı")
 
-# MOG2 — Gaussian Mixture, gölge tespiti aktif
+ret, prev_frame = cap.read()
+if not ret:
+    raise IOError("İlk kare okunamadı")
+
+prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # Mutlak fark
+    fark = cv2.absdiff(prev_gray, gray)
+
+    # Eşikleme: küçük farklılıkları gürültü say
+    _, maske = cv2.threshold(fark, 25, 255, cv2.THRESH_BINARY)
+
+    # Gürültü temizle
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    maske = cv2.morphologyEx(maske, cv2.MORPH_OPEN, kernel)
+
+    sonuc = cv2.bitwise_and(frame, frame,
+                            mask=maske)
+
+    cv2.imshow("Kare | Maske | Hareket",
+               np.hstack([frame, cv2.cvtColor(maske, cv2.COLOR_GRAY2BGR), sonuc]))
+
+    prev_gray = gray
+
+    if cv2.waitKey(25) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+```
+
+Yavaş hareket eden nesneler iki ardışık kare arasında az yer değiştirir — bu yöntemle yakalanmayabilir. Kamera titremesi ise tüm piksellerde fark yaratır ve sahte alarm verir. Bu sınırlamalar daha gelişmiş yöntemlere yönlendirir.
+
+## MOG2 — Gaussian Karışımı ile Arka Plan Modeli
+
+MOG2 (Mixture of Gaussians 2) her piksel için bir "normal değer dağılımı" öğrenir. Bunu yapabilmek için birkaç yüz kare boyunca arka planı gözlemler. Öğrenilen dağılımın dışında kalan piksel = ön plan.
+
+Sezgi: Her piksel için "bu piksel normalde ne değerinde olur?" sorusunu cevaplayan bir istatistik tutuluyor. Bir araç geldiğinde o pikselin değeri modelden sapıyor — ön plan. Gündüzden geceye geçiş gibi yavaş değişimler ise modeli zamanla güncelliyor.
+
+```python
+import cv2
+import numpy as np
+
+cap = cv2.VideoCapture("traffic.mp4")
+
+if not cap.isOpened():
+    raise IOError("Video açılamadı")
+
+# history: kaç kare geriye bakılsın
+# varThreshold: piksel foreground sayılma hassasiyeti (düşük = hassas)
+# detectShadows: gölgeleri ayrıca işaretle
 mog2 = cv2.createBackgroundSubtractorMOG2(
-    history=500, varThreshold=16, detectShadows=True
+    history=500,
+    varThreshold=16,
+    detectShadows=True
 )
 
-kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 
-while cap.isOpened():
+kare_sayaci = 0
+
+while True:
     ret, frame = cap.read()
     if not ret:
         break
 
+    kare_sayaci += 1
+
+    # apply: hem arka planı öğrenir hem maske üretir
     fg_mask = mog2.apply(frame)
-    # 127: gölge pikselleri, 255: ön plan
-    _, fg_only = cv2.threshold(fg_mask, 200, 255, cv2.THRESH_BINARY)
 
-    # Morfoloji ile gürültü temizleme
-    clean = cv2.morphologyEx(fg_only, cv2.MORPH_OPEN, kernel)
+    # detectShadows=True iken gölgeler 127 (gri) olarak işaretlenir — bunları sil
+    _, fg_mask = cv2.threshold(fg_mask, 200, 255, cv2.THRESH_BINARY)
 
-    cv2.imshow("Orijinal", frame)
-    cv2.imshow("Ön Plan", clean)
-    if cv2.waitKey(30) & 0xFF == ord('q'):
+    # Morfoloji ile temizle
+    fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_OPEN, kernel)   # küçük gürültü
+    fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_CLOSE, kernel)  # nesne içi delik
+
+    # Kontur tespiti ile nesne sayısı
+    konturlar, _ = cv2.findContours(fg_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Küçük konturları gürültü say (alan < 500 piksel)
+    gercek_nesneler = [k for k in konturlar if cv2.contourArea(k) > 500]
+
+    # Çerçeve çiz
+    sonuc = frame.copy()
+    cv2.drawContours(sonuc, gercek_nesneler, -1, (0, 255, 0), 2)
+
+    # Nesne sayısını göster
+    cv2.putText(sonuc, f"Nesne: {len(gercek_nesneler)}", (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+
+    gosterim = np.hstack([
+        frame,
+        cv2.cvtColor(fg_mask, cv2.COLOR_GRAY2BGR),
+        sonuc
+    ])
+    cv2.imshow("Kamera | Maske | Tespit", gosterim)
+
+    if cv2.waitKey(25) & 0xFF == ord('q'):
         break
 
 cap.release()
 cv2.destroyAllWindows()
 ```
 
-### Özet & İleri Okuma
-- MOG2, her piksel için K=5 Gaussian bileşenli istatistiksel model tutar
-- history parametresi geçmişe verilen ağırlığı, varThreshold ise duyarlılığı etkiler
-- detectShadows=True gölgeleri ön plandan ayırt eder (127 vs 255)
-- KNN tabanlı BackgroundSubtractorKNN MOG2'ye alternatif daha hızlı yöntemdir
-- Morfolojik opening ile fg_mask gürültüsü temizlenir
-- Referans: Zivkovic — ICPR 2004 (MOG2)
+`mog2.apply(frame)` iki işi birden yapar: hem arka plan modelini günceller hem de ön plan maskesini döndürür. `learning_rate` parametresiyle güncelleme hızını ayarlayabilirsiniz — `mog2.apply(frame, learningRate=0.005)` yavaş uyum için.
 
----
+> **💡 İpucu:** MOG2 ilk 100–200 karede arka planı öğrenir — bu süre zarfında hatalı tespitler normaldir. `cap.set(cv2.CAP_PROP_POS_FRAMES, 200)` ile ilk kareleri atlayabilirsiniz.
 
-Arka plan çıkarma işlemi, 2 boyutlu bir görüntü üzerinde derinlik bilgisi olmaksızın görüntüde yer alan nesnelerin arka planını tespit etmektir. Peki arka plan çıkarma işlemine neden ihtiyaç duyarı? En temel sebeplerine bakarsak; görüntü üzerindeki nesneleri saymak, hareket halindeki bir nesneyi yakalamak ve analiz etmek, nesne tanımada ön işleyici olarak kullanmak, başlı başına hareket tespiti yapmak vb. 
+> **⚠️ Dikkat:** `detectShadows=True` ile gölgeler 127 değerinde işaretlenir. Bunu `cv2.threshold(fg_mask, 200, 255, ...)` ile süzgeçleyerek gölgeleri ön plan saymaktan kaçının — aksi takdirde her nesnenin gölgesi sahte ikinci nesne olarak görünür.
 
-OpenCV ile arka plan tespit işlemi için eklenmiş birçok algoritma mevcuttur. Başlıcaları:
+### MOG2 Parametre Rehberi
 
+| Parametre | Varsayılan | Etki |
+|-----------|-----------|------|
+| `history` | 500 | Kaç kare geriye bakılır — uzun = yavaş uyum |
+| `varThreshold` | 16 | Eşik değeri — düşük = daha fazla ön plan |
+| `detectShadows` | True | Gölge tespiti — işlem maliyeti artar |
 
+## KNN Subtractor
 
+K-En Yakın Komşu tabanlı arka plan modeli. MOG2'nin Gaussian varsayımı yapmak yerine son N karenin piksel değerlerini doğrudan depolar ve KNN mesafesi ile sınıflandırır.
 
-NOT: Stero yani derinlik bilgisi olan görüntüler üzerindeki süreç burada göreceğimizden biraz farklıdır bu yüzden anlatılanlar 2 boyutlu görüntü üzerinden olacaktır.
-
-* Absdiff
-* BackgroundSubtractorMOG
-* BackgroundSubtractorMOG2
-* BackgroundSubtractorGMG
-
-
-**Absdiff (İki Matris Farkı)**
-
-Absdiff metodu parametre olarak verilen iki mat nesnesi yani matris arasında çıkarma işlemi yapar bu çıkarma işlemi sonucunda değişen kısımlar (hareketli kısımlar) sonuç olarak gösterilir ve çıkarma işlemi sonucu mutlak değer olarak döndürülür.
-
-Arka plan temizleme, genellikle nesnelerin belirlenmesi, sayılması veya karşılaştırılması gibi işlemler için tercih edilir. Örneğin kapı girişlerine yerleştirilen bir kamera ile içeri giriş yapan kişi sayısı hesaplanabilir. Kamera yerleştirildikten sonra bir görüntü alınır ve arka plan olarak saklanır, daha sonraki her görüntü ile arka plan arasında bir çıkarma işlemi yapılır, çıkarma işlemi sonucunda oluşan görüntüye morfolojik operatörler ve thresholding uygulanarak fark sonucunda görüntü üzerindeki nesne belirlenir ve sayılır. Bu sayede giriş yapan kişi sayısı elde edilebilir. Bu algoritma kullanım alanı için basit bir örnek teşkil etmektedir.
-
-
-
-
-*Java:*
-
-``` Java
-	
-import  org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.highgui.Highgui;
-import org.opencv.imgproc.Imgproc;
- 
-public class ArkaplanTemizle  {
- 
-	public static void main(String[] args) {
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);		
-		
-		Mat kaynakMatris = Highgui.imread("/home/mesutpiskin/Masaüstü/1.jpg");
-		Mat kaynakMatrisGray = new Mat();
-		//RGB UZAYINDAN GRAY UZAYINA ÇEVİRME
-		Imgproc.cvtColor(kaynakMatris, kaynakMatrisGray,Imgproc.COLOR_RGB2GRAY);	
-	
-		Mat hedefMatris = Highgui.imread("/home/mesutpiskin/Masaüstü/2.jpg");
-		Mat hedefMatrisGray = new Mat();
-		//RGB UZAYINDAN GRAY UZAYINA ÇEVİRME
-		Imgproc.cvtColor(hedefMatris, hedefMatrisGray,Imgproc.COLOR_RGB2GRAY);
-		
-		//ARKA PLAN TEMİZLENDİKTEN SONRAKİ VERİLERİ TUTACAK MATRİS
-		Mat yeni=new Mat();
-		/*
-		 * hedefMatrisGray: Yakalanan anlık resim
-		 * kaynakMatrisGray: Temel alınacak bir önceki resim
-		 * yeni: Çıkarma işlemi sonucunda oluşacak  verileri tutacak matris
-		 * absdiff metodu matrisler arası bir çıkarma işlemi yapıyor.
-		*/
-		Core.absdiff(hedefMatrisGray,kaynakMatrisGray, yeni);
-		//ÇIKARMA İŞLEMİ SONUCU OLUŞAN MATRİSİ KAYDET
-		Highgui.imwrite("/home/mesutpiskin/Masaüstü/yeni.jpg", yeni);
-	}
- 
-}
-```
-
-*Python:*
-```Python
+```python
 import cv2
-img1 = cv2.imread('resim.jpg')
-if img1 is None:
-    raise FileNotFoundError("Görüntü dosyası bulunamadı")
-img2 = cv2.imread('resim2.jpg')
-if img2 is None:
-    raise FileNotFoundError("Görüntü dosyası bulunamadı")
-fark = cv2.absdiff(img1, img2)
-cv2.imshow('Sonuc',fark)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-```
-
-![Absdiff](static/absdiff.jpg)
-
-
-**BackgroundSubtractorMOG**
-
-Bu algoritma, 2001 yılındaki P. KadewTraKuPong and R. Bowden tarafından yazılan “An improved adaptive background mixture model for real-time tracking with shadow detection” başlıklı makaladen yola çıkarak geliştirilmiştir. Bu yöntem ön bölünmüş segmentasyon algoritması olarak da geçmektedir. 
-
-![MOG](static/mog.jpg)
-
-**BackgroundSubtractorMOG2**
-
-Bu algoritma, Z.Zivkovic tarafından ele alınan 2004 yılındaki “Improved adaptive Gausian mixture model for background subtraction” ve  2006 yılındaki “Efficient Adaptive Density Estimation per Image Pixel for the Task of Background Subtraction” makalelerden yola çıkarak geliştirilmiştir. Bu algoritmanın önemli bir özelliği, Her piksel için uygun sayıda Gauss dağılımı seçer, bu farkı uygulamada seçebiliyor olacağız.
-
-![MOG](static/mog2.jpg)
-
-**BackgroundSubtractorGMG**
-
-BackgroundSubtractorGMG algoritması OpenCV içerisine daha yakın bir tarihte eklenmiş bir yöntemdir. Arka plan ayırımı için daha başarılı bir yöntemdir. Bu yöntem 2012 yılında Andrew B. Godbehere, Akihiro Matsukawa, Ken Goldberg  tarafından yazılan “Visual Tracking of Human Visitors under Variable-Lighting Conditions for a Responsive Audio Art Installation” başlıklı makalelerinden yola çıkılarak geliştirildi. Arka plan modellemesi için ilk birkaç (varsayılan 120) çerçeve kullanır. Olası ön plan nesnelerini Bayes çıkarımı kullanarak tanımlayan olasılıksal önplan bölümleme algoritmasını kullanır. Tahminler uyarlanabilir; Değişken aydınlatmaya uyum sağlamak için daha yeni gözlemler daha eski gözlemlerden daha ağırlıklıdır. İstenmeyen gürültüyü gidermek için kapanma ve açma gibi çeşitli morfolojik filtreleme işlemleri yapılır.
-
-![MOG](static/gmg.jpg)
-
-
-*Java:*
-
-``` Java
-	
-import org.opencv.core.Mat;
-import org.opencv.video.BackgroundSubtractor;
-import org.opencv.video.BackgroundSubtractorMOG2;
-import org.opencv.videoio.VideoCapture;
-
-public class Ornek {
-    public static void main(String[] args){
-        VideoCapture capture = new VideoCapture(0);
-          Mat camImage = new Mat();
-          BackgroundSubtractorMOG2 backgroundSubtractorMOG = Video.createBackgroundSubtractorMOG2();
-            if (capture.isOpened()) {
-                while (true) {
-                    capture.read(camImage);
-
-
-                    Mat fgMask=new Mat();
-                    backgroundSubtractorMOG.apply(camImage, fgMask,0.1);
-
-                    Mat output=new Mat();
-                    camImage.copyTo(output,fgMask);
-
-                    //output nesnesini kullanabilirsiniz
-                   }
-                }
-    }
-}
-```
-
-*Python:*
-```Python
 import numpy as np
-import cv2
-cap = cv2.VideoCapture(0)
-kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
-fgbg = cv2.createBackgroundSubtractorGMG()
-while(1):
+
+cap = cv2.VideoCapture("traffic.mp4")
+
+if not cap.isOpened():
+    raise IOError("Video açılamadı")
+
+knn = cv2.createBackgroundSubtractorKNN(
+    history=500,
+    dist2Threshold=400.0,
+    detectShadows=True
+)
+
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+
+while True:
     ret, frame = cap.read()
     if not ret:
         break
-    fgmask = fgbg.apply(frame)
-    fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
-    cv2.imshow('GORUNTU',fgmask)
+
+    fg_mask = knn.apply(frame)
+
+    # Gölgeleri temizle
+    _, fg_mask = cv2.threshold(fg_mask, 200, 255, cv2.THRESH_BINARY)
+
+    fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_OPEN, kernel)
+    fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_CLOSE, kernel)
+
+    sonuc = cv2.bitwise_and(frame, frame, mask=fg_mask)
+
+    cv2.imshow("KNN Sonucu", sonuc)
+
+    if cv2.waitKey(25) & 0xFF == ord('q'):
+        break
 
 cap.release()
 cv2.destroyAllWindows()
 ```
+
+KNN, çok sayıda nesnenin hareket ettiği sahnelerde (kalabalık, yoğun trafik) MOG2'den daha kararlı çalışır. Ancak bellek kullanımı daha yüksektir çünkü piksel değerlerini doğrudan depolar.
+
+## Karşılaştırma Tablosu
+
+| Yöntem | Hız | Doğruluk | Adaptasyon | Ne Zaman |
+|--------|-----|----------|------------|----------|
+| Frame Diff | Çok hızlı | Düşük | Yok | Hızlı prototip, çok az hareket |
+| MOG2 | Hızlı | Yüksek | Kademeli | Genel amaç, ışık değişimi |
+| KNN | Orta | Çok yüksek | Kademeli | Yoğun sahne, karmaşık arka plan |
+
+## Özet & İleri Okuma
+
+- Frame differencing iki ardışık kareyi çıkararak hareketi tespit eder — basit ama yavaş harekete kör, kamera titremesine hassas.
+- MOG2 her piksel için Gaussian karışımı modeliyle "normal değer aralığı" öğrenir; yavaş arka plan değişimlerine otomatik adapte olur.
+- `detectShadows=True` gölgeleri 127 ile işaretler — `threshold(fg_mask, 200, 255)` ile süzgecin.
+- MOG2 ilk 100–200 karede öğrenim aşamasındadır; bu süredeki tespitler güvenilir değil.
+- Morfoloji (opening + closing) MOG2 maskesini temizlemek için standart son adımdır.
+- KNN yoğun sahnelerde MOG2'den daha kararlı, bellek maliyeti daha yüksek.
+- Gerçek uygulamada kontur alanı filtresi (`contourArea > eşik`) küçük gürültü konturlarını ayıklamak için şart.
+
+**Referanslar**
+
+- Zivkovic, Z. (2004). "Improved Adaptive Gaussian Mixture Model for Background Subtraction." *International Conference on Pattern Recognition (ICPR)*. [doi:10.1109/ICPR.2004.1333992](https://doi.org/10.1109/ICPR.2004.1333992)
+- Zivkovic, Z. & van der Heijden, F. (2006). "Efficient Adaptive Density Estimation per Image Pixel for the Task of Background Subtraction." *Pattern Recognition Letters*, 27(7), 773–780.
