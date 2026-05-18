@@ -1,267 +1,272 @@
-**Öznitelik ve Öznitelik Çıkarımı** 
------------------------------------
+# Öznitelik Çıkarımı ve Eşleştirme
 
-Öznitelik bizim için en anlamlı tanım olarak  "bir nesnenin veya bireyin nitel özelliğidir", TÜBA Sözlüğe göre de "Bir sistemi, bir nesneyi veya bir sınıfı niteleyen, ayırt edilmesini sağlayan özellik" yani ayırt edici özelliktir. Bu tanımlardan yola çıkarsak nesneyi tanımlayan ve açıkca değiştirilmediği sürece nesneyi tanımlayan özelliklerdir yani bir canlı için cinsiyeti veya insan yüzünde burnun bulunması genel itibari ile o nesnenin bir üzelliğidir. 
+İki farklı açıdan çekilmiş aynı binanın fotoğrafını panorama hâline getirmek istiyorsunuz. Bunun için bilgisayarın iki görüntüdeki aynı noktaları — binanın köşesini, pencere pervazını, kapı tutamağını — bulması ve hizalaması gerekir. Ama piksel piksel karşılaştırma yaparsanız, ışık farkı veya ufak bir açı değişikliği eşleşmeyi mahveder. Bu bölümde bu sorunu çözen öznitelik (feature) dedektörlerini ve tanımlayıcıları inceleyeceğiz; ardından iki görüntüyü gerçekten hizalayana kadar gideceğiz.
 
-## Öznitelik Çıkarımı (Feature Extraction)
+## Öznitelik Nedir?
 
-Görüntü işleme, makine öğrenmesi, derin öğrenme, veri madenciliği ve örüntü tanıma uygulamalarında sıklıkla başvurulan bir yöntemdir. Bizim ilgilendiğimiz alanı ise görüntü üzerindeki nesnelerin ayırt edilebilmesidir. Bir çok algoritma tarafından kolayca çözülen bir problem olan yüz tespitini düşünün, siz olsaydanız bir insan yüzünü nasıl tanımlardınız?
+Görüntünün "dikkat çeken" bölgeleridir öznitelikler — köşeler, lekeler (blob), belirgin kenarlar. İyi bir öznitelik, bakış açısı değişse de, nesne yaklaştırılıp uzaklaştırılsa da, sahne daha aydınlık veya daha karanlık olsa da tanınabilir olmak zorundadır. Bu üç dayanıklılığa sırasıyla **döndürme değişmezliği**, **ölçek değişmezliği** ve **aydınlık değişmezliği** denir.
 
- - İnsan yüzünde iki göz bulunur. 
- - İnsan yüzünde bir burun bulunur.
- - İnsan yüzünde bir ağız vardır.
+Neden köşe? Düz bir kenar hayal edin: boyunca kaydırsanız fark etmezsiniz — görüntü aynı kalır. Köşe ise iki yönde de bilgi taşır; sizi tam olarak o noktaya sabitler. Taklit edilemeyen, tekrarlanabilir bir referans noktasıdır.
 
- Peki ya göz, burun veya ağız nedir? Algoritmik olarak problemi ele aldığımızda insan yüzünü tanımlayan bir çok özellik ve bu özellikleri tanımlayan bir çok özellik vardır ve bunlar kendi içlerinde ayrı bir problem teşkil etmektedir. Bundan on beş veya yirmi yıl (neden yıllar önce olduğuna değineceğim) gibi bir süre önce bu problemi çözecek bir yazılım geliştirmeye çalışan birisi olduğunuzda bu süreç sizin için sancılı olacaktır. Çünkü nesnenin özniteliklerini tanımak ayrı bir mühendislik gerektirecekti. Gözün, burnun ve ağzın tüm özniteliklerini tanımlayan algoritmayı geliştirdikten sonra geriye kalan bunları birleştirmek olacak. Öznitelik çıkarımını başka amaçlar içinde kullanabilirsiniz. Örneğin nesneyi tespit etmek yerine aynı cins iki nesneyi bir biri ile karşılaştırmak/eşleştirmek **feature matching** için kullanabilirsiniz. Çünkü aynı cins iki nesne benzer öz niteliklere sahip olacaktır.
+> **📌 Not:** Dedektör (detector) ilgi noktasını *nerede* bulacağını söyler; tanımlayıcı (descriptor) o noktanın etrafının *nasıl göründüğünü* sayısal bir vektöre dönüştürür. İkisi birlikte çalışır.
 
- ## OpenCV Uygulamaları
+## SIFT: Ölçek Değişmezliği
 
-**Öznitelik Çıkarma (Feature Extraction)**
+Görüntüyü bir büyüteçle inceler gibi farklı büyütme seviyelerinde tarayan bir algılama yöntemi düşünün. Nesne yakın veya uzakta olsa bile her ölçekte belirgin olan noktalar gerçek özniteliklerdir — bunları bulan algoritma SIFT'tir (Scale-Invariant Feature Transform).
 
-- SIFT
-- SURF
-- BRIEF
-- ORB
-- FAST
-- BRISK
+**Nasıl çalışır, özet olarak:**
 
-**Öznitelik Eşleştirme (Feature Matching)**
+1. Görüntüyü farklı sigma değerleriyle Gaussian blur ile yumuşat.
+2. Ardışık iki Gaussian'ın farkını al — bu DoG (Difference of Gaussians) görüntüleridir.
+3. DoG piramidinde yerel maksimum ve minimum noktaları ilgi noktası olarak işaretle.
+4. Her noktanın etrafındaki 16×16 piksellik pencereyi 4×4 hücreye böl; her hücrede 8 yön içeren gradyan histogramı hesapla. Sonuç: 128 boyutlu bir vektör — noktanın parmak izi.
 
-- Brute-Force
-- FLANN
+128 boyutlu bu vektör, döndürmeye ve ölçek değişimine dayanıklıdır çünkü hem ana yönü hizalanarak normalize edilmiş hem de ölçek uzayında lokalize edilmiştir.
 
-
-### Teorik Temel — SIFT ve Öznitelik Eşleştirme
-
-**Scale-Space Extrema Tespiti (SIFT):**
-$$L(x,y,\sigma) = G(x,y,\sigma) * I(x,y)$$
-$$D(x,y,\sigma) = L(x,y,k\sigma) - L(x,y,\sigma)$$
-DoG (Difference of Gaussians) ile ölçek uzayı anahtar noktaları bulunur. $k=\sqrt{2}$.
-
-**Gradient Histogramı ve 128-boyutlu Descriptor:**
-$$m(x,y) = \sqrt{(L_{x+1}-L_{x-1})^2 + (L_{y+1}-L_{y-1})^2}$$
-$$\theta(x,y) = \arctan\left(\frac{L_{y+1}-L_{y-1}}{L_{x+1}-L_{x-1}}\right)$$
-16×16 pencere → 4×4 alt bölge × 8 yön histogramı = 128 boyut. L2 normalize edilir.
-
-**Lowe Oran Testi (Ratio Test):**
-İki en iyi eşleşme $d_1 < d_2$ ise: $d_1 / d_2 < 0.7$ koşuluyla iyi eşleşme kabul edilir.
-Yanlış eşleşmeleri (outlier) etkili biçimde eleme yöntemidir.
-
-Referans: Lowe, "Distinctive Image Features from Scale-Invariant Keypoints", IJCV 2004 (https://doi.org/10.1023/B:VISI.0000029664.99615.94)
-
-#### SIFT (Scale-Invariant Feature Transform - Ölçeklemeden Bağımsız Özellik Dönüşümü)
-
-SIFT algoritması David  Lowe tarafından 1999 yılında duyruldu. Bu algoritma sayesinde karşılaştırılan iki farklı giriş nesnesinin boyutu/ölçeği değişse veya belirli bir eşik seviyesine kadar gürültülü bile olsa başarılı olarak öznitelikler çıkarılıp eşleştirilebilmektedir. SIFT 3D Modelleme, nesne tanıma, nesne eşleme, nesne takibi vb. gibi bir çok alanda kullanılan bir algoritmadır. SIFT algoritmasının çalışması dört aşamada incelenir. Bu aşamalar; "Scale-Space Extrema Detection",  "Keypoint Localization", "Orientation Assignment" ve "Keypoint Descriptor".
-
-#### SURF (Speeded up Robust Features)
-
-SIFT algoritmasını hızlandırmak amacıyla ortaya çıkan bu algoritma 2006 yılında Herbert Bay tarafından duyruldu. SIFT algoritmasına göre x2 x3 kat daha hızlı çalışan bu algoritma yine SIFT de olduğu gibi ölçeklemeden bağımsız çalışmaktadır. SURF algoritmasının çalışması üç aşamada incelenir. Bu aşamalar; "Interest point detection", "local neighborhood description" ve "matching".
-
-
-![Oznitelik Algoritmaları Versus](static/surfvssift.png)
-
-Orjinal Görsel Kaynağı: http://www.willpowell.co.uk/blog/2014/09/07/feature-extractor-descriptor-performance-ios-ipad-iphones/
-
-
----
-
-## Python Kod Örnekleri
-
-### ORB ile Öznitelik Çıkarımı ve Görselleştirme
-
-ORB (Oriented FAST and Rotated BRIEF), ücretsiz ve hızlı çalışan bir öznitelik çıkarım algoritmasıdır. (SIFT ve SURF patentli olduğundan `opencv-contrib-python` gerektirir.)
+> **📌 Not:** OpenCV 4.4'ten itibaren SIFT patent koruması sona ermiştir ve ana `opencv-python` paketinde mevcuttur; artık `opencv-contrib-python` gerekmez.
 
 ```python
 import cv2
 import numpy as np
 
-img = cv2.imread("goruntu.jpg", cv2.IMREAD_GRAYSCALE)
+def sift_oznitelikler(goruntu_yolu: str) -> None:
+    """SIFT ile öznitelik tespit et ve görselleştir."""
+    img = cv2.imread(goruntu_yolu)
+    if img is None:
+        raise FileNotFoundError(f"{goruntu_yolu} bulunamadı")
 
-orb = cv2.ORB_create(nfeatures=500)
-keypoints, descriptors = orb.detectAndCompute(img, None)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-img_kp = cv2.drawKeypoints(img, keypoints, None,
-                            flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-cv2.imshow("ORB Anahtar Noktalar", img_kp)
-cv2.waitKey(0)
-print(f"Bulunan anahtar nokta sayısı: {len(keypoints)}")
-```
+    sift = cv2.SIFT_create(nfeatures=500)
+    keypoints, descriptors = sift.detectAndCompute(gray, None)
 
-### SIFT ile Öznitelik Çıkarımı
+    print(f"Bulunan anahtar nokta sayısı : {len(keypoints)}")
+    print(f"Tanımlayıcı matrisi boyutu   : {descriptors.shape}")  # (N, 128)
 
-> Not: SIFT kullanmak için `pip install opencv-contrib-python` gereklidir.
-
-```python
-import cv2
-
-img = cv2.imread("goruntu.jpg", cv2.IMREAD_GRAYSCALE)
-
-sift = cv2.SIFT_create()
-keypoints, descriptors = sift.detectAndCompute(img, None)
-
-img_kp = cv2.drawKeypoints(img, keypoints, None)
-cv2.imshow("SIFT Anahtar Noktalar", img_kp)
-cv2.waitKey(0)
-print(f"Descriptor boyutu: {descriptors.shape}")  # (N, 128)
-```
-
-### Brute-Force ile Öznitelik Eşleştirme
-
-```python
-import cv2
-import numpy as np
-
-img1 = cv2.imread("nesne.jpg", cv2.IMREAD_GRAYSCALE)
-img2 = cv2.imread("sahne.jpg", cv2.IMREAD_GRAYSCALE)
-
-orb = cv2.ORB_create()
-kp1, des1 = orb.detectAndCompute(img1, None)
-kp2, des2 = orb.detectAndCompute(img2, None)
-
-# Brute-Force Matcher — ORB için Hamming mesafesi kullan
-bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-matches = bf.match(des1, des2)
-
-# Mesafeye göre sırala — en iyi eşleşmeler önce
-matches = sorted(matches, key=lambda x: x.distance)
-
-# İlk 20 eşleşmeyi göster
-result = cv2.drawMatches(img1, kp1, img2, kp2, matches[:20], None,
-                         flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-cv2.imshow("Brute-Force Eşleştirme", result)
-cv2.waitKey(0)
-```
-
-### FLANN ile Hızlı Öznitelik Eşleştirme
-
-FLANN (Fast Library for Approximate Nearest Neighbors), büyük veri setlerinde BFMatcher'a göre çok daha hızlı çalışır.
-
-```python
-import cv2
-import numpy as np
-
-img1 = cv2.imread("nesne.jpg", cv2.IMREAD_GRAYSCALE)
-img2 = cv2.imread("sahne.jpg", cv2.IMREAD_GRAYSCALE)
-
-sift = cv2.SIFT_create()
-kp1, des1 = sift.detectAndCompute(img1, None)
-kp2, des2 = sift.detectAndCompute(img2, None)
-
-# FLANN parametreleri
-FLANN_INDEX_KDTREE = 1
-index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
-search_params = dict(checks=50)
-
-flann = cv2.FlannBasedMatcher(index_params, search_params)
-matches = flann.knnMatch(des1, des2, k=2)
-
-# Lowe'un oran testi — kötü eşleşmeleri filtrele
-good_matches = []
-for m, n in matches:
-    if m.distance < 0.7 * n.distance:
-        good_matches.append(m)
-
-result = cv2.drawMatches(img1, kp1, img2, kp2, good_matches, None,
-                         flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-cv2.imshow(f"FLANN — {len(good_matches)} iyi eşleşme", result)
-cv2.waitKey(0)
-```
-
-### Homografi ile Nesne Konumu Bulma
-
-Eşleştirilen öznitelikleri kullanarak bir nesnenin sahnedeki konumunu bul:
-
-```python
-import cv2
-import numpy as np
-
-img1 = cv2.imread("nesne.jpg", cv2.IMREAD_GRAYSCALE)
-img2 = cv2.imread("sahne.jpg", cv2.IMREAD_GRAYSCALE)
-
-sift = cv2.SIFT_create()
-kp1, des1 = sift.detectAndCompute(img1, None)
-kp2, des2 = sift.detectAndCompute(img2, None)
-
-flann = cv2.FlannBasedMatcher(
-    dict(algorithm=1, trees=5), dict(checks=50)
-)
-matches = flann.knnMatch(des1, des2, k=2)
-good = [m for m, n in matches if m.distance < 0.7 * n.distance]
-
-if len(good) >= 4:
-    src_pts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
-    dst_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
-
-    H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
-
-    h, w = img1.shape
-    corners = np.float32([[0, 0], [0, h-1], [w-1, h-1], [w-1, 0]]).reshape(-1, 1, 2)
-    scene_corners = cv2.perspectiveTransform(corners, H)
-
-    img2_color = cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR)
-    cv2.polylines(img2_color, [np.int32(scene_corners)], True, (0, 255, 0), 3)
-    cv2.imshow("Nesne Konumu", img2_color)
+    # Anahtar noktaları görselleştir
+    img_kp = cv2.drawKeypoints(
+        img, keypoints, None,
+        flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS
+    )
+    cv2.imshow("SIFT Anahtar Noktaları", img_kp)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-else:
-    print(f"Yeterli eşleşme yok: {len(good)} / 4")
+
+if __name__ == "__main__":
+    sift_oznitelikler("bina.jpg")
 ```
 
-### SIFT + FLANN + ORB Kapsamlı Örnek
+`DRAW_RICH_KEYPOINTS` bayrağı her noktanın ölçeğini (daire çapı) ve baskın yönünü (çizgi) de çizer — hangi ölçekte tespit edildiğini ve yönelimi görmek için kullanışlıdır.
+
+## ORB: Hız ve Patent Özgürlüğü
+
+SIFT iyi çalışır, ama her piksel için 128 float hesaplamak mobil cihazda veya gömülü sistemde yavaştır. ORB (Oriented FAST + Rotated BRIEF) bu sorunu farklı bir stratejiyle çözer: anahtar noktaları FAST köşe dedektörüyle bulur, tanımlayıcıyı ise float değil **binary** (0/1 bit dizisi) olarak üretir.
+
+İki binary descriptor'ı karşılaştırmak kolaydır: XOR alırsınız, 1-bitleri sayarsınız. Bu işlem, Hamming mesafesidir ve CPU'da son derece hızlı çalışır. SIFT'e kıyasla yaklaşık 100 kat daha hızlı çalışır.
 
 ```python
 import cv2
 import numpy as np
 
-img1 = cv2.imread("sorgu.jpg", cv2.IMREAD_GRAYSCALE)
-img2 = cv2.imread("sahne.jpg", cv2.IMREAD_GRAYSCALE)
-if img1 is None or img2 is None:
-    raise FileNotFoundError("sorgu.jpg veya sahne.jpg bulunamadı")
+def orb_oznitelikler(goruntu_yolu: str) -> None:
+    """ORB ile öznitelik tespit et ve görselleştir."""
+    img = cv2.imread(goruntu_yolu)
+    if img is None:
+        raise FileNotFoundError(f"{goruntu_yolu} bulunamadı")
 
-# SIFT öznitelik çıkarımı
-sift = cv2.SIFT_create()
-kp1, des1 = sift.detectAndCompute(img1, None)
-kp2, des2 = sift.detectAndCompute(img2, None)
-print(f"Görüntü 1: {len(kp1)} anahtar nokta")
-print(f"Görüntü 2: {len(kp2)} anahtar nokta")
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-# FLANN tabanlı eşleştirme
-FLANN_INDEX_KDTREE = 1
-index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
-search_params = dict(checks=50)
-flann = cv2.FlannBasedMatcher(index_params, search_params)
-matches = flann.knnMatch(des1, des2, k=2)
+    orb = cv2.ORB_create(nfeatures=500)
+    keypoints, descriptors = orb.detectAndCompute(gray, None)
 
-# Lowe oran testi
-good = [m for m, n in matches if m.distance < 0.7 * n.distance]
-print(f"İyi eşleşme: {len(good)}/{len(matches)}")
+    print(f"Bulunan anahtar nokta sayısı : {len(keypoints)}")
+    print(f"Tanımlayıcı matrisi boyutu   : {descriptors.shape}")  # (N, 32) — 256 bit
 
-# Homografi (4+ iyi eşleşme gerekir)
-if len(good) >= 4:
-    src_pts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
-    dst_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
-    H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
-    print(f"RANSAC inlier: {mask.sum()}/{len(good)}")
+    img_kp = cv2.drawKeypoints(img, keypoints, None, color=(0, 255, 0))
+    cv2.imshow("ORB Anahtar Noktaları", img_kp)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-# ORB — patent-free alternatif
-orb = cv2.ORB_create(nfeatures=500)
-kp1_orb, des1_orb = orb.detectAndCompute(img1, None)
-kp2_orb, des2_orb = orb.detectAndCompute(img2, None)
-bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-matches_orb = sorted(bf.match(des1_orb, des2_orb), key=lambda x: x.distance)
-
-# Eşleşmeleri görselleştir
-result = cv2.drawMatches(img1, kp1, img2, kp2,
-                          [m for m in good[:20]], None,
-                          flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-cv2.imshow("SIFT Eşleşmeleri", result)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+if __name__ == "__main__":
+    orb_oznitelikler("bina.jpg")
 ```
 
-### Özet & İleri Okuma
-- SIFT ölçek ve rotasyon değişmez öznitelikler üretir; patent süresi dolmuştur (2020+)
-- DoG scale-space extrema ile anahtar noktalar bulunur; 128-boyutlu descriptor hesaplanır
-- Lowe oran testi (d1/d2 < 0.7) yanlış eşleşmeleri etkili biçimde eler
-- FLANN, BruteForce'tan çok daha hızlı büyük öznitelik setlerinde eşleştirme yapar
-- ORB patent-free ve SIFT'ten ~100x daha hızlıdır; gerçek zamanlı uygulamalar için idealdir
-- Referans: Lowe 2004 (https://doi.org/10.1023/B:VISI.0000029664.99615.94)
+ORB tanımlayıcısı 32 byte (256 bit) uzunluğundadır — SIFT'in 512 byte'ının çok altında. Bellek kısıtlı ortamlarda bu fark belirleyicidir.
+
+## Öznitelik Eşleştirme
+
+İki görüntüden çıkarılan tanımlayıcılar elimizde. Soru şu: hangi nokta hangi noktaya karşılık gelir?
+
+### Kaba Kuvvet Eşleştirici (BFMatcher)
+
+Her tanımlayıcıyı diğer görüntünün tüm tanımlayıcılarıyla karşılaştırır — yavaştır ama en doğru eşleşmeyi verir.
+
+- SIFT gibi float tanımlayıcılar için `cv2.NORM_L2` (Öklid mesafesi)
+- ORB gibi binary tanımlayıcılar için `cv2.NORM_HAMMING`
+
+### FLANN Eşleştirici
+
+FLANN (Fast Library for Approximate Nearest Neighbors), büyük tanımlayıcı setlerinde kaba kuvvetten çok daha hızlıdır. Yaklaşık en yakın komşu araması yapar — ufak doğruluk kaybı karşılığında büyük hız kazancı.
+
+### Lowe Oran Testi
+
+Ham eşleştirme çıktısı gürültülüdür — pek çok yanlış eşleşme içerir. David Lowe'un SIFT makalesinde önerdiği **oran testi** bunu filtreler:
+
+Her tanımlayıcı için en yakın iki eşleşmeyi bul. En yakın, ikinci en yakından çok daha yakınsa eşleşme güvenilirdir. Formüle dökersek:
+
+$$\text{eşleşme geçerli} \iff d_1 < 0.75 \cdot d_2$$
+
+Sezgi: İyi bir eşleşme rakipsiz olmalıdır. Eğer ikinci aday da neredeyse aynı uzaklıktaysa, birinci adayın doğru olduğundan emin olamayız.
+
+> **⚠️ Dikkat:** Oran testi uygulamadan doğrudan ham eşleşmeleri kullanmayın — yanlış eşleşmeler, sonraki homografi hesabını mahveder.
+
+```python
+import cv2
+import numpy as np
+
+def oznitelik_eslestir(yol1: str, yol2: str) -> tuple:
+    """SIFT + FLANN + Lowe oran testi ile iki görüntüyü eşleştir."""
+    img1 = cv2.imread(yol1)
+    img2 = cv2.imread(yol2)
+    if img1 is None:
+        raise FileNotFoundError(f"{yol1} bulunamadı")
+    if img2 is None:
+        raise FileNotFoundError(f"{yol2} bulunamadı")
+
+    gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+    gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+
+    # SIFT özniteliklerini çıkar
+    sift = cv2.SIFT_create()
+    kp1, desc1 = sift.detectAndCompute(gray1, None)
+    kp2, desc2 = sift.detectAndCompute(gray2, None)
+
+    # FLANN parametreleri (SIFT için)
+    index_params = dict(algorithm=1, trees=5)   # FLANN_INDEX_KDTREE = 1
+    search_params = dict(checks=50)
+    flann = cv2.FlannBasedMatcher(index_params, search_params)
+
+    # k=2: her nokta için en yakın 2 eşleşme
+    matches = flann.knnMatch(desc1, desc2, k=2)
+
+    # Lowe oran testi
+    iyi_eslesmeler = []
+    for m, n in matches:
+        if m.distance < 0.75 * n.distance:
+            iyi_eslesmeler.append(m)
+
+    print(f"Toplam eşleşme   : {len(matches)}")
+    print(f"Lowe testi sonrası: {len(iyi_eslesmeler)}")
+
+    return img1, img2, kp1, kp2, iyi_eslesmeler
+```
+
+## Homografi ve RANSAC ile Görüntü Hizalama
+
+Güvenilir eşleşmeler elimizde. Şimdi iki görüntü arasındaki **perspektif dönüşümünü** bulmamız gerekiyor — buna homografi denir. Homografi, bir düzlemden diğerine her noktayı doğru konuma taşıyan 3×3 bir matristir.
+
+Sorun şu: bazı eşleşmeler hâlâ yanlış olabilir (aykırı değer / outlier). RANSAC (Random Sample Consensus) bu durumla başa çıkar: rastgele 4 nokta çifti seçer, homografi tahmin eder, diğer noktaların ne kadarı bu modele uyuyor diye bakar. En fazla noktayı açıklayan model kazanır.
+
+```python
+import cv2
+import numpy as np
+
+def goruntu_hizala(yol1: str, yol2: str) -> None:
+    """SIFT + FLANN + Lowe + Homografi ile iki görüntüyü hizala ve kaydet."""
+    img1, img2, kp1, kp2, iyi_eslesmeler = oznitelik_eslestir(yol1, yol2)
+
+    if len(iyi_eslesmeler) < 10:
+        print("Yeterli eşleşme bulunamadı.")
+        return
+
+    # Eşleşen nokta koordinatlarını numpy dizisine çevir
+    src_pts = np.float32([kp1[m.queryIdx].pt for m in iyi_eslesmeler]).reshape(-1, 1, 2)
+    dst_pts = np.float32([kp2[m.trainIdx].pt for m in iyi_eslesmeler]).reshape(-1, 1, 2)
+
+    # RANSAC ile homografi bul
+    H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, ransacReprojThreshold=5.0)
+    inlier_sayisi = int(mask.sum())
+    print(f"RANSAC inlier sayısı: {inlier_sayisi} / {len(iyi_eslesmeler)}")
+
+    # img1'i img2'nin perspektifine dönüştür
+    h2, w2 = img2.shape[:2]
+    warped = cv2.warpPerspective(img1, H, (w2, h2))
+
+    # Eşleşmeleri görselleştir (sadece inlier'lar)
+    matchesMask = mask.ravel().tolist()
+    draw_params = dict(
+        matchColor=(0, 255, 0),
+        singlePointColor=None,
+        matchesMask=matchesMask,
+        flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
+    )
+    img_matches = cv2.drawMatches(img1, kp1, img2, kp2, iyi_eslesmeler, None, **draw_params)
+
+    cv2.imshow("Eşleşmeler (RANSAC inlier)", img_matches)
+    cv2.imshow("Hizalanmış Görüntü", warped)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    cv2.imwrite("eslesmeler.jpg", img_matches)
+    cv2.imwrite("hizalanmis.jpg", warped)
+    print("eslesmeler.jpg ve hizalanmis.jpg kaydedildi.")
+
+def oznitelik_eslestir(yol1: str, yol2: str) -> tuple:
+    img1 = cv2.imread(yol1)
+    img2 = cv2.imread(yol2)
+    if img1 is None:
+        raise FileNotFoundError(f"{yol1} bulunamadı")
+    if img2 is None:
+        raise FileNotFoundError(f"{yol2} bulunamadı")
+
+    gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+    gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+
+    sift = cv2.SIFT_create()
+    kp1, desc1 = sift.detectAndCompute(gray1, None)
+    kp2, desc2 = sift.detectAndCompute(gray2, None)
+
+    index_params = dict(algorithm=1, trees=5)
+    search_params = dict(checks=50)
+    flann = cv2.FlannBasedMatcher(index_params, search_params)
+
+    matches = flann.knnMatch(desc1, desc2, k=2)
+
+    iyi_eslesmeler = [m for m, n in matches if m.distance < 0.75 * n.distance]
+
+    return img1, img2, kp1, kp2, iyi_eslesmeler
+
+if __name__ == "__main__":
+    goruntu_hizala("bina_sol.jpg", "bina_sag.jpg")
+```
+
+Çıktı iki dosya üretir: `eslesmeler.jpg` iki görüntü yan yana eşleşme çizgileriyle, `hizalanmis.jpg` ise birinci görüntünün ikincinin perspektifine dönüştürülmüş hâlidir.
+
+> **💡 İpucu:** `ransacReprojThreshold=5.0` değeri piksel cinsinden yeniden projeksiyon hatasına toleransı belirtir. Görüntü yüksek çözünürlüklüyse 5-10 piksel makul; düşük çözünürlüklüyse 2-3 deneyin.
+
+## Yöntem Karşılaştırması
+
+| Yöntem | Doğruluk | Hız | Patent | En İyi Kullanım |
+|--------|----------|-----|--------|-----------------|
+| **SIFT** | Yüksek | Yavaş | Özgür (4.4+) | Panorama, 3D yeniden yapılandırma, araştırma |
+| **ORB** | Orta | Çok hızlı | Özgür | Mobil uygulama, gömülü sistem, gerçek zamanlı AR |
+| **AKAZE** | Yüksek | Orta | Özgür | Doku zengin sahneler, rotasyon değişmezliği kritik |
+
+> **📌 Not:** Hassasiyet kritik değilse ve cihaz kaynakları kısıtlıysa ORB genellikle yeterlidir. Araştırma kalitesinde sonuç gerekiyorsa SIFT veya AKAZE tercih edin.
+
+## Özet & İleri Okuma
+
+- Öznitelik dedektörü, görüntüdeki ilgi noktalarını bulur; tanımlayıcı, bu noktaların görünümünü sayısal vektöre dönüştürür.
+- SIFT, DoG piramidiyle ölçek değişmezliği sağlar ve 128 boyutlu float tanımlayıcı üretir; OpenCV 4.4+'tan itibaren patentsizdir.
+- ORB, binary tanımlayıcı kullandığı için Hamming mesafesiyle SIFT'ten ~100x hızlı karşılaştırma yapar.
+- FLANN, büyük tanımlayıcı setlerinde kaba kuvvetten çok daha hızlı yaklaşık eşleştirme sunar.
+- Lowe oran testi (`d1 < 0.75 * d2`) yanlış eşleşmeleri etkili şekilde eleminasyon eder — her zaman uygulanmalıdır.
+- Homografi, iki görüntü arasındaki perspektif dönüşümünü tanımlar; RANSAC aykırı eşleşmelere rağmen doğru tahmini bulmayı sağlar.
+- `cv2.findHomography` + `cv2.warpPerspective` ikilisi, panorama ve görüntü hizalama boru hatlarının temelini oluşturur.
+
+### Referanslar
+
+- Lowe, D.G. (2004). "Distinctive Image Features from Scale-Invariant Keypoints." *IJCV*: https://doi.org/10.1023/B:VISI.0000029664.99615.94
+- Rublee, E. et al. (2011). "ORB: An efficient alternative to SIFT or SURF." *ICCV 2011.*
+- Alcantarilla, P. et al. (2012). "KAZE Features." *ECCV 2012.*
+- Fischler, M. & Bolles, R. (1981). "Random Sample Consensus." *CACM*: https://doi.org/10.1145/358669.358692
