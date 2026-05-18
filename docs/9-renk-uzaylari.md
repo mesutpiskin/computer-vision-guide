@@ -1,186 +1,293 @@
-**Renk Uzayları, Renk Uzayı Dönüşümü ve Histogram** 
----------------------------------------------------
+# Renk Uzayları ve Histogram
 
-### Teorik Temel
+Kırmızı bir topu RGB renk değerine bakarak tespit etmeye çalıştığınızı düşünün. İç mekanda ölçüm: (220, 40, 30). Güneşli dışarıda: (255, 100, 80). Aynı top, ama farklı ışık koşulları tamamen farklı RGB değerleri veriyor. Bu problem renk uzaylarını neden öğrenmek gerektiğini özetler. Bu bölümde rengin farklı temsil biçimlerini, ışıktan bağımsız nesne tespitini ve görüntünün parlaklık dağılımını analiz etmeyi ele alıyoruz.
 
-**RGB → Gri Ton (ITU-R BT.601):**
-$$Y = 0.299R + 0.587G + 0.114B$$
-İnsan gözü yeşile daha duyarlıdır — Green katsayısı en büyük.
+## Renk Uzayı Neden Gerekli?
 
-**RGB → HSV:**
-$$V = \max(R,G,B)$$
-$$S = \frac{V - \min(R,G,B)}{V} \quad (V \neq 0)$$
-HSV avantajı: Hue (renk tonu) ve Value (parlaklık) ayrışır → renk tabanlı segmentasyon kolaylaşır.
+RGB modelinde kırmızı, yeşil ve mavi bileşenler hem renk tonunu hem de parlaklığı birlikte kodlar. Işık değişince üç kanal da değişir — renk tonu sabit kalsa bile. Bu durum renk tabanlı segmentasyonu kararsız hale getirir.
 
-**Histogram Eşitleme (CDF tabanlı):**
-$$s_k = T(r_k) = (L-1)\sum_{j=0}^{k} p_r(r_j)$$
-$L$: toplam gri düzey (256), $p_r$: olasılık yoğunluğu. CDF tabanlı dönüşüm kontrastı dengeler.
+HSV (Hue-Saturation-Value) modelinde ise renk tonu (H) parlaklıktan ayrı tutulur. Kırmızı top hangi ışıkta olursa olsun hue kanalında benzer bir değer verir; sadece value (parlaklık) değişir. Bu ayrım, nesne tespitini çok daha güvenilir kılar.
 
-Referans: Poynton, "Digital Video and HD" (https://www.poynton.ca/ColorFAQ.html)
+## RGB/BGR Kanalları
 
-### Pratik Uygulama
+OpenCV görüntüsü BGR sırası kullanan NumPy dizisidir. `cv2.split` ile kanalları ayrı ayrı inceleyebiliriz.
 
 ```python
 import cv2
 import numpy as np
 
-img = cv2.imread("resim.jpg")
+path = "test_image.jpg"
+img = cv2.imread(path)
+
 if img is None:
-    raise FileNotFoundError("resim.jpg bulunamadı")
+    raise FileNotFoundError(f"{path} bulunamadı")
 
-# Renk uzayı dönüşümleri
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-hsv  = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-lab  = cv2.cvtColor(img, cv2.COLOR_BGR2Lab)
+# Kanalları ayır
+b, g, r = cv2.split(img)
 
-# HSV ile renk maskesi — sarı nesneleri seç
-lower_yellow = np.array([20, 100, 100])
-upper_yellow = np.array([30, 255, 255])
-mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
-result = cv2.bitwise_and(img, img, mask=mask)
+# Her kanalı renkli göster — diğerlerini sıfırla
+sifir = np.zeros_like(b)
 
-# Histogram eşitleme (gri ton)
-eq = cv2.equalizeHist(gray)
+mavi_gosterim = cv2.merge([b, sifir, sifir])
+yesil_gosterim = cv2.merge([sifir, g, sifir])
+kirmizi_gosterim = cv2.merge([sifir, sifir, r])
 
-# CLAHE — adaptif histogram eşitleme (daha iyi lokal kontrast)
-clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-clahe_img = clahe.apply(gray)
-
-# Lab renk uzayında CLAHE (renkli görüntü için)
-l, a, b = cv2.split(lab)
-l_eq = clahe.apply(l)
-lab_eq = cv2.merge([l_eq, a, b])
-result_color = cv2.cvtColor(lab_eq, cv2.COLOR_Lab2BGR)
-
-cv2.imshow("Orijinal", img)
-cv2.imshow("HSV Maske", result)
-cv2.imshow("CLAHE", clahe_img)
+karsilastirma = np.hstack([img, mavi_gosterim, yesil_gosterim, kirmizi_gosterim])
+cv2.imshow("Orijinal | B | G | R", karsilastirma)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 ```
 
-### Özet & İleri Okuma
-- RGB→Gri dönüşümü ITU-R BT.601 katsayıları kullanır: Y=0.299R+0.587G+0.114B
-- HSV renk ve parlaklığı ayırır; renk tabanlı segmentasyon için idealdir
-- cv2.inRange ile HSV maskesi oluşturma en yaygın renk filtreleme yöntemidir
-- CLAHE, global histogram eşitlemeden üstündür: lokal kontrast korur
-- Lab renk uzayı perceptually uniform — insan algısıyla orantılı mesafe
-- Referans: Poynton — Digital Video and HD (https://www.poynton.ca/ColorFAQ.html)
+Her kanalı tek başına gri olarak göstermek yerine renkli merge ile gösteriyoruz — böylece her kanalın görüntüye katkısını daha net anlayabilirsiniz.
 
----
+> **💡 İpucu:** `cv2.split` her kanalı ayrı kopya olarak döndürür — bellek kullanır. Sadece bir kanalı istiyorsanız `b = img[:, :, 0]` daha verimlidir.
 
-Renk Uzayı: Renk çeşitliliğinin fazla olması nedeniyle bu renkleri gruplama ihtiyacı doğmuştur bu renkleri gruplamak ve standartlaştırmak için renk uzayı (color space) kavramı ortaya çıkmıştır.  Her renk uzayı, renk kümesini tanımlamak için kendine özgü bir yapıya sahiptir. Örneğin siyah beyaz bir görüntüyü dijitalleştirmek için çok fazla kavrama gerek yoktur. Görüntü siyah ve beyaz olmak üzere 2 adet değişkene sahiptir. 300×300 boyutunda dijital siyah beyaz bir görüntü dijitalleştirilip renklendirilirken, 300×300 boyutunda bir dizi oluşturulur. Renklendirme işlemi için ise 2 adet değişken olduğu için 1 ve 0 yeterlidir. Fakat renkli bir resim üzerinde farklı renk tonları olacağı için 1 ve 0 ile bu görüntüyü tanımlamak yetersiz olacaktır. Bu farklı durumlar için çeşitli renk uzayları belirlenmiştir. En çok kullanılan ve kitap boyunca yer alacak örneklerde de kullanılan renk uzaylarına göz atalım.
+## Gri Tonlama
 
+Renk bilgisi gereksizse görüntüyü griye dönüştürmek hem işlem yükünü üçte bire indirir hem de birçok algoritmanın çalışma koşulunu sağlar.
 
-![ColorSpaces](static/color-space-1.jpg)
-
-RGB Renk Uzayı: 
-
-Bu renk uzayı Red Green Blue yani kırmızı, yeşil ve mavi renklerin baş harfi ile adlandırılmıştır. Renkler bir küp olarak tanımlanır bu tanımla sayesinde 3 değişkenli bir dizi elde edilir. Bu dizi elemanları olan hücreler yani pikseller, bir rengi tutabilmek için 3 renk olan kırmızı, yeşil ve mavinin belirli yoğunlukta karıştırılması ile elde edilen renk kodunu tutarlar.
-
-![ColorSpaces](static/color-space-2.jpg)
-
-HSV Renk Uzayı: 
-
-HSV Hue, Saturation, Value yani renk özü, doygunluk ve parlaklık olarak adlandırılmıştır. Anlaşıldığı üzere renk tanımlamalarını bu üç kavrama göre gerçekleştirir.
-
-![ColorSpaces](static/color-space-3.gif)
-
-
-CMYK Renk Uzayı: 
-
-Cyan, Magenta, Yellow, Key rengin kısaltmasıdır. Buradaki key siyah rengi temsil etmektedir. CMYK renk uzayı, dijital renk tanımlamaları için belirtilen bu dört rengi karıştırarak yapmaktadır.
-
-![ColorSpaces](static/color-space-4.jpg)
-![ColorSpaces](static/color-space-5.gif)
-
-YUV Renk Uzayı: 
-
-Y Luminance, U Chrominance1, V Chrominance2 kısaltmasıdır. Y siyah – beyaz U ve V ise mavi tabanlı renklilik ve kırmızı tabanlı renkliliği temsil eder. Renkler bu üç kavram ile temsil edilerek oluşturulurlar.
-
-Bizim için dijital görüntü işlemede en önemli olan renk uzaylarını tanımladık. Diğer renk uzaylarına ise OpenCV ile renk uzayları arası dönüşümü konusunda kullandıkça değineceğim.
-
-![ColorSpaces](static/color-space-6.jpg)
-
-
-### Renk Uzayı Dönüşümü
-
-Daha önce temel dijital görüntü işleme kavramları bölümünde renklere ve renk uzaylarına değinmiştir. OpenCV’de birçok renk uzayı desteklenmektedir ve bunlar arasında dönüşüm yapılabilmektedir. Bu bölümde OpenCV ile bu renk uzayları arasında dönüşüm işlemleri için Imgproc sınıfı içerisinde cvtColor() metodu bulunmaktadır. cvtColor metodu parametre olarak iki adet mat nesnesi ve dönüşüm yapılacak olan renk uzayını almaktadır.
-
-
-
-``` Java
-Imgproc.cvtColor(srcMat, dstMat, code);
-cv2.cvtColor(...)
-```
-
-
-srcMat: Kaynak bir mat nesnesi yani dönüşümü yapılacak olan görüntü, dstMat: hedef mat nesnesi yani dönüşüm sonucunda oluşacak yeni renk uzayına sahip görüntü, code ise hangi renk uzayları arasında dönüşüm yapılacağıdır. Desteklenen bazı renk uzayları aşağıdaki tabloda yer almaktadır.
-
-
-dstMat: Hedef mat nesnesi, çıktının set edileceği obje.
-
-
-Code:
-Kaynak Renk Uzayı 2 Hedef Renk Uzayı
-* COLOR_RGB2BGR
-* COLOR_RGB2BGRA
-* COLOR_RGB2GRAY
-* COLOR_GRAY2RGB
-* OLOR_RGB2HLS
-* OLOR_HSV2RGB
-* OLOR_RGB2HSV
-* OLOR_RGB2Luv
-* COLOR_HSV2RGB
-* COLOR_RGB2YUV
-* COLOR_RGB2Lab
-
-Örnek dönüşüm:
-
-RGB (Red Greeb Blue – Kırmızı Yeşil Mavi) renk uzayından HSV (Hue Saturation Value – Renk tonu Doygunluk Değer) renk uzayına dönüşüm.
-
-*Java:*
-``` Java
-public static void main(String[] args) {
-	System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-	Mat kaynakGoruntu=new Mat();
-	kaynakGoruntu=Imgcodecs.imread("C:\\kizkulesi.jpg");	
-	Mat hedefGoruntu=new Mat();
-      //Okunanan RGB görüntüyü HSB renk uzayına çevirerek hedefGoruntu mat nesnesine atar
-	Imgproc.cvtColor(kaynakGoruntu, hedefGoruntu, Imgproc.COLOR_RGB2HSV);
-     	Imgcodecs.imwrite("C:\\ kizkulesiHSV.jpg", hedefGoruntu);
-}
-```
-![ColorSpaces](static/color-space-conversion-1.jpg)
-
-*Python:*
-
-``` python
+```python
 import cv2
-frame = cv2.imread("turkey-logo.jpg")
-#RGB Renk uzayından gri renk uzayına çevrim
-sonuc = cv2.cvtColor(frame,cv2.COLOR_RGB2GRAY)
-cv2.imshow("Sonuc", sonuc)
-cv2.waitKey(0)
 
+path = "test_image.jpg"
+img = cv2.imread(path)
+
+if img is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+gri = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+print(f"Renkli: {img.shape}, Gri: {gri.shape}")
+
+cv2.imshow("Gri", gri)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
 
-![ColorSpaces](static/color-space-conversion-2.jpg)
+OpenCV'nin gri dönüşüm formülü $G = 0.114B + 0.587G + 0.299R$ — insan gözünün yeşile daha duyarlı olmasını hesaba katar. Basit bir ortalama değil, ağırlıklı bir birleştirme.
 
-Sistemdeki kameradan alınan görüntü üzerine de aynı işlemi uygulayarak, akış halindeki bir görüntünün renk uzayı değiştirilebilir. Bazı renk uzayları arasındaki dönüşüm kaliteli bir sonuç vermeyebilir, her renk uzayı farklı geometrik biçimlerde ifade edilmektedir, bu ifade şekli matematiksel olarak bazı renk uzayları arasındaki dönüşüme engel teşkil etmektedir.
+Ne zaman gri kullanın: kenar tespiti, eşikleme, şablon eşleştirme, optik akış gibi algoritmaların büyük çoğunluğu tek kanallı girdi bekler.
 
-Ek Bilgi:
+## HSV Renk Uzayı
 
-Eğer renk dönüşümünü kendiniz yapmak isterseniz; RGB bir pikselin değeri; kırmızı kanalının %30’u (0.2989), yeşil kanalın %59’u (0.5870) ve mavi kanalın %11’i (0.1144) alınarak toplanması neticesinde bulunmaktadır. Bu demek oluyor ki: GRI_SEVIYE_GORUNTU=0.2989*[1.KATMAN RED]+0.5870*[2.KATMAN GREEN]+0.1140*[3.KATMAN BLUE];
+HSV renk silindiril bir koordinat sistemi kullanır:
+- **H (Hue — Ton):** 0–179° — rengin kendisi. Kırmızı 0° civarında, yeşil 60°, mavi 120°.
+- **S (Saturation — Doyum):** 0–255 — rengin canlılığı. 0 = gri, 255 = tam doygun.
+- **V (Value — Değer):** 0–255 — parlaklık. 0 = siyah, 255 = tam parlak.
 
+OpenCV'de hue değeri 0–360 yerine 0–179 aralığındadır (8-bit'e sığdırmak için ikiye bölünmüştür).
 
-### Histogram ve Histogram Eşitleme
+```python
+import cv2
+import numpy as np
 
-Histogram matematikdeki temel kavramlardan birtanesidir. Matematiksel tanımı: "Ölçülen bir istatistiksel sayısal değişkene, belirli değer aralıklarında kaçar kez rastlandığını gösteren grafik." Görüntü işlemedeki tanımıda çok farklı değildir. Görüntü matrisi üzerindeki her pixel değerinin görüntünün tamamındaki miktarıdır. Gri renk uzayına sahip̧ bir görüntüde (2 boyutlu bir matris) 0 dan 255’e kadar olan tonların görüntüde kaç adet bulunduğunu gösteren, görüntüdeki tüm bu piksellerin ışık değerleri ile x ekseninde ve y ekseninde pikseller ile oluşturulmuş çubuk  grafiktir.  RGB renk uzayına sahip renkli görüntülerde ise doğrudan bir histogram hesaplamak yerine Red-Green-Blue uzayları için kendi aralarında ayrı ayrı histogram hesaplanır, istenilirse RGB renkler 2 boyutlu bir matris gibi hesaplanır ve sonuçta oluşacak görüntü 2 boyutlu bir matrisin histogramını ifade edecek hale gelir.
+path = "test_image.jpg"
+img = cv2.imread(path)
 
-Histogram eşitleme ile, sonuç olarak elde ettiğiniz grafiğe göre bir aralık seçmek;  çok yüksek (yani fazla sayıda) olan matris değerlerini düşürerek, çok az olan matris değerlerini ise yükselterek görüntü üzerinde iyileştirme yapmaktır.
+if img is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
 
+hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-**Histogramı Neden Kullanırız?**
+# Sarı renk maskesi (HSV: H≈25-35, S>100, V>100)
+alt_sinir = np.array([20, 100, 100])
+ust_sinir = np.array([40, 255, 255])
 
-Düşünün elinizde bir fotoğraf var ve çok parlak çıkmış bu parlaklığı nasıl azaltırdınız? Histogram'dan yararlanarak parlak alanları bulabilir ve bu matrisleri bir alt seviyeye indirerek parlaklığı azaltabilirz. TV, Monitör vb. cihazlarda yer alan contrast ayarı (karşıtlık) hitogram kullanarak yapılmaktadır. Bunlar gibi bir çok örnek verilebilecek uygulama alanları mevcuttur.
+maske = cv2.inRange(hsv, alt_sinir, ust_sinir)
+
+# Maskeyi orijinal görüntüye uygula
+sonuc = cv2.bitwise_and(img, img, mask=maske)
+
+cv2.imshow("Orijinal", img)
+cv2.imshow("Maske", maske)
+cv2.imshow("Sarı Bölgeler", sonuc)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+`cv2.inRange` belirtilen alt ve üst sınırlar arasındaki pikselleri 255, dışındakileri 0 yapan ikili maske üretir. `cv2.bitwise_and` ile bu maske orijinal görüntüye uygulanır.
+
+### Yaygın Renk HSV Aralıkları
+
+| Renk | H Alt | H Üst | S Alt | S Üst | V Alt | V Üst |
+|------|-------|-------|-------|-------|-------|-------|
+| Kırmızı (1) | 0 | 10 | 100 | 255 | 100 | 255 |
+| Kırmızı (2) | 160 | 179 | 100 | 255 | 100 | 255 |
+| Turuncu | 10 | 25 | 100 | 255 | 100 | 255 |
+| Sarı | 20 | 40 | 100 | 255 | 100 | 255 |
+| Yeşil | 40 | 80 | 50 | 255 | 50 | 255 |
+| Mavi | 100 | 130 | 50 | 255 | 50 | 255 |
+| Mor | 130 | 160 | 50 | 255 | 50 | 255 |
+
+> **💡 İpucu:** Kırmızı 0° civarında (0–10) ve 170° civarında (160–179) iki ayrı aralıkta bulunur çünkü renk dairesi 0°/360° noktasında birleşir. Her iki maskeyi `cv2.bitwise_or(maske1, maske2)` ile birleştirmeniz gerekir.
+
+### Gerçek Zamanlı Renk Tespiti
+
+Kameradan canlı akışta sarı nesneyi tespit eden tam örnek:
+
+```python
+import cv2
+import numpy as np
+
+cap = cv2.VideoCapture(0)
+
+if not cap.isOpened():
+    raise IOError("Kamera açılamadı")
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # Sarı renk aralığı
+    alt = np.array([20, 100, 100])
+    ust = np.array([40, 255, 255])
+    maske = cv2.inRange(hsv, alt, ust)
+
+    # Gürültüyü temizle
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    maske = cv2.morphologyEx(maske, cv2.MORPH_OPEN, kernel)
+
+    sonuc = cv2.bitwise_and(frame, frame, mask=maske)
+
+    # İkisini yan yana göster
+    gosterim = np.hstack([frame, sonuc])
+    cv2.imshow("Kamera | Sarı Tespit", gosterim)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+```
+
+Maskeye morphological opening uyguladık — bu küçük gürültü piksellerini temizler. Sonraki bölümde morfoloji detaylı ele alınacak.
+
+## Lab Renk Uzayı
+
+CIE L*a*b* (kısaca Lab) insan gözünün renk algısını modelleyen bir uzaydır:
+- **L:** Parlaklık (0–100)
+- **a:** Kırmızı-Yeşil ekseni (negatif = yeşil, pozitif = kırmızı)
+- **b:** Mavi-Sarı ekseni (negatif = mavi, pozitif = sarı)
+
+```python
+import cv2
+
+path = "test_image.jpg"
+img = cv2.imread(path)
+
+if img is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+lab = cv2.cvtColor(img, cv2.COLOR_BGR2Lab)
+l, a, b = cv2.split(lab)
+
+print(f"L kanalı ort: {l.mean():.1f}, a ort: {a.mean():.1f}, b ort: {b.mean():.1f}")
+```
+
+Lab'ın temel avantajı renk mesafeleri — iki renk arasındaki öklidyen mesafe, insan gözünün algıladığı farka daha yakındır. Deri tonu tespiti, görüntü bölütleme ve renk karşılaştırma uygulamalarında tercih edilir.
+
+## Histogram
+
+Histogram, görüntüdeki her parlaklık değerinin kaç piksel tarafından taşındığını gösterir. Karanlık bir fotoğrafın histogramı sola (düşük değerlere) yığılmış, aşırı parlak görüntünün histogramı sağa (yüksek değerlere) yığılmış olur. Bu bilgi görüntünün "kişiliğini" bir bakışta ortaya koyar.
+
+```python
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+path = "test_image.jpg"
+img = cv2.imread(path)
+
+if img is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+gri = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Gri histogram: [kanal listesi], [maske], [kutu sayısı], [değer aralığı]
+hist_gri = cv2.calcHist([gri], [0], None, [256], [0, 256])
+
+# Renkli histogram: her kanal ayrı ayrı
+renkler = ('b', 'g', 'r')
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+axes[0].imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+axes[0].set_title("Görüntü")
+axes[0].axis('off')
+
+axes[1].plot(hist_gri, color='gray', label='Gri')
+for kanal_idx, renk in enumerate(renkler):
+    hist = cv2.calcHist([img], [kanal_idx], None, [256], [0, 256])
+    axes[1].plot(hist, color=renk, alpha=0.7)
+
+axes[1].set_xlim([0, 256])
+axes[1].set_title("Histogram")
+axes[1].set_xlabel("Piksel Değeri")
+axes[1].set_ylabel("Piksel Sayısı")
+plt.tight_layout()
+plt.savefig("histogram.png", dpi=150)
+plt.show()
+```
+
+Histogram çubuk grafiği değil çizgi grafiği olarak çizmek tercih edilir — 256 nokta olduğunda çizgi daha temiz görünür.
+
+## Histogram Eşitleme
+
+Düşük kontrastlı bir görüntüde piksellerin çoğu dar bir değer aralığına sıkışmıştır — histogram dar ve yüksektir. Eşitleme bu dağılımı 0–255 aralığına yayar, kontrast artar.
+
+Sezgi: Frekansları eşit dağılmış bir histogram hedefliyoruz. Cumulative Distribution Function (CDF) kullanılarak piksel değerleri yeniden haritalanır.
+
+```python
+import cv2
+import numpy as np
+
+path = "karanlik_goruntu.jpg"
+img = cv2.imread(path)
+
+if img is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+gri = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Global histogram eşitleme
+esitlenmis = cv2.equalizeHist(gri)
+
+# CLAHE: Contrast Limited Adaptive Histogram Equalization
+# clipLimit: yerel zirveyi kırpar (aşırı parlaklaşmayı önler)
+# tileGridSize: görüntüyü kaç parçaya böleceği
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+clahe_sonuc = clahe.apply(gri)
+
+# Üçlü karşılaştırma
+karsilastirma = np.hstack([gri, esitlenmis, clahe_sonuc])
+cv2.imshow("Orijinal | equalizeHist | CLAHE", karsilastirma)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+Global eşitleme tüm görüntüyü tek bir histograma göre ayarlar — bazı bölgeler aşırı parlaklaşabilir. CLAHE görüntüyü küçük bloklara böler ve her blok için ayrı eşitleme yapar; `clipLimit` ile de lokal zirveyi kırpar. Sonuç çok daha dengeli ve doğal görünür.
+
+> **💡 İpucu:** Tıbbi görüntüleme (X-ray, MR), uydu fotoğrafları ve düşük ışık koşullarında CLAHE globalden belirgin şekilde üstündür. Renkli görüntülerde sadece parlaklık kanalına (Lab'daki L veya HSV'deki V) uygulayın — renk bozulmasını önler.
+
+### Histogram Eşitleme Yöntemleri Karşılaştırması
+
+| Yöntem | Avantaj | Dezavantaj | Ne Zaman |
+|--------|---------|------------|----------|
+| `equalizeHist` | Hızlı, basit | Aşırı kontrast, gürültü artışı | Homojen aydınlatma |
+| CLAHE | Dengeli, doğal | Daha yavaş, parametre gerektirir | Tıbbi görüntü, uydu |
+
+## Özet & İleri Okuma
+
+- RGB'de renk tonu ve parlaklık ayrılmaz; ışık değişince tüm kanallar değişir. HSV bu sorunu çözer.
+- HSV'de Hue renk tonunu, Saturation doyumu, Value parlaklığı kodlar. OpenCV'de H aralığı 0–179.
+- Kırmızı iki ayrı hue aralığında bulunur (0–10 ve 160–179); `cv2.bitwise_or` ile birleştirin.
+- `cv2.inRange` ile renk maskesi + `cv2.bitwise_and` ile uygulama: renge dayalı segmentasyonun temel akışı.
+- Lab renk uzayı insan algısına yakın mesafe ölçümü için uygundur.
+- Histogram görüntünün parlaklık dağılımını özetler; `cv2.calcHist` ile hesaplanır.
+- `equalizeHist` global, CLAHE yerel kontrast iyileştirme sağlar. Renkli görüntülerde sadece parlaklık kanalına uygulayın.
+
+**Referanslar**
+
+- OpenCV Color Conversions: [docs.opencv.org/4.x/de/d25/imgproc_color_conversions.html](https://docs.opencv.org/4.x/de/d25/imgproc_color_conversions.html)
+- Zuiderveld, K. (1994). "Contrast Limited Adaptive Histogram Equalization." Graphics Gems IV, Academic Press.
