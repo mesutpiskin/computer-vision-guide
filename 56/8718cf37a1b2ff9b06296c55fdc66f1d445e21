@@ -1,0 +1,19 @@
+docs/5-ide-Configuration.en-US.md
+  s_4051bb1c427589::t_bc88f6fec41acf 1-162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "568718cf37a1b2ff9b06296c55fdc66f1d445e21",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
