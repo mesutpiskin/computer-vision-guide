@@ -1,0 +1,19 @@
+docs/28-3d-vision.md
+  s_4051bb1c427589::t_d598bf9677c06c 1,3,5,7,9,11,13,15,18,21-69,72-75,77-79,82-85,87,90-105,108-293,296-308
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "e49f6ab4d5e2e295ad4e20490237e625554ec67a",
+  "prompts": {},
+  "sessions": {
+    "s_4051bb1c427589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc130a45-3f46-4dcf-92a2-e1968502ac18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mesut Pişkin <mesutpiskin@outlook.com>"
+    }
+  }
+}
