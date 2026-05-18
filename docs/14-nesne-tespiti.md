@@ -1,509 +1,109 @@
-**Nesne Tespiti** 
------------------
+# Nesne Tespiti
 
+Fabrika bandında saniyede yüzlerce ürün geçiyor. Hatalı olanları insan gözüyle ayırt etmek hem yavaş hem hatalıdır. Kameranın her kareye bakıp "Bu ürün kusurlu, şu nesne yanlış konumda" demesi gerekiyor — bu tam olarak nesne tespitinin çözdüğü problemdir. Bu bölümde klasik Haar Cascade'den template matching'e, oradan modern YOLOv8'e kadar tespit yöntemlerini ve nasıl değerlendirileceğini öğreneceksiniz.
 
-Nesne tespiti ve nesne tanıma uzun zamandır bilgisayarlı görü uygulamaları için vazgeçilmez bir ihtiyaçtı. Yıllardır üzerinde çalışan bu konu için farklı algoritmalar geliştirildi fakat devrim niteliğindeki algoritma 2o01 yılında  Paul Viola ve Michael Jones tarafından geliştirilen Viola Jones algoritması oldu. Bu algoritma “Rapid Object Detection using a Boosted Cascade of Simple Features” [1] başlıklı makale ile duyuruldu. Takip eden süreçte bir çok algoritma geliştirildi. Yakın zamanda ise kullanılmaya başlayan GPU teknolojisi ile hız kazanan derin öğrenme sayesinde çok daha fazla doğruluk oranı ile tanımlama yapabilen yöntemler geliştirildi.
+## Sınıflandırma mı, Tespit mi?
 
-## Nesne Tespit ve Tanıma Süreçleri
+Bu iki kavram sıkça karıştırılır ama farklı sorulara cevap verir:
 
-Bu bölümde nesne tespit ve tanıma süreçlerini 5 ana başlık altında inceleyeceğiz.  Veri girişi, veri ön işleme ve aşamaları, öznitelik çıkarımı ve öz nitelik seçimi son olarak ise tanımlama olarak adlandırdığımız veri sınıflandırma aşamalarını göreceğiz.  Bu süreçler aşağıdaki görsel de özetlenmiştir.
+**Sınıflandırma:** "Bu görüntüde ne var?" → Tek bir cevap: "kedi"
 
-![Detected](static/detected-diagram.png)
+**Tespit:** "Bu görüntüde ne var, nerede?" → Bounding box + sınıf + güven skoru: `[x1=120, y1=45, x2=380, y2=290, class="kedi", confidence=0.87]`
 
+Fabrika bandı örneğinde sınıflandırma "ürün var" der, tespit ise "soldaki ürünün sol kenarında çatlak var, koordinatlar şunlar" der. Gerçek uygulamaların büyük çoğunluğu tespite ihtiyaç duyar.
 
-**Veri Girişi:**
+## Haar Cascade: Klasik ve Hafif
 
-Bu aşmada hazırlanan veri gürültülerinden ayrıştırılmak, istenilen formata getirilmek gibi amaçlara sisteme girdi olarak verilir. Nesne tespit veya sınıflandırma işlemi yapacağımız için verilerimiz de doğal olarak görüntü olacaktır. Bir insan, otomobil veya ev istediğimiz veriye örnekken, üzerinde insan bulunan bir orman fotoğrafı girdi olarak tanımlanabilir. Fotoğraf makineleri ile çekilmiş fotoğraflar, dijital olarak oluşturulmuş resimler, video filmler ve taranmış metinler bu veri türlerine örnektir. Veri formatı kullanılan teknolojiye, dile, platforma vb. bir çok etkene bağlıdır fakat kullanacağımız algoritmalar için geçerli format matris haline getirilmiş görüntü pikselleridir.
+2001'de Paul Viola ve Michael Jones'un geliştirdiği bu yöntem, derin öğrenme öncesi dönemin altın standardıydı. Hâlâ gömülü sistemlerde ve düşük kaynaklı ortamlarda kullanılır.
 
+Çalışma mantığı: Görüntü üzerinde kayan pencere, her konumda Haar benzeri özellikler (yatay/dikey komşu bölgelerin parlaklık farkları) hesaplar. Güçlendirilmiş sınıflandırıcıların kademeli filtresi (cascade) hızla "nesne yok" kararı verir, "nesne var" olasılığı olan bölgeler detaylı incelenir.
 
-**Ön işleme:**
+```python
+import cv2
 
-Verilerin yapılacak olan işlemin  amacına uygun hale gelmesi için hazırlamak veya engel teşkil etmesinin önüne geçmek için uygulanan bir takım sabit olmayan yöntemlerdir. Sabit olmayan diyorum çünkü ön işlem süreçleri veriye, istere, duruma ortama gibi bir çok farklı etmene göre değişebilen genellikle önceden bilinemeyen, deneyle, deme yanılma ile karar verilen yöntemlerdir. Daha somut bir örnekle açıklayalım; Daha öncede verdiğimiz örnekten yola çıkarak orman içerisindeki insanları tespit etmek ve etiketlemek istediğimizi düşünelim, etiketleme kavramını nesnenin ne olduğunu belirtmek anlamında kullandığımı da belirtmekte fayda var. Bir algoritmada karar kıldık örnek verilerden yola çıkarak sonucun başarılı olacağına karar verdik ve test için hazir hale getirdik. Fakat test için verilen girdilerde fotoğraf makinesi kaynaklı oluşmuş piksel bozuklukları olduğunu düşünelim bu durumda sonuç beklediğimiz gibi çıkar mı? Ayni sekilde verilen bir görüntüde çekim açısından kaynaklanan parlakliklar var ve görüntüyü bozuyor, bu durumda düzgün veri hazırlamayan kullanıcıyı mı, yoksa algoritmanın bu hataları farkedemeyecek kadar kötü olduğunu düşünerek algortimayimi suclsmaliyiz. Tabiki de hayır burada yapılması gereken şey bu gibi durumlara önlem almadığımız için kendimizi suclayabiliriz. Peki ne yapmalıyız?
+img = cv2.imread("yuz.jpg")
+if img is None:
+    raise FileNotFoundError("yuz.jpg bulunamadı")
 
-Veri ön işlemenin nedenlerini  siralamak gerekirse; gürültülü parazitli veriler, tam olmayan eksik veriler ve tutarsız veriler olarak sayabiliriz. Peki bunlari nasıl yapabiliriz?
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-Veri ön işleme için bir çok algortima veya yöntem mevcuttur, bu yöntemler insan gözü ile denetleme olabileceği gibi karmaşık sinir ağları bile olabilir. Bu yöntemleri de siralamak istersek; Regresyon, esikleme, kümeleme, filtreleme, binnig, karar ağaçları vb. diyebiliriz. Unutulmaması gereken bir diğer nokta ise bazılen  tek başına bir yöntemi uygulamak yeterli gelmeyebilir, bu durumlarda bir kaç farklı yöntemi peş peşe kullanabiliriz.
+# Önceden eğitilmiş model — OpenCV kurulumunda gelir
+detector = cv2.CascadeClassifier(
+    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+)
 
-![Lena](static/lena.jpeg)
+# scaleFactor: Her adımda görüntüyü ne kadar küçültür
+# minNeighbors: Tespit için kaç komşu tespit gerekli (daha yüksek = az yanlış pozitif)
+faces = detector.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
-**Öznitelik:**
+for (x, y, w, h) in faces:
+    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-Bu aşamada ön işleme tabi tutulmuş veri üzerinde daha önceden belirlenen nesnenin/isterin elde edilmesidir. Bu bölümde öznitelik çıkarma (feature extraction) kavramına değinmek gerekiyor. Feature extraction; “Detay çıkarma: Bir cismin önceden tanımlanmış kriterleri ve özellikleri sayesinde görüntüler üzerinden otomatik olarak tespit edilmesi ve detaylarının elde edilmesi işlemi; eşanlam: detay saptama.” ve “Öznitelik çıkarma: Örüntü tanıma ve istatistiksel işaret işlemede, sınıflandırma amacıyla alınan ölçümlerin bazı dönüşümlerle daha özlü, daha az gürültülü, daha az sayıda ayırt edici değerlere dönüştürülmesi.” [3] Bu tanımı bazı kaynaklarda özellik çıkarımı olarak da görebilirsiniz.
+print(f"{len(faces)} yüz tespit edildi")
+cv2.imshow("Yüz Tespiti", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
 
-Bir örnekle durumu anlaşılır hale getirelim. Yukarıdada değindiğimiz bir örnek vardı; orman içerisindeki insanları tespit etmek.  Bu aşmada her nesneye özel bir öznitelik çıkarımı tanımlamak gerekebilir. Örneğimize dönecek olursak, ormandaki bir insanı nasıl ayırt edebilir? Ağaçlar yeşildir ve belirli bir formu vardır bunu tanımlayıp dışında kalanlara insan diyebilir miyiz? Duruma göre belki evet ama genel olarak cevap hayır. İnsan vücudunun sabit bir formu var peki bunu tanımlasak nasıl olur? İnsanın 2 adet ayağı bu ayak zeminin hemen üzerinde bir birlerine paral olabilir diyebilir miyiz? Evet diyebilir ama zemini de tanımlamamız gerekiyor.  Gördüğünüz gibi çok fazla tanımlamamız gerek şey var. Bunları tek tek matematiksel olarak tanımlayabileceğimiz gibi algoritmaya öğretebiliriz de, bu ihtiyaca ve probleme göre değişkenlik gösteren bir durum.
+Haar Cascade hızlıdır ve kurulum gerektirmez. Ancak yalnızca eğitildiği nesne sınıfını tanır ve yüzü profilden gördüğünde ya da kötü aydınlatmada başarısız olur.
 
-Bu işlemler sonunda elde edeceğimiz şey , istediğimiz nesnenin görüntü üzerine var mı, varsa nerede olduğudur. Peki bu yöntemler nedir? Öznitelik çıkarımı için kullanabileceğiniz yüzlerce algoritma var kısaca bir kaçını saymak gerekirse SIFT (Scale-Invariant Feature Transform), SURF (Speeded-Up Robust Features), Feature Matching, Haar Cascades, HOG (Histogram of Oriented Gradients) vb. diyebiliriz.
+> **⚠️ Dikkat:** `scaleFactor=1.05` küçük yüzleri yakalar ama yavaşlar; `scaleFactor=1.3` hızlıdır ama küçük nesneleri kaçırır. Uygulamanıza göre ayarlayın.
 
+## Template Matching: Şablon Arama
 
-**Tanımlama:**
+Bir üretim hattında sabit görünümlü vidalı bir kapak arıyorsunuz. Kapağın referans fotoğrafı var — template matching tam bu duruma özel.
 
-Tanımlama, tespit ettiğimiz görüntüden çıkarım yapabilmek, tanımak yani bu görüntünün ne olduğunu anlama aşaması olarak basitce tanımlanabilir. Bu bölümde temek iki kavrama değinmek gerekiyor; Sınıflandırma ve Kümeleme. Sınıflandırma veriyi önceden belirlenmiş sınıflardan birine dahil etmektir. Danışmanlı (Gözetimli, Supervised) öğrenme, kestirim ve örüntü tanıma yöntemleri ile gerçekleştirilir. Kümelemede ise  benzer verileri, benzer özellik gösterenler aynı grupta toplanırlar.
+Küçük şablon görüntüyü büyük görüntü üzerinde piksel piksel kaydırarak benzerlik hesaplar. `TM_CCOEFF_NORMED` yöntemi −1 ile +1 arasında değer döndürür; 1'e yakın değer güçlü eşleşmedir.
 
-![Detected](static/siniflandirma-kumeleme.png)
-
-
-## Nesne Tespit ve Tanıma Algoritmaları
-
-OpenCV içerisinde nesne tespit ve tanıma için eklenmiş birçok algoritma mevcuttur. Bu bölümde popüler bazı algoritmaları göreceğiz, bunlar:
-
-* Template Matching (Şablon Eşleştirme)
-* Cascade Sınıflandırıcısı
-* LBP – Local Binary Pattern
-* HOG – Histogram of Oriented Gradients
-* Derin Sinir Ağı (DNN)
-* Evrişimli Sinir Ağları (CNN)
-
-
-## Template Matching (Şablon Eşleştirme)
-
-Template Matching (Şablon Eşleştirme) yöntemi ile nesne tanıma daha çok kaynak bir görüntü üzerinde bir şablonu aramak için kullanılır. Nesneleri ayırt etmede çok fazla başarılı değildir. Örneğin, bir meyve sepeti bulunan görüntü üzerinde elmayı aramak için kullanılabilir. Aranan kaynak üzerinde verdiğiniz şablon birebir olarak aranır, başarılı bir sonuç için aradığınız elma görüntüsünün, meyve sepeti görselinden kırpılmış olması gerekebilir. Kırmızı bir elmayı şablon olarak tanımladınız ve meyve sepetinde aradınız, eğer meyve sepetinizde yarısı kesilmiş yarım bir elma var ise başarılı sonuç alamayacaksınız çünkü şablonunuzda ki ile kaynak görsel üzerinde yer alan elma aynı ölçülerde değildir.
-
-Template Matching yöntemi ile kaynak görsel üzerinde aranan şablon Sliding window (Kayan,sürgülü pencere) yöntemi ile aranır. Kaynak üzerinde şablon (1,1) koordinatlarına oturtulur ve tüm pikseller üzerinde dönülür, kullandığınız benzerlik yöntemine göre bir benzerlik oranı oluşturulur ve şablonunuz ile  o anki dönülen şablon benzer ise sonuç olarak size o pikselleri döndürür.
-
-![Sliding](static/sliding_window_example-1.gif)
-
-Yukarıdaki görselde, solda yer alan hayvanlar kaynak görüntü olarak alınmış buradaki bir köpeğin yüzü kırpılarak alınmış ve şablon olarak kullanılmış işlem sonucunda ise verilen şablon ile aynı ölçüde bir sonuç çıkmıştır. Kaynak değiştirilmiş olsaydı ve aynı köpek farklı ışık açısı, farklı poz veya farklı bir zemin üzerinde olsaydı sonuç yukarıdaki kadar başarılı olmayacaktı.
-
-![TemplateMatching](static/template_matching.png) ![TemplateMatching](static/template_matching2.png)
-
-
-Kaynak üzerinde şablon aranırken, yukarıda olduğu gibi 0,0 koordinatlarına istenilen şablon oturtulacak soldan sağa ve yukarıdan aşağıya doğru tüm matris elemanları yani pikseller üzerinde dönülmektedir. Template Matching  yönteminde kaynak ile şablonu eşleştirirken kullanılan farklı yöntemler vardır. Bu yöntemler aşağıdaki gibidir.
-
-* TM_CCOEFF
-* TM_CCOEFF_NORMED
-* TM_CCORR
-* TM_CCORR_NORMED
-* TM_SQDIFF
-* TM_SQDIFF_NORMED
-
-Bu yöntemlerin bir birleri arasındaki farkları örnek görseller ile anlayabilir. Bu yöntemlerin her birinin farklı bir matematiksel formül olduğunu unutmayalım.
-
-![TemplateMatching](static/template_matching4.png)
-
-*Java:*
-
-``` Java
-import org.opencv.core.Core;
-import org.opencv.core.Core.MinMaxLocResult;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-
-public class TemplateMatching {
-
-	public static void main(String[] args) {
-		
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		Mat source=null;
-		Mat template=null;
-		String filePath="C:\\Users\\mesutpiskin\\Desktop\\Object Detection\\Template Matching\\Sample Image\\";
-		source=Imgcodecs.imread(filePath+"kapadokya.jpg");
-		template=Imgcodecs.imread(filePath+"balon.jpg");
-	
-		Mat outputImage=new Mat();	
-		int machMethod=Imgproc.TM_CCOEFF;
-   
-        Imgproc.matchTemplate(source, template, outputImage, machMethod);
- 
-    
-        MinMaxLocResult mmr = Core.minMaxLoc(outputImage);
-        Point matchLoc=mmr.maxLoc;
-
-        Imgproc.rectangle(source, matchLoc, new Point(matchLoc.x + template.cols(),
-                matchLoc.y + template.rows()), new Scalar(255, 255, 255));
-
-        Imgcodecs.imwrite(filePath+"sonuc.jpg", source);
-        System.out.println("İşlem tamamlandı.");
-	}
-
-}
-``` 
-
-*Python:*
-
-```Python
-
+```python
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
 
-img = cv2.imread('balon.jpg',0)
-template = cv2.imread('kapadokya.jpg',0)
-w, h = template.shape[::-1]
+img = cv2.imread("uretim_bandi.jpg")
+template = cv2.imread("vida_sablon.jpg")
+if img is None:
+    raise FileNotFoundError("uretim_bandi.jpg bulunamadı")
+if template is None:
+    raise FileNotFoundError("vida_sablon.jpg bulunamadı")
 
-# Karşılaştırma için kullanılacak 6 yöntem
-methods = ['cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED', 'cv2.TM_CCORR',
-            'cv2.TM_CCORR_NORMED', 'cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED']
+img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+tmpl_gray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+h, w = tmpl_gray.shape
 
-for meth in methods:
-    img = img2.copy()
-    method = eval(meth)
+result = cv2.matchTemplate(img_gray, tmpl_gray, cv2.TM_CCOEFF_NORMED)
+_, max_val, _, max_loc = cv2.minMaxLoc(result)
 
-    # Şablon eşleştirmeyi uygula
-    res = cv2.matchTemplate(img,template,method)
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+print(f"En yüksek benzerlik: {max_val:.3f}")
 
-    if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
-        top_left = min_loc
-    else:
-        top_left = max_loc
+if max_val > 0.8:  # Güven eşiği
+    top_left = max_loc
     bottom_right = (top_left[0] + w, top_left[1] + h)
-
-    cv2.rectangle(img,top_left, bottom_right, 255, 2)
-
-    plt.subplot(121),plt.imshow(res,cmap = 'gray')
-    plt.title('Matching Sonuc'), plt.xticks([]), plt.yticks([])
-    plt.subplot(122),plt.imshow(img,cmap = 'gray')
-    plt.title('Tespit Noktaları'), plt.xticks([]), plt.yticks([])
-    plt.suptitle(meth)
-
-    plt.show()
-
-```
-
-
-matchTemplate metodu parametre olarak mat tipinde kaynak görsel, şablon görsel ve çıktı için kullanacağı mat nesnesini, int tipinde ise eşleştirme yöntemini almaktadır. Örnekte bir kaynak görsel yükledik bu görsel üzerinden kırpılmış bir görsel şablon olarak eklendi. Sonuç için bir mat nesnesi tanımlandı. Bu çıktı matrisi şablonun ölçüleri kullanılarak boyutlandırıldı. Kaynak görsel üzerinde sonuç nesnesi boyutları kullanılarak bir kare çizildi, kare için bir scalar yani renk tanımlandı (255,255,255  rgb renk kodları)  ve sonuç aynı dizine yazıldı.
-
-
-![TemplateMatching](static/template-matching-sonuc.jpg)
-
-Video Anlatım:
-
-[![Youtube Video](http://img.youtube.com/vi/MhZtXgXtzNs/0.jpg)](https://youtu.be/MhZtXgXtzNs)
-
-
-## HaarCascade Classifier
-
-Nesneyi tespit etmek için öncelikle nesneyi sisteme tanıtmamız ve daha sonra bu tanımlanmış modeli kullanarak görüntü üzerinde arama yapmamız gerekir. Haar cascade sınıflandırıcısı bizden xml tipinde model dosyası alır bu xml dosyaları bir nesnenin binlerce negatif ve pozitifi ile hazırlanmış veri setidir. Pozitif olarak tanımlanan görüntüler istenilen nesnenin bulunduğu negatif olarak tanımlananlar ise bulunması istenilen nesnenin bulunmadığı görüntülerdir. OpenCV içerisinde bir çok model hali hazırda eğitilmiş olarak gelir.
-
-[![Youtube Video](http://img.youtube.com/vi/Cqtzwhq3IuA/0.jpg)](https://youtu.be/Cqtzwhq3IuA)
-
-
-*Java:*
-
-``` Java
-
-public class DetectFace {
- 
-	public static void main(String[] args) {
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		/*Cascade Classifier için öðretilmiş veri kümesi, opencv build/etc/haarcascades/ içerisinde yer almaktadır
-		  Daha fazla bilgi için Haar Cascade sınıflandırıcılarına bakabilirsiniz.
-		*/
-		CascadeClassifier cascadeFaceClassifier = new CascadeClassifier(
-				"Opencv/3.1.0/opencv/build/etc/haarcascades/haarcascade_frontalface_default.xml");
-		//Varsayılan kamera aygıtını başlat
-		VideoCapture videoDevice = new VideoCapture();
-		videoDevice.open(0);
-		if (videoDevice.isOpened()) {
-		//Sonsuz bir döngü ile sürekli olarak görüntü akışı saðlanır 	
-			while (true) {		
-				Mat frameCapture = new Mat();
-				videoDevice.read(frameCapture);	
-				//Yakalanan görüntüyü önce dönüştür ve frame içerisine yükle
-				MatOfRect faces = new MatOfRect();
-				cascadeFaceClassifier.detectMultiScale(frameCapture, faces);								
-				//Yakalanan çerçeve varsa içerisinde dön ve yüzün boyutları ölçüsünde bir kare çiz
-				for (Rect rect : faces.toArray()) {
-					//Sol üst köşesine metin yaz
-					Imgproc.putText(frameCapture, "Face", new Point(rect.x,rect.y-5), 1, 2, new Scalar(0,0,255));								
-					Imgproc.rectangle(frameCapture, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
-							new Scalar(0, 100, 0),3);
-				}									
-				//Resmi swing nesnesinde gösterebilmek için önce image haline çevir ve ekrana bas
-				PushImage(ConvertMat2Image(frameCapture));
-			}
-		} else {
-			System.out.println("Video aygıtına baðlanılamadı.");
-			return;
-		}
-	}
-``` 
-
-
-*Python:*
-
-```Python
-import cv2
-
-capture = cv2.VideoCapture(0)
-cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-
-while True:
-
-    ret, frame = capture.read()   
-    faces = cascade.detectMultiScale(frame, 1.5, 3)
-
-    for (x,y,w,h) in faces:
-        cv2.rectangle(frame,(x,y),(x+w,y+h),(255,255,255),2)
-       
-        
-    cv2.imshow('Kamera',frame)
-    if cv2.waitKey(30) & 0xff ==27:
-        break
-
-capture.release()
-cv2.destroyAllWindows()
-``` 
-
-
-![HaarCascade](static/haarcascade.png)
-
-
-## Derin Sinir Ağı DNN ile Nesne Tanıma
-
-**Derin Öğrenme ve OpenCV**
-
-OpenCV 2.4 sürümü ile birlikte derin öğrenme tarafındaki birçok gelişmeye yer verilmeye başlanmıştı. Görüntü sınıflandırma için farklı kütüphaneler ile oluşturulmuş modellerin içe aktarılabilmesi, farklı sınıflandırıcı ağların oluşturulabilmesi, model oluşturabilme vb.  OpenCV 3.3 sürümü ile birlikte ise neredeyse nihai bir dağıtım oluşturuldu ve Caffe, TensorFlow, Torch DarkNet gibi framework’ler için destek sağlandı. Popüler; AlexNet, GoogLeNet , ResNet, SqueezeNet, , VGG, ENet , VGG-based SSD, MobileNet-based SSD gibi ağlar için ise destek sağlanmaktadır.
-
-Örneğimizde bugün için en güncel sürüm olan 3.4 kullanacağız. Derin öğrenme uygulamalarınızda OpenCV kullanmak istiyorsanız 3.3 sürümü ve üzeri bir dağıtımı kullanmanız gerekecektir. 3.4 sürümü ile birlikte yeni geliştirmelerin yanı sıra hali hazırda yer alan bazı sınıflandırıcı parametreleri de d
-
-
-
-**Derin Sinir Ağı (DNN) ve OpenCV**
-
-Derin sinir ağının daha önce değindiğimiz yapay sinir ağlarından çok büyük farkı yoktur. Hatırlarsanız sinir ağlarında gizli katmanlardan bahsetmiştik ve probleme göre katman sayısının değişebileceğine göz atmıştık. Derin sinir ağı yani DNN en temel anlamıyla birden fazla gizli katmana sahip sinir ağı olarak adlandırılabilir. Bu sinir ağları probleme göre farklı sayıda gizli katmanlara sahiptirler. Bu yazıda nesne tanıma için OpenCV’de yer alan DNN modülünü ve kullanımını göreceğiz. 
-
-Belli başlı tanımamız gereken bazı fonksiyonlara bakmakta fayda var, bu fonksiyonları bir kaç farklı grupta inceleyebiliriz. Öncelikli olarak farklı kütüphanelerdeki modelleri (Kısaca model, daha önceden veri seti ile eğitilerek ağırlıkların hesaplanmış bir şekilde sunulduğu dosyalar) içe aktarmamızı sağlayan; readNetFromCaffe, readNetFromTensorFlow, readNetFromTorch. Görüntülerin okunarak sinir ağı girişine hazırlayan okuma fonksiyonu blobFromImage. 
-
-**DNN Kullanarak Görüntünün Sınıflandırılması**
-
-Öncelikli olarak nesne tespitinde kullanacağımız MobileNet-SSD modelini aşağıdaki bağlantıdan indirelim (Bu dosyalar proje içerisinde de mevcut isterseniz oradaki modeli kullanabilirsiniz fakat güncel olması açısından kullanacağız zaman indirip değiştirebilirsiniz). Burada yapılandırma dosyası olarak adlandırılan *.prototxt ve ağırlıkların yer aldığı *.caffemodel e ihtiyacımız olacak. Bu model caffe kütüphanesi için hazırlanmış olsada daha öncede belirttiğimiz readNetFromCaffe fonksiyonu ile  OpenCV için de anlamlı hale getireceğiz. Kullanacağım model içerisinde birçok sınıf mevcut, bu sınıflardan başlıcaları; uçak, bisiklet, insan, kuş, at, koyun, otobüs, otomobil...
-
-Algoritmik olarak yapacaklarımızı tanımlamak gerekirse;
-
-* Derin sinir ağı oluşturulur
-* Kameradan görüntü okunur
-* Okunan görüntü sinir ağına sokulur
-* Tespit edilen nesnelerin konumu hesaplanır
-* Doğruluk oranı ve nesne hatları görüntü üzerine çizilir
-
-Öncelikle prot, model dosyalarımızın dosya dizinleri ve model içerisinde yer alan sınıf etiketlerini tanımladık, ardından Net nesnesi ile sinir ağını caffe modeli kullanarak oluşturduk.
-
-*Java:*
-
-```Java
-public class DeepNeuralNetworkProcessor {  
-    private Net net;
-    private final String proto = "res/MobileNetSSD_deploy.prototxt";
-    private final String model = "res/MobileNetSSD_deploy.caffemodel";
-
-    private final String[] classNames = {"background",
-            "aeroplane", "bicycle", "bird", "boat",
-            "bottle", "bus", "car", "cat", "chair",
-            "cow", "diningtable", "dog", "horse",
-            "motorbike", "person", "pottedplant",
-            "sheep", "sofa", "train", "tvmonitor"};
-
-
-    public DeepNeuralNetworkProcessor() {
-
-        this.net = Dnn.readNetFromCaffe(proto, model);
-    }
-```
-
-Şimdi ise bir metot yazalım, bu metot input olarak aldığı frame’i sinir ağına göndererek çıktıları tasarladığım dnnobject tipindedöndürecek. Dikkat edilmesi gereken bir diğer nokta ise sinir ağının RGB renk uzayında görüntüler ile çalışmasıdır. Farklı renkuzayındaki görüntü dönüşümleri esnasında görüntü üzerinde gürültü oluşabileceği veya verimli bir dönüşüm yapılamayacağı için renkdönüşümü yapmadan RGB görüntü üzerinde çalışmanızı öneririm. Burada eklediğim parametre gri olarak gönderilmiş bir görüntü var isebunun dönüştürülüp dönüştürülmeyeceğini ifade etmektedir.
-
-
-*Java:*
-
-```Java
-public List<DnnObject> getObjectsInFrame(Mat frame, boolean isGrayFrame) {
-        //Görüntünün genişlik ve yükseklik değeri
-        int inWidth = 320;
-        int inHeight = 240;
-        double inScaleFactor = 0.007843;
-        //Tahmin oranı için belirlediğim bir eşik değer
-        double thresholdDnn = 0.2;
-        double meanVal =127.5;
-
-        Mat blob = null;
-        Mat detections = null;
-        List<DnnObject> objectList = new ArrayList<>();
-
-        int cols = frame.cols();
-        int rows = frame.rows();
-
-        try {
-            if (isGrayFrame)
-                Imgproc.cvtColor(frame, frame, Imgproc.COLOR_GRAY2RGB);
-
-            //Giriş görüntüsü sinir ağı için blob haline getirilir
-            blob = Dnn.blobFromImage(frame, inScaleFactor,
-                    new Size(inWidth, inHeight),
-                    new Scalar(meanVal, meanVal, meanVal),
-                    false, false);
-
-            net.setInput(blob);
-            detections = net.forward();
-            detections = detections.reshape(1, (int) detections.total() / 7);
-
-            //Tespit edilen tüm nesneler
-            for (int i = 0; i < detections.rows(); ++i) {
-                double confidence = detections.get(i, 2)[0];
-                // Tahmin oranı eşik değerinden büyük mü
-                if (confidence < thresholdDnn)
-                    continue;
-
-                //Tespit edilen nesnenin model içerisindeki sınıfının id'si
-                int classId = (int) detections.get(i, 1)[0];
-
-                //Tespit edilen nesnenin dikdörtgen köşe koordinatları
-                int xLeftBottom = (int) (detections.get(i, 3)[0] * cols);
-                int yLeftBottom = (int) (detections.get(i, 4)[0] * rows);
-                Point leftPosition = new Point(xLeftBottom, yLeftBottom);
-
-                int xRightTop = (int) (detections.get(i, 5)[0] * cols);
-                int yRightTop = (int) (detections.get(i, 6)[0] * rows);
-                Point rightPosition = new Point(xRightTop, yRightTop);
-                
-                //Nesnenin merkez noktası
-                float centerX = (xLeftBottom + xRightTop) / 2;
-                float centerY = (yLeftBottom - yRightTop) / 2;
-                Point centerPoint = new Point(centerX, centerY);
-
-                //Tespit edilen nesneleri listeye ekle
-                DnnObject dnnObject = new DnnObject(classId, classNames[classId].toString(), leftPosition, rightPosition, centerPoint);
-                objectList.add(dnnObject);
-            }
-
-        } catch (Exception ex) {
-            LOGGER.error("An error occurred DNN: ", ex);
-        }
-        return objectList;
-    }
-```
-
-Daha OOP olması açısından sinir ağından dönen nesneleri barındıracak sınıfımız ise aşağıdaki gibidir.
-
-*Java:*
-
-```Java
-import org.opencv.core.Point;
-
-@Data
-public class DnnObject {
-
-    private int objectClassId;
-    private String objectName;
-    private Point leftBottom;
-    private Point rightTop;
-    private Point centerCoordinate;
-
-    public DnnObject(int objectClassId, String objectName, Point leftBottom, Point rightTop, Point centerCoordinate) {
-        this.objectClassId = objectClassId;
-        this.objectName = objectName;
-        this.leftBottom = leftBottom;
-        this.rightTop = rightTop;
-        this.centerCoordinate = centerCoordinate;
-    }
-}
-```
-
-
-![DNN](static/siniflandirma_opencv_dnn.png)
-
----
-
-### Teorik Temel — YOLO ve Tespit Metrikleri
-
-**IoU (Intersection over Union):**
-$$\text{IoU} = \frac{|A \cap B|}{|A \cup B|}$$
-Genellikle IoU > 0.5 doğru tespit sayılır. mAP@0.5:0.95 birden fazla eşikte ortalamasını alır.
-
-**Precision-Recall:**
-$$\text{Precision} = \frac{TP}{TP+FP}, \quad \text{Recall} = \frac{TP}{TP+FN}$$
-$$\text{AP} = \int_0^1 p(r)\,dr \approx \sum_{k} (r_{k+1}-r_k) \cdot p(r_{k+1})$$
-
-**YOLO Loss Fonksiyonu:**
-$$\mathcal{L} = \lambda_{coord}\sum_{i}\sum_{j} \mathbb{1}_{ij}^{obj}\left[(x_i-\hat{x}_i)^2 + (y_i-\hat{y}_i)^2 + (\sqrt{w_i}-\sqrt{\hat{w}_i})^2 + (\sqrt{h_i}-\sqrt{\hat{h}_i})^2\right] + \mathcal{L}_{conf} + \mathcal{L}_{cls}$$
-
-Referans: Redmon & Farhadi, "YOLOv3: An Incremental Improvement", 2018 (https://arxiv.org/abs/1804.02767)
-
-```python
-from ultralytics import YOLO
-import cv2
-
-# YOLOv8 ile nesne tespiti
-model = YOLO("yolov8n.pt")  # nano modeli indir (ilk çalıştırmada otomatik)
-
-# Tek görüntü
-results = model.predict("resim.jpg", conf=0.5, iou=0.45)
-for result in results:
-    for box in result.boxes:
-        x1, y1, x2, y2 = box.xyxy[0].int().tolist()
-        conf = float(box.conf[0])
-        cls  = int(box.cls[0])
-        name = model.names[cls]
-        print(f"{name}: {conf:.2f} @ [{x1},{y1},{x2},{y2}]")
-
-# Gerçek zamanlı kamera
-cap = cv2.VideoCapture(0)
-if not cap.isOpened():
-    raise RuntimeError("Kamera açılamadı")
-
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        break
-    results = model.predict(frame, conf=0.5, verbose=False)
-    annotated = results[0].plot()
-    cv2.imshow("YOLOv8 Nesne Tespiti", annotated)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-cap.release()
+    cv2.rectangle(img, top_left, bottom_right, (0, 0, 255), 2)
+    cv2.putText(img, f"{max_val:.2f}", top_left, cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+
+cv2.imshow("Template Matching", img)
+cv2.waitKey(0)
 cv2.destroyAllWindows()
 ```
 
-### Özet & İleri Okuma
-- IoU tahmin ve gerçek kutu örtüşme oranını ölçer; 0.5 yaygın eşik değeridir
-- Precision yanlış pozitifleri, Recall kaçırılan tespitleri yansıtır
-- mAP birden fazla eşik ve sınıfta ortalama AP'dir — tek sayısal karşılaştırma metriği
-- YOLO mimarisi tek geçişle hem sınıflandırma hem lokalizasyon yapar
-- YOLOv8 Ultralytics API ile eğitim, değerlendirme ve deployment kolaylaşır
-- Referans: Redmon & Farhadi — YOLOv3 (https://arxiv.org/abs/1804.02767)
+Template matching nesne döndüğünde, ölçek değiştiğinde ya da kısmen örtüldüğünde başarısız olur. Kontrollü ortamda, sabit açıyla görünen nesneler için uygundur.
 
----
+## YOLOv8: Modern Gerçek Zamanlı Tespit
 
-## YOLOv8 ile Nesne Tespiti
+YOLO (You Only Look Once) görüntüyü yalnızca bir kez işleyerek tüm nesneleri aynı anda tespit eder. R-CNN gibi önce "aday bölge öner, sonra sınıflandır" demez — tek geçişte hem nereyi hem neyi bulur.
 
-YOLO (You Only Look Once) serisi, gerçek zamanlı nesne tespiti için geliştirilmiş en popüler derin öğrenme algoritmalarından biridir. Ultralytics tarafından geliştirilen YOLOv8 (2023), hem doğruluk hem de hız açısından benchmark'larda üst sıralarda yer almaktadır.
+Sezgi: Görüntüyü ızgara hücrelerine böl. Her hücre kendi bölgesinde nesne merkezi olup olmadığını, varsa sınıfını ve bounding box boyutlarını tahmin eder. Tüm tahminler aynı anda hesaplanır.
 
-### Kurulum
-
-```bash
-pip install ultralytics
-```
-
-### Görüntü Üzerinde Nesne Tespiti
+YOLOv8, Ultralytics tarafından geliştirilen modern versiyondur. `pip install ultralytics` ile kurulur.
 
 ```python
-from ultralytics import YOLO
 import cv2
+from ultralytics import YOLO
 
-# Önceden eğitilmiş YOLOv8n modeli (nano — en hızlı)
+# Model boyutları: n (nano) → s → m → l → x (extra-large)
+# Daha büyük = daha doğru ama daha yavaş
 model = YOLO("yolov8n.pt")  # İlk çalıştırmada otomatik indirilir
 
-# Görüntü üzerinde çıkarım
-results = model("test.jpg")
-
-# Sonuçları görselleştir
-for result in results:
-    annotated = result.plot()
-    cv2.imshow("YOLOv8 Tespitler", annotated)
-    cv2.waitKey(0)
-```
-
-### Kamera Üzerinde Gerçek Zamanlı Tespit
-
-```python
-from ultralytics import YOLO
-import cv2
-
-model = YOLO("yolov8n.pt")
 cap = cv2.VideoCapture(0)
 
 while True:
@@ -511,93 +111,87 @@ while True:
     if not ret:
         break
 
-    results = model(frame, stream=True, conf=0.5)
+    # conf: minimum güven eşiği
+    results = model.predict(frame, conf=0.5, verbose=False)
+
+    # Tespit edilen her nesneyi çiz
     for result in results:
         boxes = result.boxes
         for box in boxes:
-            x1, y1, x2, y2 = map(int, box.xyxy[0])
+            x1, y1, x2, y2 = box.xyxy[0].int().tolist()
+            cls_id = int(box.cls[0])
             conf = float(box.conf[0])
-            cls = int(box.cls[0])
-            label = f"{model.names[cls]} {conf:.2f}"
+            label = f"{model.names[cls_id]} {conf:.2f}"
+
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(frame, label, (x1, y1 - 10),
+            cv2.putText(frame, label, (x1, y1 - 8),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-    cv2.imshow("YOLOv8 Gerçek Zamanlı", frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    cv2.imshow("YOLOv8 Gerçek Zamanlı Tespit", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
 cap.release()
 cv2.destroyAllWindows()
 ```
 
-### Model Boyutları
+`model.names` sözlüğü sınıf ID'sini "kişi", "araba", "bisiklet" gibi isimlere çevirir. COCO veri seti üzerinde eğitilmiş YOLOv8n 80 sınıfı tanır.
 
-Ultralytics YOLOv8 beş farklı boyutta sunulur:
+> **💡 İpucu:** `yolov8n` (nano) hızlı demo için idealdir, `yolov8x` (extra-large) maksimum doğruluk için. Üretim ortamında `yolov8s` veya `yolov8m` genellikle iyi denge sağlar.
 
-| Model | Boyut | mAP (COCO) | Hız (ms) |
-|-------|-------|-----------|---------|
-| YOLOv8n | 3.2 MB | 37.3 | 0.99 |
-| YOLOv8s | 11.2 MB | 44.9 | 1.20 |
-| YOLOv8m | 25.9 MB | 50.2 | 3.83 |
-| YOLOv8l | 43.7 MB | 52.9 | 6.05 |
-| YOLOv8x | 68.2 MB | 53.9 | 9.70 |
+> **📌 Not:** Kendi veri setinizde eğitmek için `model.train(data="dataset.yaml", epochs=100)` çağrısı yeterlidir. Ultralytics dokümantasyonu özel model eğitimi için adım adım rehber sunar.
 
-Gerçek zamanlı uygulamalar için `yolov8n` veya `yolov8s` tercih edilir.
+## Değerlendirme Metrikleri
 
-### Özel Model Eğitimi
+İyi bir tespit ne demektir? Sezgisel anlaşılması için somut örnekler:
 
-Kendi veri setinizde YOLOv8 eğitimi:
+**IoU (Intersection over Union):** "Tahmin kutusun gerçek kutuyla ne kadar örtüşüyor?"
 
-```python
-from ultralytics import YOLO
+Gerçek yöntemi sezgiyle açıklayalım: İki dikdörtgeni üst üste koyun. Kesişim alanı (ortak bölge) ne kadar büyükse, birleşim alanına (toplam kaplanan bölge) oranı o kadar yüksek.
 
-model = YOLO("yolov8n.pt")  # Önceden eğitilmiş ağırlıklardan başla
+$$\text{IoU} = \frac{|A \cap B|}{|A \cup B|}$$
 
-results = model.train(
-    data="veri_seti.yaml",  # YOLO formatında veri seti tanımı
-    epochs=100,
-    imgsz=640,
-    batch=16,
-    device=0  # GPU kullanmak için; CPU için device="cpu"
-)
-```
+IoU = 1.0 mükemmel örtüşme, IoU = 0.0 hiç örtüşme yok. Genellikle IoU > 0.5 "doğru tespit" sayılır.
 
-`veri_seti.yaml` örneği:
+**Precision:** Tespit ettiğin nesnelerin ne kadarı gerçekten doğru?
 
-```yaml
-path: /proje/veri
-train: images/train
-val: images/val
-nc: 3  # sınıf sayısı
-names: ['kedi', 'kopek', 'kus']
-```
+$$\text{Precision} = \frac{TP}{TP + FP}$$
 
-### ONNX'e Export
+"100 nesne tespit ettim, 85'i gerçekten nesneydi" → Precision = 0.85
 
-```python
-model = YOLO("yolov8n.pt")
-model.export(format="onnx")  # yolov8n.onnx dosyası oluşturulur
-```
+**Recall:** Gerçek nesnelerin ne kadarını buldun?
 
----
+$$\text{Recall} = \frac{TP}{TP + FN}$$
 
-## YOLOv9 ile Nesne Tespiti
+"Görüntüde 120 nesne vardı, ben 85'ini buldum" → Recall = 0.71
 
-YOLOv9 (2024), "Programmable Gradient Information" (PGI) ve "Generalized Efficient Layer Aggregation Network" (GELAN) mimarileri ile YOLOv8'e göre daha yüksek doğruluk sunar.
+**mAP (mean Average Precision):** Farklı güven eşiklerinde hesaplanan average precision değerlerinin sınıflar üzerindeki ortalaması. YOLOv8n COCO'da mAP@0.5 yaklaşık 0.37, YOLOv8x ise 0.54'tür.
 
-```bash
-pip install ultralytics  # YOLOv9 Ultralytics 8.1+ ile desteklenmektedir
-```
+> **📌 Not:** Yüksek precision düşük recall anlamına gelebilir — model yalnızca çok emin olduğu nesneleri söyler, kaçırdıkları fazladır. Hedefin güvenlik sistemi mi yoksa envanter sayımı mı olduğuna göre hangisine öncelik vereceğiniz değişir.
 
-```python
-from ultralytics import YOLO
+## Yöntem Karşılaştırması
 
-# YOLOv9c modeli (compact)
-model = YOLO("yolov9c.pt")
-results = model("test.jpg")
-for result in results:
-    print(result.boxes)
-```
+| Yöntem | Hız | Doğruluk | Kurulum | En İyi Kullanım |
+|--------|-----|----------|---------|-----------------|
+| Haar Cascade | Çok hızlı | Düşük-orta | Sıfır | Yüz tespiti, gömülü sistem |
+| Template Matching | Hızlı | Değişken | Sıfır | Sabit görünümlü nesne arama |
+| YOLOv8n (nano) | ~60 FPS CPU | Orta | pip install | Gerçek zamanlı demo |
+| YOLOv8x (xlarge) | ~10 FPS GPU | Çok yüksek | pip install | Maksimum doğruluk |
 
-YOLOv8 API'si ile birebir uyumludur; model adını değiştirmek yeterlidir.
+## Özet
+
+- Nesne tespiti sınıflandırmadan farklıdır: konum bilgisi (bounding box) de döndürür.
+- Haar Cascade 2001'den bu yana hâlâ geçerlidir; hafif ve hızlıdır ama tek sınıf, cephe görüşü gerektirir.
+- Template matching nesne görünümü sabitse kontrollü ortamlarda güvenilirdir.
+- YOLO single-shot mimariyle görüntüyü tek geçişte işler; R-CNN tabanlı yöntemlere göre çok daha hızlıdır.
+- YOLOv8 `pip install ultralytics` ile kurulur; `model.predict()` tek satırda çalışır.
+- IoU tespitin geometrik doğruluğunu, precision/recall ise sınıflandırma performansını ölçer.
+- mAP, farklı eşik değerlerindeki precision'ın ortalamasıdır — tek sayıyla genel performansı özetler.
+
+## İleri Okuma
+
+- Viola & Jones, "Rapid Object Detection using a Boosted Cascade of Simple Features" (CVPR 2001) — Haar Cascade'in orijinal makalesi
+- Redmon & Farhadi, "YOLOv3: An Incremental Improvement" (2018): https://arxiv.org/abs/1804.02767
+- Jocher et al., Ultralytics YOLOv8 Dokümantasyonu: https://docs.ultralytics.com
+- Everingham et al., "The Pascal Visual Object Classes (VOC) Challenge" (IJCV 2010) — mAP metriğinin standart tanımı
