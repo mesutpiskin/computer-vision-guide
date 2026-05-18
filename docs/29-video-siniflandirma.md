@@ -1,101 +1,157 @@
-# Video Anlama ve Eylem Tanıma
+# Bölüm 29: Video Sınıflandırma
 
-Video anlama, görüntü sınıflandırmasının zamansal boyuta genişletilmesidir. Bu bölümde SlowFast ve VideoMAE gibi modern video mimarilerini ve HuggingFace ile eylem tanıma uygulamasını inceleyeceğiz.
+Bir güvenlik kamerasının yalnızca "düşme" eylemini tespit etmesini istiyorsun. Akla ilk gelen çözüm her kareyi ayrı ayrı sınıflandırmak. Ama tek bir kare sana "birisi oturuyor mu yoksa yeni mi düştü?" sorusunu cevaplayamaz. Eylem, zamanın içinde açılan bir süreçtir — birden fazla kareye yayılır. Bu bölümde videoyu zaman boyutuyla birlikte işlemenin yöntemlerini inceleyeceğiz.
 
-## Teorik Temel
+## Neden Video Ayrı Bir Problemdir?
 
-**3D Konvolüsyon (C3D):**
-2D $k\times k$ çekirdek yerine $k\times k\times k$ 3D çekirdek ile hem uzamsal hem zamansal bilgi birlikte işlenir:
-$$\text{out}(t,x,y) = \sum_{\tau=0}^{k-1}\sum_{i=0}^{k-1}\sum_{j=0}^{k-1} \text{in}(t-\tau, x-i, y-j) \cdot W(\tau,i,j)$$
+Görüntü sınıflandırmasında girdi H×W×3 boyutunda tek bir karedir. Videoda ise T adet kare ardışık gelir: T×H×W×3. Bu boyut genişlemesi küçük bir teknik detay değil, temel bir zorluk.
 
-**SlowFast Network:**
-İki paralel pathway:
-- Slow pathway: düşük FPS ($\alpha \times$ az kare), yüksek kanal ($\beta \times$ fazla kanal) → görünüş
-- Fast pathway: yüksek FPS (tam kare sayısı), düşük kanal → hareket
-Lateral bağlantılar Fast → Slow bilgi aktarır.
+Her kare bağımsız sınıflandırılırsa: "futbolcu" görürsün ama "pas mı atıyor, şut mu çekiyor, duruyor mu?" bilmezsin. Zaman boyutu bu soruların cevabını taşır. Dahası, insanlar günlük hayatta zamansal örüntülerle düşünür — "kapı açılıyor", "araba frenleniyor", "el dalgalıyor" tümünde zaman kritiktir.
 
-**VideoMAE (Masked Autoencoder):**
-Rastgele tube maskeleme: video voxel'larının %90'ı maskelenir.
-Encoder maskelenmemiş patch'leri, decoder tüm video'yu reconstruct eder.
-Self-supervised pre-training → downstream fine-tuning.
+## 3D Convolution (C3D)
 
-**Referanslar:**
-- Feichtenhofer et al., "SlowFast Networks for Video Recognition", ICCV 2019 (https://arxiv.org/abs/1812.03982)
-- Tong et al., "VideoMAE: Masked Autoencoders are Data-Efficient Learners for Self-Supervised Video Pre-Training", NeurIPS 2022 (https://arxiv.org/abs/2203.12602)
+2D konvolüsyon bir H×W uzaysal alana filtre uygular — "bu bölgede kenar var mı?" gibi uzaysal örüntüler öğrenir. 3D konvolüsyon bunu T×H×W'ye genişletir: hem uzay hem zaman boyutunda aynı anda filtre uygular — "bu nesne bu 8 karede nasıl hareket etti?" örüntüsünü öğrenir.
 
-## Pratik Uygulama
+```
+2D: filtre boyutu k×k     → uzaysal örüntü
+3D: filtre boyutu k×k×k   → uzaysal + zamansal örüntü
+```
+
+**Kısıtlama:** 2D konvolüsyona göre parametre sayısı ~k kat artar. C3D modelinin tek bir eğitimi günler sürebilir, bellek ihtiyacı çok yüksektir.
+
+## Two-Stream Networks
+
+İki akış ağı, insan görsel sisteminden ilham alır: nörobilim araştırmaları beyinde iki ayrı görsel yolun olduğunu ortaya koymuştur — "ne var?" ve "nasıl hareket ediyor?". Two-stream ağları da aynı ayrımı yapar.
+
+- **Birinci akış (Spatial/RGB):** Normal video karelerini işler — "ne var?" (nesne, renk, doku)
+- **İkinci akış (Temporal/Optik akış):** Ardışık kareler arasındaki piksel hareketi (optik akış) görüntülerini işler — "nasıl hareket ediyor?"
+
+İki akışın tahminleri son aşamada birleştirilir (late fusion). Birisi görünümü, diğeri hareketi kodladığından birlikte daha iyi performans gösterirler.
+
+**Dezavantaj:** Optik akış hesaplama pahalıdır ve ayrı depolanması disk alanı tüketir.
+
+## SlowFast Networks
+
+Beyin farklı frekanslarda işlem yapar. Yavaş işlemler (nesne tanıma, sahne anlama) milisaniye ölçeğinde değişmez. Hızlı işlemler (el çırpma, top hareketi) çok daha kısa zaman dilimlerinde gerçekleşir. SlowFast bu gözlemi doğrudan mimariye yerleştirir.
+
+**Yavaş yol (Slow pathway):**
+- Az sayıda kare örnekle (örn. 32 kareden 4 kare = her 8. kare)
+- Yüksek uzamsal çözünürlük
+- Nesne görünümünü, bağlamı öğrenir
+- Yüksek kapasite, çok kanal
+
+**Hızlı yol (Fast pathway):**
+- Çok sayıda kare (32 kareden 32 kare = her kare)
+- Düşük uzamsal çözünürlük, az kanal (Slow pathway'in 1/8'i)
+- Hareketi, zamansal değişimi öğrenir
+- Hesaplama maliyeti düşük
+
+İki yol **lateral bağlantılar** ile bilgi paylaşır — Fast yolun hareketi Slow yolun nesne temsilini zenginleştirir.
 
 ```python
-import cv2
+# Gereksinimler: pip install torch torchvision
+import torch
+
+# PyTorch Hub'dan hazır SlowFast modeli
+# (Gerçek video inferansı için torchvision>=0.13)
+try:
+    model = torch.hub.load("facebookresearch/pytorchvideo",
+                            "slowfast_r50", pretrained=True)
+    model.eval()
+    print("SlowFast-R50 yüklendi.")
+    print(f"Parametre sayısı: {sum(p.numel() for p in model.parameters()):,}")
+
+    # SlowFast giriş formatı: [slow_clip, fast_clip]
+    # slow_clip: (B, C, T_slow, H, W) — örn. (1, 3, 4, 224, 224)
+    # fast_clip: (B, C, T_fast, H, W) — örn. (1, 3, 32, 224, 224)
+    slow_clip = torch.randn(1, 3, 4, 224, 224)
+    fast_clip = torch.randn(1, 3, 32, 224, 224)
+
+    with torch.no_grad():
+        output = model([slow_clip, fast_clip])
+    print(f"Çıktı boyutu: {output.shape}")  # (1, 400) — Kinetics-400 sınıfı
+
+except Exception as e:
+    print(f"Model yükleme hatası: {e}")
+    print("Manuel kurulum için: pip install pytorchvideo")
+```
+
+## VideoMAE
+
+BERT dil modelinde kelimelerın %15'i maskelenir, model geri kalanından maskeli kelimeleri tahmin etmeyi öğrenir. VideoMAE aynı fikri videoya uygular — ama maskele oranı %90 gibi çok yüksek tutulur.
+
+Neden bu kadar yüksek? Çünkü video kareleri zamansal olarak çok benzerdir — %15 maskelersen model sadece komşu karelerden kopyalayarak öğrenir. %90 maskelerken ağ gerçekten sahnedeki yapıyı anlamak zorunda kalır.
+
+**Maskeleme tüp şeklinde (temporal masking):** Aynı uzaysal konum ardışık karelerde maskelenir. Bu, "zamansal interpolasyon" hilesini engeller.
+
+Az etiketli veriyle güçlü temsil öğrenir (self-supervised pre-training), sonra az etiketle fine-tune edilebilir.
+
+```python
+# Gereksinimler: pip install transformers torch av numpy
+from transformers import VideoMAEForVideoClassification, VideoMAEImageProcessor
 import torch
 import numpy as np
-from transformers import VideoMAEForVideoClassification, VideoMAEImageProcessor
 
-# VideoMAE ile eylem tanıma
-processor = VideoMAEImageProcessor.from_pretrained(
-    "MCG-NJU/videomae-base-finetuned-kinetics"
-)
-model = VideoMAEForVideoClassification.from_pretrained(
-    "MCG-NJU/videomae-base-finetuned-kinetics"
-)
-if model is None:
-    raise RuntimeError("VideoMAE modeli yüklenemedi")
+model_name = "MCG-NJU/videomae-base-finetuned-kinetics"
+processor = VideoMAEImageProcessor.from_pretrained(model_name)
+model = VideoMAEForVideoClassification.from_pretrained(model_name)
 model.eval()
 
+# VideoMAE 16 kare bekler
+# Gerçek uygulamada video dosyasından kare örnekle
+# Burada rastgele video simüle ediyoruz
+num_frames = 16
+height, width = 224, 224
 
-def load_video_frames(path, num_frames=16, target_size=(224, 224)):
-    """Videodan eşit aralıklı num_frames kare yükle."""
-    cap = cv2.VideoCapture(path)
-    if not cap.isOpened():
-        raise RuntimeError(f"Video açılamadı: {path}")
+# (num_frames, H, W, C) formatında rastgele video
+video_frames = [
+    np.random.randint(0, 255, (height, width, 3), dtype=np.uint8)
+    for _ in range(num_frames)
+]
 
-    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    if total == 0:
-        cap.release()
-        raise ValueError("Video boş veya okunamıyor")
-
-    indices = np.linspace(0, total - 1, num_frames, dtype=int)
-    frames = []
-
-    for idx in indices:
-        cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
-        ret, frame = cap.read()
-        if ret:
-            frame = cv2.resize(frame, target_size)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frames.append(frame)
-
-    cap.release()
-
-    if len(frames) < num_frames:
-        raise ValueError(f"Yeterli kare yüklenemedi: {len(frames)}/{num_frames}")
-
-    return frames
-
-
-frames = load_video_frames("video.mp4", num_frames=16)
-
-inputs = processor(frames, return_tensors="pt")
+# İşle ve tahmin al
+inputs = processor(video_frames, return_tensors="pt")
 with torch.no_grad():
     outputs = model(**inputs)
-    logits = outputs.logits
 
-predicted = logits.argmax(-1).item()
-print(f"Tahmin edilen eylem: {model.config.id2label[predicted]}")
+# İlk 3 tahmini göster
+probs = torch.softmax(outputs.logits, dim=-1)[0]
+top3 = torch.topk(probs, k=3)
 
-# Top-5
-top5_probs, top5_indices = torch.softmax(logits, dim=-1).topk(5)
-print("\nTop-5 Eylemler:")
-for prob, idx in zip(top5_probs[0], top5_indices[0]):
+print("VideoMAE — İlk 3 eylem tahmini:")
+for prob, idx in zip(top3.values, top3.indices):
     label = model.config.id2label[idx.item()]
-    print(f"  {label}: {prob.item():.4f}")
+    print(f"  {label}: {prob.item()*100:.1f}%")
 ```
+
+> **💡 İpucu:** Gerçek video dosyasından kare örneklemek için `av` (PyAV) kütüphanesi kullan: `pip install av`. `av.open("video.mp4")` ile videoyu aç, eşit aralıklı 16 kare seç.
+
+> **📌 Not:** Kinetics-400 veri seti 400 günlük eylem sınıfı içerir. Model bu sınıflar üzerinde fine-tune edilmiştir. Kendi veri setine uyarlamak için son katmanı değiştir ve fine-tune et.
+
+## Yöntem Karşılaştırması
+
+| Yöntem | Parametre | Kinetics Doğruluğu | Eğitim | Ne Zaman Kullan |
+|--------|-----------|-------------------|---------|-----------------|
+| **C3D** | ~78M | ~82% Top-1 | Pahalı | Basit eylem tanıma, küçük veri |
+| **Two-Stream** | ~2×22M | ~88% Top-1 | Orta | Optik akış hesaplanabiliyorsa |
+| **SlowFast-R50** | ~34M | ~77.9% Top-1 (Kinetics-400) | Orta | Hız/doğruluk dengesi önemliyse |
+| **VideoMAE-B** | ~87M | ~80.9% Top-1 (Kinetics-400) | Uzun (pre-train) | Az etiketli veri, transfer learning |
+
+> **⚠️ Dikkat:** Video modelleri görüntü modellerinden çok daha fazla bellek tüketir. Batch size 1'den başla, bellek hatasında (OOM) kare sayısını veya çözünürlüğü düşür.
 
 ## Özet & İleri Okuma
 
-- Two-stream: spatial (RGB) ve temporal (optik akış) akışları ayrı CNN ile işler
-- 3D konvolüsyon uzamsal ve zamansal bilgiyi tek geçişte yakalar; ancak hesaplama maliyeti yüksek
-- SlowFast çift hız yoluyla görünüş ve hareketi ayrı kodlar; lateral bağlantılar bilgi alışverişi sağlar
-- VideoMAE %90 maskeleme ile güçlü self-supervised pre-training öğrenir
-- Kinetics-400/600 eylem tanıma alanının standart benchmark veri setleridir
-- Referans: SlowFast (https://arxiv.org/abs/1812.03982), VideoMAE (https://arxiv.org/abs/2203.12602)
+- Tek kare sınıflandırması, "düşme" gibi zamansal olayları yakalayamaz — zaman boyutu zorunludur.
+- **3D Convolution**, uzay ve zamanı aynı anda filtreler; parametre maliyeti yüksektir.
+- **Two-Stream ağları** RGB (görünüm) ve optik akış (hareket) akışlarını ayrı işleyerek birleştirir.
+- **SlowFast Networks**, yavaş (nesne) ve hızlı (hareket) yollarla beynin ikili görsel sistemini taklit eder.
+- **VideoMAE**, %90 maskeleme ile self-supervised pre-training yapar; az etiketle fine-tune edilebilir güçlü temsiller üretir.
+- Video modellerini eğitmek/inference yapmak görüntü modellerinden belirgin biçimde daha fazla GPU belleği gerektirir.
+- Kinetics-400/600/700 veri setleri video eylem tanıma alanının standart benchmark'larıdır.
+
+### Referanslar
+
+- Tran et al., "Learning Spatiotemporal Features with 3D Convolutional Networks" (ICCV 2015): [https://arxiv.org/abs/1412.0767](https://arxiv.org/abs/1412.0767)
+- Simonyan & Zisserman, "Two-Stream Convolutional Networks for Action Recognition in Videos" (NeurIPS 2014): [https://arxiv.org/abs/1406.2199](https://arxiv.org/abs/1406.2199)
+- Feichtenhofer et al., "SlowFast Networks for Video Recognition" (ICCV 2019): [https://arxiv.org/abs/1812.01548](https://arxiv.org/abs/1812.01548)
+- Tong et al., "VideoMAE: Masked Autoencoders are Data-Efficient Learners for Self-Supervised Video Pre-Training" (NeurIPS 2022): [https://arxiv.org/abs/2203.12602](https://arxiv.org/abs/2203.12602)
