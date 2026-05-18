@@ -1,288 +1,279 @@
-**Yüz Tanıma** 
---------------
+# Yüz Tanıma
 
-Yüz tanıma probleminin çözümü için bir çok yöntem mevcut, burada ki önemli konu; yüz tanıma işlemi ile yüz tespit işleminin farklı olmasıdır. Bazı yöntemler ile  görüntülerdeki insan yüzlerini, diğer nesnelerden ayırt ederek tespit edebiliriz. İnsan yüzü kişiye göre geometrik olarak çok fazla farklılık göstermez, bu farklılığın az oluşuda yüzü tespit etmeyi kolaylaştırır. Örneğin bir insan yüzünde iki adet göz, bir adet burun, bir adet ağız gibi geometrik şekli genel olarak aynı olan yapılar mevcuttur. Yüz tanıma ise daha önceden kayıt edilen yüz verileri ile, girdi olarak daha önce tanıtılmayan yüz verisi arasındaki benzerlik oranlarını hesaplamaktır. Bu bağlamda yüz tanıma, tespit etme işlemine göre daha zordur. Ortamdaki ışık veya yüzde meydana gelecek küçükdeğişiklikler algoritmanızın hatalı sonuç vermesine yol açabilir. Bu durumlardan dolayı tespit ile tanıma işlemini bir birinden ayırt edilebilir. Yeni yaklaşımlar kullanan bazı algoritmalat ile, algoritma yüzün ne olduğunu bilmeden yani tespit işlemi yapmadan doğrudan karşılaştırma adıma gidebilmektedir.
+Bir bina güvenlik sisteminde kapı otomatik açılacak: kamera görüntü alacak, içeride yetkili biri var mı kontrol edecek. Bunun için önce "Bu görüntüde yüz var mı?" sorusuna cevap vermek, ardından "Bu yüz kim?" sorusunu yanıtlamak gerekir. İlki tespit, ikincisi tanımadır — birbirini tamamlar ama tamamen farklı problemlerdir. Bu bölümde her iki adımın klasik ve modern yöntemlerini öğreneceksiniz.
 
-Yüz tanıma insanlar için oldukça kolay bir iştir. Bazı deneyler göstermiştir ki üç günlük bir bebek bile gördüğü yüzü daha sonra ayırt edebilmektedir. Peki, bilgisayarlar için bu durum ne kadar zor olabilir? Bizler bu güne kadar yüz tanıma konusunda çok az şey biliyorduk. Yüz tanıma esnasında gözleri, burnu, ağzı veya kafa şeklini, saçlarımızı kullanıyor muyduk? Beynimiz bunları nasıl analiz ediyor, nasıl kodlanmış olabilir ki? David Hubel ve Torsten Wiesel bize göstermiştir ki beynimiz çizgileri, kenarları, hareketleri, görüntünün belirli özelliklerini belirli sinir hücreleri ile anlayabiliyoruz. Bütün bir görseli parçalayarak veya parçalanmış bir görseli kullanarak oluşturulabilecek bir bütünden anlamlı sonuçlar çıkartabiliyoruz. Yüz tanıma ise bütün bir görüntüden anlamlı özelliklerin ayıklanması ve onların sınıflandırılarak karşılaştırılması ile oluyor.
+## Tespit ve Tanıma Farkı
 
-Bir yüzün geometrik özelliklerine göre yapılacak yüz tanıma işlemi, muhtemelen yüz tanıma için en kolay yaklaşımdır. İlk otomatik yüz tanıma sistemlerinden biri Kanade73: işaretleyici noktaları (gözler, kulaklar ve burun pozisyonu) özellik vektörü (noktaları arasındaki mesafe, bunlar arasındaki açı) oluşturmak için kullanıldı. Özellik vektörünü kullanarak yapılan tanımada kaynak ve referans görüntünün özellik vektörleri arasındaki Öklid mesafe hesaplanarak yaptı. Bu gibi bir yöntem başarılı oldu, doğası gereği parlaklık gibi değişikliklere karşı dayanıklıydı, ancak çok büyük bir dezavantajları davardı. Geometrik yüz tanıma yöntemi ile yapılan bir başka çalışma [Bru92]. A 22 boyutlu özellik vektörü kullandı ve büyük veri setleri üzerinde deneyler yaptı. Tek başına geometrik özelliklerin yüz tanıma için yeterli olmayacağı bu çalışma ile fark edilmiştir.
+**Yüz tespiti:** "Bu görüntüde yüz var mı, nerede?" → Bounding box koordinatları döner.
 
-[TP91], Eigenfaces yöntemi, yüz tanıma için bütünsel bir yaklaşım aldı. Yüz görüntüsünün bir noktasından yüksek boyutlu görüntü alanı ve küçük boyutlu bir temsil alındı ve sınıflandırma kolay hale getirildi. Doğrusal diskriminant analizi ile bir sınıfa özel projeksiyon [BHK97] yöntemi olarak yüz tanımada uygulandı. Temel fikri, sınıflar arasında varyansı maksimize ederken, bir sınıf içinde varyansı en aza indirmekti.
+**Yüz tanıma:** "Bu yüz kime ait?" → Kimlik ya da "bilinmiyor" döner.
 
+Güvenlik sisteminde pipeline şöyledir: kamera → tespit (yüzü bul) → kırp → tanıma (kimliği sorgula) → erişim kararı. Tespit olmadan tanıma başlayamaz; tanıma olmadan sadece "burada birinin yüzü var" bilgisi vardır.
 
-## Yüz Tanıma Algoritmaları
+## Yüz Tespiti
 
-Yüz tanıma algoritmaları çalışma şekline göre 3 farlı başlık altında incelenebilir, farklı kaynaklarda 4 veya 5 başlık altında ele alındığını da görebilirsiniz.
+### Haar Cascade ile Hızlı Tespit
 
- * Bütünsel Eşleme (Holistic Matching)
- * Öznitelik Tabanlı (Feature Based)
- * Hibrit Yaklaşım
-
-**Bütünsel Eşleme (Holistic Matching)**
-
-Bu yöntemde girdi olarak kullanılacak yüz verisi tek bir bütün parça halinde algoritmaya girdi verisi olarak sunulur. 2D (iki boyutlu) görüntüler üzerinde yüz tanıma için oldukça popüler bir yöntemdir. Opencv içerisinde de yer alan Eigenface bu yönteme bir örnektir.
-
-**Öznitelik Tabanlı (Feature Based)**
-
-Öznitelik tabanlı algoritmalar, öznitelik çıkarımı kullanarak yüzün önemli noktalarını referans alarak çalışır. Bu önemli noktalar göz, ağız, burun, yüz genişliği, ağız genişliği, alın genişliği veya göz bebekleri arası mesafe olabilir. Bu algoritmalar yüz tespiti için bilinen öz nitelikleri kullanır. Örneğin; Yüz burnun tam ortasından ikiye bölündüğünde oluşan iki parça neredeyse bir birinin simetriğidir, burun iki gözün altında yer alır, iki adet göz bulunur, burun ağız ile 2 gözün ortasındadır gibi bir çok temel öznitelikten ve bilinenden yararlanılır. OpenCV içerisinde yer alan ve nesne tanıma bölümünde işlenilen Haar-Cascade algoritması buna bir örnektir, bu algoritma ile görüntü içerisindeki yüzler tespit edilebilir, yine OpenCV içerisinde yeralan SIFT bu yönteme örnek gösterilebilir. İki boyutlu verileri için oldukça sık kullanılan bu yöntem üç boyutlu veriler içinde uygulanabilmektedir. Sinir Ağları ile yüz tanımayı da bu kategoride ele alabilirz.
-
-
-![Oznitelik](static/oznitelik-ile-esleme.png)
-
-**Hibrit Yaklaşım**
-
-Hibrit algoritmalar adında anlaşılacağı üzere bütünsel eşleme ve öznitelik çıkarımını birlikte kullanarak daha iyi sonuçlar elde etmeyi amaçlar. Bazı uygulamalarda kamera karşısında gerçekten bir insan mı yoksa bir fotoğraf mı var bilmek istersiniz, Apple Face Id örneğinde olduğu gibi. Bu durumlarda yapmanız gereken en doğru yaklaşım, bir donanım ile (nokta bulut tarama yöntemi olabilir) yüzün üç boyutlu görüntüsünü çıkarmaktır, üç boyutlu görüntü üzerinde doğrudan bütünsel eşleme yaparak doğru yüz verisini elde etmeye çalışabilirsiniz ve ardından eşleştirme için öznitelik çıkarımını kullanabilirsiniz.
-
-
-![3d face](static/3d_face.png)
-
-OpenCV içerisinde yer alan bazı yüz tanıma algoritmaları aşağıdaki gibidir;
-
-* Eigenfaces
-* Fisherfaces
-* Local Binary Patterns Histograms LBPH
-
-Bu algoritmaları denediğinizde hızlı fakat başarı oranı düşük sonuç alabilirsiniz, bu durumlarda daha yüksek doğruluk oranı sağlayan sinir ağı tabanlı sınıflandırma algoritmaları kullanılır.
-
-Yüz tanıma algoritmaları veri seti içerisindeki en çok benzeyen yüzü bulmayı amaçlar. Bu yüzden girdi olarak, daha önce veri setiiçerisinde tanımlanmamış bir yüz verdiğinizde bile size benzeyen bir yüz bulabilir. Bu sorunun üstesinden gelmek için ise benzerlikoranları kullanılır. Genellikle 0-1 arasında olan bu benzerlik oranları ile bir eşik değeri belirlenir. Bu sayede belirli birbenzerlik oranını yakalayamayan eşleşemeler için sonuç üretmenin önüne geçilebilir.
-
-
-**1.EigenFaces**
-
-EigenFaces algoritması, eğitim için kullanılan tüm yüzler ile girdi olarak verilen yüzü karşılaştırır. Bu eşleştirme de eleme yöntemi kullanarak veri seti içerisindeki yüzler ile girdi yüzü arasında eşleşmeyen yerleri atarak sona kalan yüzü bulur.
-
-
-**2.FisherFaces**
-
-Fisherfaces algoritması, girdi olarak verilen yüz üzerindeki öznitelikleri belirler ve eğitim için kullanılan yüzler ile sırasıyla öznitelik yönünden karşılaştırır, en çok benzeyeni bulana kadar devam eder.
-
-
-**3.Local Binary Patterns Histograms LBPH**
-
-LBPH algoritması diğer algoritmalarda çok büyük bir sorun olan ışık ve çevre koşullarından en az oranda etkilenmeyi sağlamak amacıyla geliştirilmiştir. LBPH adından da anlaşılacağı üzere yerel pikselleri bir biriyle komşuluklarına göre inceleyerek sonuç çıkarmaya çalışır. Komşu piksel gruplarından yararlanarak yerel bir yapı bulmayı amaçlar, bu yöntemi girdi ve veri tabanındaki yüzler üzerinde uygulayarak en çok benzeyen yüzü bulmaya çalışır.
-
-
-**4.Sinir Ağları ile Yüz Tanıma**
-
-Bu yöntemi kullanmak için çok fazla veriye ihtiyaç duyulur. Tanınmasını istenen kişilerin yüzleri sinir ağına eğitim verisi olarak girilir ve sinir ağı (genellikle CNN) verisetinde yer alan yüzler üzerinde baskın öz nitlikleri belirleyerek bir sınıflandırma yapar. Girdi olarak verilen yüz sinir ağına girdiğinde bakılması gereken öz nitelikler eğitim ile belirlendiği için hızlı bir şekilde yüzün hangi sınıta olduğu belirlenir. Veri tabanına eklenen her kişinin yüzü artık ayrı bir sınıf olmuştur geriye kalan ise girdi olarak verilen yüzün hangi sınıfta olduğudur.
-
-Derin öğrenme tabanlı yüz tanıma yaklaşımları;
-
-  - **FaceNet:** FaceNet veya Google FaceNet, Google geliştiricileri tarafından bu makale ile https://arxiv.org/pdf/1503.03832.pdf duyurulmuştu. 
-  
-  - **DeepFace:** Facebook AI ekibi tarafından geliştirilmiş derin öğrenme tabanlı bir yüz tanıma sistemidir. İlgili makaleye https://research.fb.com/publications/deepface-closing-the-gap-to-human-level-performance-in-face-verification/ buradan ulaşabilirsiniz.
-  
-  - **OpenFace:** Derin öğrenme tabanlı bu yüz tanıma sistemi uzunca bir süredir geliştiriciler arasında sıklıkla tercih edilmektedir. https://cmusatyalab.github.io/openface/
-
----
-
-### Teorik Temel — Yüz Tanıma Algoritmaları
-
-**PCA (Eigenfaces) — Kovaryans Matrisi:**
-$$\Sigma = \frac{1}{N}\sum_{i=1}^N (x_i - \mu)(x_i - \mu)^T$$
-Özdeğer ayrışımı: $\Sigma v_k = \lambda_k v_k$. En büyük $k$ özdeğere ait özvektörler "eigenfaces" adını alır.
-
-**FaceNet Triplet Loss:**
-$$\mathcal{L} = \sum_{i} \left[\|f(x_i^a) - f(x_i^p)\|_2^2 - \|f(x_i^a) - f(x_i^n)\|_2^2 + \alpha\right]_+$$
-$x^a$: anchor, $x^p$: positive (aynı kişi), $x^n$: negative (farklı kişi), $\alpha$: margin.
-
-**ArcFace Açısal Margin:**
-$$\mathcal{L} = -\log \frac{e^{s\cos(\theta_{y_i}+m)}}{e^{s\cos(\theta_{y_i}+m)} + \sum_{j \neq y_i}e^{s\cos\theta_j}}$$
-Açısal margin $m$ ile sınıflar arası ayrım artırılır.
-
-Referans: Schroff et al., "FaceNet", CVPR 2015 (https://arxiv.org/abs/1503.03832)
-Referans: Deng et al., "ArcFace", CVPR 2019 (https://arxiv.org/abs/1801.07698)
+Klasik yaklaşım: hızlıdır, kurulum gerektirmez, cepheden bakışta güvenilirdir.
 
 ```python
-from deepface import DeepFace
-
-# Yüz doğrulama
-result = DeepFace.verify(
-    img1_path="kisi1.jpg",
-    img2_path="kisi2.jpg",
-    model_name="ArcFace",
-    detector_backend="retinaface"
-)
-print(f"Aynı kişi mi: {result['verified']}, Mesafe: {result['distance']:.4f}")
-
-# Yüz analizi (yaş, cinsiyet, duygu)
-analysis = DeepFace.analyze(
-    img_path="resim.jpg",
-    actions=["age", "gender", "emotion"]
-)
-print(f"Yaş: {analysis[0]['age']}")
-print(f"Cinsiyet: {analysis[0]['dominant_gender']}")
-print(f"Duygu: {analysis[0]['dominant_emotion']}")
-
-# Veritabanında yüz arama
-dfs = DeepFace.find(
-    img_path="sorgu.jpg",
-    db_path="yuzler_klasoru/",
-    model_name="ArcFace",
-    distance_metric="cosine"
-)
-if dfs and len(dfs[0]) > 0:
-    print(dfs[0][["identity", "distance"]].head())
-```
-
-### Özet & İleri Okuma
-- Eigenfaces PCA tabanlıdır; kovaryans matrisinin özdeğer ayrışımına dayanır
-- FaceNet triplet loss: aynı kişi embedding'lerini yaklaştırır, farklıları uzaklaştırır
-- ArcFace açısal margin ile sınırlar arası ayrımı artırır; modern SOTA yöntemidir
-- DeepFace kütüphanesi ArcFace, FaceNet, VGG-Face, DeepID modellerini sağlar
-- Cosine distance, Euclidean'dan genellikle daha kararlı yüz eşleşmesi verir
-- Referans: FaceNet (https://arxiv.org/abs/1503.03832), ArcFace (https://arxiv.org/abs/1801.07698)
-
----
-
-## Modern Yüz Tanıma Kütüphaneleri
-
-### DeepFace ile Yüz Tanıma
-
-DeepFace, birden fazla derin öğrenme modelini (VGG-Face, FaceNet, ArcFace, DeepID, Dlib) tek bir API altında sunan yüksek seviyeli bir Python kütüphanesidir.
-
-```bash
-pip install deepface
-```
-
-**İki yüzü karşılaştır:**
-
-```python
-from deepface import DeepFace
-
-result = DeepFace.verify("yuz1.jpg", "yuz2.jpg", model_name="ArcFace")
-print(f"Aynı kişi mi: {result['verified']}")
-print(f"Mesafe: {result['distance']:.4f}")
-```
-
-**Yüz analizi (yaş, cinsiyet, duygu, etnik köken):**
-
-```python
-from deepface import DeepFace
-
-analysis = DeepFace.analyze("yuz.jpg", actions=["age", "gender", "emotion"])
-print(f"Tahmini yaş: {analysis[0]['age']}")
-print(f"Cinsiyet: {analysis[0]['gender']}")
-print(f"Duygu: {analysis[0]['dominant_emotion']}")
-```
-
-**Veri tabanında yüz arama:**
-
-```python
-from deepface import DeepFace
-
-# "veri_tabani/" klasöründe her kişi için bir alt klasör ve fotoğraflar bulunmalı
-results = DeepFace.find("sorgu_yuz.jpg", db_path="veri_tabani/",
-                        model_name="ArcFace", enforce_detection=False)
-print(results[0][["identity", "distance"]].head())
-```
-
----
-
-### InsightFace ile Yüz Tanıma
-
-InsightFace, özellikle ArcFace ve RetinaFace implementasyonları ile endüstri standardı haline gelmiş yüksek performanslı bir kütüphanedir.
-
-```bash
-pip install insightface onnxruntime
-```
-
-```python
-import insightface
 import cv2
-import numpy as np
-
-# Model yükle (ilk çalıştırmada model dosyaları indirilir)
-app = insightface.app.FaceAnalysis(name="buffalo_l")
-app.prepare(ctx_id=0, det_size=(640, 640))  # ctx_id=0 GPU, -1 CPU
 
 img = cv2.imread("grup_fotografi.jpg")
-faces = app.get(img)
+if img is None:
+    raise FileNotFoundError("grup_fotografi.jpg bulunamadı")
 
-for face in faces:
-    box = face.bbox.astype(int)
-    cv2.rectangle(img, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
-    print(f"Yaş: {face.age}, Cinsiyet: {'Erkek' if face.gender == 1 else 'Kadın'}")
-    # face.embedding — 512 boyutlu özellik vektörü (yüz karşılaştırma için)
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-cv2.imshow("InsightFace Tespitler", img)
+face_cascade = cv2.CascadeClassifier(
+    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+)
+
+faces = face_cascade.detectMultiScale(
+    gray, scaleFactor=1.1, minNeighbors=5, minSize=(40, 40)
+)
+
+for (x, y, w, h) in faces:
+    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+print(f"{len(faces)} yüz tespit edildi")
+cv2.imshow("Tespit", img)
 cv2.waitKey(0)
-```
-
-**Yüz benzerliği hesaplama:**
-
-```python
-import numpy as np
-
-def cosine_similarity(emb1, emb2):
-    return np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2))
-
-# İki yüzün embedding'lerini karşılaştır
-sim = cosine_similarity(faces[0].embedding, faces[1].embedding)
-print(f"Benzerlik: {sim:.4f}")  # 0.5+ aynı kişi olabilir
-```
-
----
-
-### MediaPipe ile Yüz Algılama ve Yüz Landmark
-
-MediaPipe, Google tarafından geliştirilen ve mobil cihazlarda bile gerçek zamanlı çalışabilen bir çerçevedir.
-
-```bash
-pip install mediapipe
-```
-
-**468 yüz landmark tespiti:**
-
-```python
-import cv2
-import mediapipe as mp
-
-mp_face_mesh = mp.solutions.face_mesh
-mp_drawing = mp.solutions.drawing_utils
-
-cap = cv2.VideoCapture(0)
-
-with mp_face_mesh.FaceMesh(
-    max_num_faces=2,
-    refine_landmarks=True,
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
-) as face_mesh:
-
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = face_mesh.process(rgb)
-
-        if results.multi_face_landmarks:
-            for landmarks in results.multi_face_landmarks:
-                mp_drawing.draw_landmarks(
-                    frame, landmarks,
-                    mp_face_mesh.FACEMESH_CONTOURS,
-                    mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1)
-                )
-
-        cv2.imshow("MediaPipe Yüz Mesh", frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-cap.release()
 cv2.destroyAllWindows()
 ```
 
----
+> **📌 Not:** Profil yüz için `haarcascade_profileface.xml` kullanın; cepheden bakışta bu model zayıftır.
 
-## Algoritma Karşılaştırması
+### DNN ile Daha Güvenilir Tespit
 
-| Kütüphane | Model | Hız | Doğruluk | Kullanım Kolaylığı |
-|-----------|-------|-----|---------|------------------|
-| OpenCV LBPH | LBPH | ★★★★★ | ★★ | ★★★★ |
-| DeepFace | ArcFace | ★★★ | ★★★★★ | ★★★★★ |
-| InsightFace | ArcFace | ★★★★ | ★★★★★ | ★★★ |
-| MediaPipe | BlazeFace | ★★★★★ | ★★★★ | ★★★★ |
+Caffe modeli Haar Cascade'den çok daha güçlüdür: farklı açılar, zayıf aydınlatma, kısmi örtmede çalışır.
 
-Prodüksiyon uygulamaları için **InsightFace + ArcFace** kombinasyonu önerilir. Hızlı prototipleme için **DeepFace** idealdir.
+```python
+import cv2
+import numpy as np
+
+# Model dosyaları: deploy.prototxt + res10_300x300_ssd_iter_140000.caffemodel
+net = cv2.dnn.readNetFromCaffe("deploy.prototxt", "res10_300x300_ssd_iter_140000.caffemodel")
+
+img = cv2.imread("grup_fotografi.jpg")
+if img is None:
+    raise FileNotFoundError("grup_fotografi.jpg bulunamadı")
+
+h, w = img.shape[:2]
+blob = cv2.dnn.blobFromImage(cv2.resize(img, (300, 300)), 1.0, (300, 300), (104, 177, 123))
+net.setInput(blob)
+detections = net.forward()
+
+for i in range(detections.shape[2]):
+    confidence = detections[0, 0, i, 2]
+    if confidence > 0.5:
+        box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
+        x1, y1, x2, y2 = box.astype(int)
+        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.putText(img, f"{confidence:.2f}", (x1, y1 - 8),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+cv2.imshow("DNN Yüz Tespiti", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+## Klasik Yüz Tanıma
+
+### Eigenfaces (PCA Tabanlı)
+
+Her insan yüzü birkaç temel "arketip yüzün" (eigenface) doğrusal kombinasyonu olarak ifade edilebilir. Bu temel yüzler yüzlerce örnek fotoğraftan PCA (Temel Bileşen Analizi) ile öğrenilir. Yeni yüzü bu bileşenler üzerinden temsil etmek, yüksek boyutlu piksel verisini küçük bir vektöre sıkıştırır.
+
+```python
+import cv2
+import numpy as np
+import os
+
+# Eğitim verisi: her kişi için yüz görüntüleri ve etiketler
+faces = []
+labels = []
+label_names = {}
+
+# Klasör yapısı: dataset/0_Ali/, dataset/1_Ayse/, ...
+for label_id, person_dir in enumerate(sorted(os.listdir("dataset"))):
+    person_path = os.path.join("dataset", person_dir)
+    if not os.path.isdir(person_path):
+        continue
+    label_names[label_id] = person_dir.split("_", 1)[-1]
+    for img_file in os.listdir(person_path):
+        img_path = os.path.join(person_path, img_file)
+        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+        if img is None:
+            continue
+        img_resized = cv2.resize(img, (100, 100))
+        faces.append(img_resized)
+        labels.append(label_id)
+
+# Eigenfaces modeli
+model = cv2.face.EigenFaceRecognizer_create()
+model.train(faces, np.array(labels))
+
+# Test görüntüsü
+test_img = cv2.imread("test_yuz.jpg", cv2.IMREAD_GRAYSCALE)
+if test_img is None:
+    raise FileNotFoundError("test_yuz.jpg bulunamadı")
+
+test_resized = cv2.resize(test_img, (100, 100))
+predicted_label, confidence = model.predict(test_resized)
+
+print(f"Tahmin: {label_names.get(predicted_label, 'Bilinmiyor')}")
+print(f"Güven skoru: {confidence:.1f}  (düşük = daha benzer)")
+```
+
+### LBPH: Yerel Doku ile Tanıma
+
+LBPH (Local Binary Patterns Histograms) her pikseli 8 komşusundan büyük mü küçük mü olduğuna göre ikili kodlar, bu desenlerin histogramını yüzün kimliğini temsil eden parmak izi olarak kullanır. Aydınlatma değişimine Eigenfaces'ten çok daha dayanıklıdır.
+
+```python
+import cv2
+import numpy as np
+
+# LBPH modeli — aydınlatma değişimine karşı dayanıklı
+model = cv2.face.LBPHFaceRecognizer_create(
+    radius=1,       # LBP hesaplama yarıçapı
+    neighbors=8,    # Komşu piksel sayısı
+    grid_x=8,       # Yatay ızgara hücre sayısı
+    grid_y=8,       # Dikey ızgara hücre sayısı
+)
+
+# Eğitim verisi (Eigenfaces örneğiyle aynı yapı)
+faces = []
+labels = []
+
+for label_id in range(3):  # 3 kişi için örnek
+    for i in range(10):    # Kişi başına 10 fotoğraf
+        img = cv2.imread(f"dataset/{label_id}_{i}.jpg", cv2.IMREAD_GRAYSCALE)
+        if img is None:
+            continue
+        faces.append(cv2.resize(img, (100, 100)))
+        labels.append(label_id)
+
+if faces:
+    model.train(faces, np.array(labels))
+    model.save("lbph_model.xml")
+
+    # Tahmin
+    test_img = cv2.imread("test_yuz.jpg", cv2.IMREAD_GRAYSCALE)
+    if test_img is None:
+        raise FileNotFoundError("test_yuz.jpg bulunamadı")
+
+    test_resized = cv2.resize(test_img, (100, 100))
+    label, confidence = model.predict(test_resized)
+    print(f"Tahmin edilen kişi ID: {label}, Güven: {confidence:.1f}")
+    # LBPH için confidence < 80 genellikle güvenilir eşleşme
+```
+
+LBPH az veriyle çalışır, hızlı eğitilir ve güncelleme kolaylaşır (`model.update()` ile yeni kişi eklenebilir). Karmaşık ortamlarda yetersiz kalır.
+
+## Derin Öğrenme: Face Embedding
+
+Modern yaklaşımın sezgisi şudur: Her yüzü 128 (ya da 512) boyutlu bir vektöre dönüştür. Aynı kişinin iki farklı fotoğrafı bu vektör uzayında birbirine yakın olmalı, farklı kişilerin fotoğrafları uzak olmalı. Bu vektöre "face embedding" denir.
+
+Öklid mesafesiyle karşılaştırma:
+
+$$d = \|f_1 - f_2\|_2$$
+
+Eşik altındaysa (örneğin d < 0.6) aynı kişi, üstündeyse farklı kişi kararı verilir.
+
+**FaceNet** bu sezgiyi "triplet loss" ile öğrenir: anchor (referans), positive (aynı kişi), negative (farklı kişi) üçlüsü eğitimde ayrılmaya zorlanır.
+
+**ArcFace** ise açısal marjin ekler — sınıf merkezleri arasındaki açıyı açık tutarak daha ayırt edici embedding öğrenir. CASIA-WebFace ve MS-Celeb-1M gibi büyük veri setlerinde FaceNet'ten daha iyi sonuç verir.
+
+## DeepFace: Tek API, Çok Model
+
+DeepFace kütüphanesi VGG-Face, FaceNet ve ArcFace modellerini tek bir arayüzden sunar. `pip install deepface` ile kurulur.
+
+```python
+from deepface import DeepFace
+import cv2
+
+# İki yüz görüntüsünü karşılaştır
+result = DeepFace.verify(
+    img1_path="kisi_a.jpg",
+    img2_path="kisi_b.jpg",
+    model_name="ArcFace",       # VGG-Face, FaceNet, ArcFace, Dlib, OpenFace
+    distance_metric="cosine",   # cosine, euclidean, euclidean_l2
+    enforce_detection=True,     # Yüz bulunamazsa hata fırlat
+)
+
+print(f"Aynı kişi mi: {result['verified']}")
+print(f"Mesafe: {result['distance']:.4f}  (eşik: {result['threshold']:.4f})")
+
+# Yaş, cinsiyet ve duygu analizi
+analysis = DeepFace.analyze(
+    img_path="kisi_a.jpg",
+    actions=["age", "gender", "emotion"],
+    enforce_detection=False,
+)
+
+print(f"Tahmini yaş: {analysis[0]['age']}")
+print(f"Cinsiyet: {analysis[0]['dominant_gender']}")
+print(f"Baskın duygu: {analysis[0]['dominant_emotion']}")
+```
+
+Görsel karşılaştırma için iki yüzü yan yana gösterelim:
+
+```python
+from deepface import DeepFace
+import cv2
+import numpy as np
+
+img1 = cv2.imread("kisi_a.jpg")
+img2 = cv2.imread("kisi_b.jpg")
+if img1 is None:
+    raise FileNotFoundError("kisi_a.jpg bulunamadı")
+if img2 is None:
+    raise FileNotFoundError("kisi_b.jpg bulunamadı")
+
+result = DeepFace.verify("kisi_a.jpg", "kisi_b.jpg", model_name="ArcFace", enforce_detection=False)
+
+# Her iki görüntüyü aynı boyuta getir
+h = max(img1.shape[0], img2.shape[0])
+img1_r = cv2.resize(img1, (int(img1.shape[1] * h / img1.shape[0]), h))
+img2_r = cv2.resize(img2, (int(img2.shape[1] * h / img2.shape[0]), h))
+
+combined = np.hstack([img1_r, img2_r])
+
+verdict = "AYNI KISIYIZ" if result["verified"] else "FARKLI KISILER"
+color = (0, 200, 0) if result["verified"] else (0, 0, 200)
+cv2.putText(combined, f"{verdict}  d={result['distance']:.3f}",
+            (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
+
+cv2.imshow("Yüz Karşılaştırma", combined)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+> **⚠️ Dikkat:** DeepFace `enforce_detection=True` varsayılanında yüz tespit edemezse hata fırlatır. Belirsiz görüntülerde `enforce_detection=False` kullanın.
+
+> **💡 İpucu:** `DeepFace.find(img_path, db_path)` bir klasördeki tüm yüzleri indeksler ve sorgu yüzünü veritabanında arar — küçük ölçekli yüz tanıma sistemleri için hazır çözümdür.
+
+## Yöntem Karşılaştırması
+
+| Yöntem | Veri İhtiyacı | Doğruluk | Hız | Kullanım |
+|--------|--------------|----------|-----|----------|
+| LBPH | Az (~10/kişi) | Orta | Çok hızlı | Prototip, basit ortam |
+| Eigenfaces | Orta | Düşük-orta | Hızlı | Akademik örnek |
+| FaceNet | Büyük veri | Yüksek | GPU önerilir | Üretim, çoklu kişi |
+| ArcFace | Büyük veri | Çok yüksek | GPU gerekli | Güvenlik sistemi |
+
+## Özet
+
+- Yüz tespiti konum döndürür, yüz tanıma kimlik döndürür; pipeline'da tespit her zaman önce gelir.
+- Haar Cascade hızlı ve kurulumsuzdur; cephe görüşünde güvenilir, profilden zayıftır.
+- DNN tabanlı tespit farklı açı, aydınlatma ve örtmede çok daha sağlamdır.
+- LBPH az veriyle çalışır ve aydınlatma değişimine dirençlidir; basit ortamlar için uygundur.
+- Face embedding yüzü sayısal vektöre çevirir; Öklid veya cosine mesafesiyle kimlik kararı verilir.
+- ArcFace açısal marjin kullanarak daha ayırt edici embedding öğrenir; FaceNet'ten üstün performans gösterir.
+- DeepFace kütüphanesi birden fazla modeli tek API'den sunar; hızlı prototipleme için idealdir.
+
+## İleri Okuma
+
+- Schroff et al., "FaceNet: A Unified Embedding for Face Recognition and Clustering" (CVPR 2015): https://arxiv.org/abs/1503.03832
+- Deng et al., "ArcFace: Additive Angular Margin Loss for Deep Face Recognition" (CVPR 2019): https://arxiv.org/abs/1801.07698
+- Serengil, S.I. & Ozpinar, A., "DeepFace: A Lightweight Face Recognition Library" (2020): https://github.com/serengil/deepface
