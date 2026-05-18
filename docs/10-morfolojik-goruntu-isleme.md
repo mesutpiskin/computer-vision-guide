@@ -1,314 +1,297 @@
-**Morfolojik Görüntü işleme** 
------------------------------
+# Morfolojik Görüntü İşleme
 
-### Teorik Temel
+Eşikleme yaptınız, ikili görüntü elde ettiniz — ama görüntüde ufak gürültü lekeleri var ve tespit ettiğiniz nesnelerin içinde delikler bulunuyor. Bu iki sorun morfolojik işlemlerin tam çözüm alanıdır. Morfoloji, ikili görüntülerdeki şekilleri küçülterek, büyüterek, birleştirerek ve ayırarak temizler. Bu bölümde eşikleme yöntemleri ve temel morfolojik operatörler ele alınacak.
 
-**Erosion (Aşındırma) — Minkowski Farkı:**
-$$A \ominus B = \{z \mid B_z \subseteq A\}$$
-$B_z$: $B$ yapı elemanının $z$ noktasına ötelenmiş hali. Yalnızca yapı elemanının tamamen sığdığı yerlerde piksel 1 kalır.
+## Neden Morfoloji?
 
-**Dilation (Genişletme) — Minkowski Toplamı:**
-$$A \oplus B = \{z \mid (\hat{B})_z \cap A \neq \emptyset\}$$
-Yapı elemanı herhangi bir 1-pikselini kapsayan her yerde çıkış 1 olur.
+Gerçek bir senaryo: Fabrika konveyör bandında geçen parçaları saymak için kamera kullanıyorsunuz. Eşikleme ile nesneleri arkaplan'dan ayırdınız. Ama sonuçta şu sorunlar var:
 
-**Opening:** $A \circ B = (A \ominus B) \oplus B$ — Küçük nesneleri siler, büyükleri korur.
-**Closing:** $A \bullet B = (A \oplus B) \ominus B$ — Küçük delikleri kapatır.
-**Morfolojik Gradyan:** $(A \oplus B) - (A \ominus B)$ — Nesne kenarlarını verir.
+1. Nesnenin etrafında küçük gürültü pikselleri var — her biri sahte nesne sayılıyor.
+2. Nesnenin ortasında delik var — nesne iki parça gibi görünüyor.
 
-Referans: Serra, J. "Image Analysis and Mathematical Morphology" (Academic Press, 1982)
+Erosion (aşındırma) birinci problemi çözer, Dilation (genişletme) ikincisini. Bunların kombinasyonları olan Opening ve Closing her iki durumu birlikte yönetir.
 
-### Pratik Uygulama
+## Eşikleme — İkili Görüntüye Geçiş
+
+Morfoloji ikili (binary) görüntü üzerinde çalışır. Gri görüntüyü ikili hale getirmenin üç temel yolu:
+
+**Basit eşikleme:** Belirlediğiniz bir eşik değeri altındaki pikseller 0, üstündekiler 255 olur.
 
 ```python
 import cv2
 import numpy as np
 
-img = cv2.imread("resim.jpg", cv2.IMREAD_GRAYSCALE)
+path = "nesne.jpg"
+img = cv2.imread(path)
+
 if img is None:
-    raise FileNotFoundError("resim.jpg bulunamadı")
-_, binary = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+    raise FileNotFoundError(f"{path} bulunamadı")
 
-# Yapı elemanları
-kernel_rect    = cv2.getStructuringElement(cv2.MORPH_RECT,    (5, 5))
-kernel_ellipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-kernel_cross   = cv2.getStructuringElement(cv2.MORPH_CROSS,   (5, 5))
+gri = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-eroded   = cv2.erode(binary, kernel_rect, iterations=1)
-dilated  = cv2.dilate(binary, kernel_rect, iterations=1)
-opened   = cv2.morphologyEx(binary, cv2.MORPH_OPEN,     kernel_ellipse)
-closed   = cv2.morphologyEx(binary, cv2.MORPH_CLOSE,    kernel_ellipse)
-gradient = cv2.morphologyEx(binary, cv2.MORPH_GRADIENT, kernel_rect)
-tophat   = cv2.morphologyEx(binary, cv2.MORPH_TOPHAT,   kernel_rect)
-blackhat = cv2.morphologyEx(binary, cv2.MORPH_BLACKHAT, kernel_rect)
+# Sabit eşik
+_, basit = cv2.threshold(gri, 127, 255, cv2.THRESH_BINARY)
 
-cv2.imshow("Orijinal", binary)
-cv2.imshow("Erosion", eroded)
-cv2.imshow("Dilation", dilated)
-cv2.imshow("Gradient", gradient)
+# Otsu: eşiği otomatik hesapla (bimodal histogram için ideal)
+_, otsu = cv2.threshold(gri, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+# Adaptif: her bölge için kendi eşiği (değişen aydınlatma için)
+adaptif = cv2.adaptiveThreshold(
+    gri, 255,
+    cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+    cv2.THRESH_BINARY,
+    blockSize=11,    # komşuluk boyutu (tek sayı, >1)
+    C=2              # ortalamadan çıkarılan sabit
+)
+
+karsilastirma = np.hstack([basit, otsu, adaptif])
+cv2.imshow("Sabit | Otsu | Adaptif", karsilastirma)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 ```
 
-### Özet & İleri Okuma
-- Erosion Minkowski farkı, Dilation Minkowski toplamıdır
-- Opening (erosion→dilation) küçük nesneleri eler; Closing (dilation→erosion) boşlukları doldurur
-- Yapı elemanı şekli (dikdörtgen, elips, artı) sonucu doğrudan etkiler
-- Morfolojik gradyan nesne kenarlarını verir; Tophat parlak küçük yapıları bulur
-- Referans: Serra — Image Analysis and Mathematical Morphology (1982)
+Otsu algoritması görüntünün histogramını analiz ederek iki sınıf arasındaki varyansı maksimize eden eşiği bulur — elle eşik belirlemek yerine `THRESH_OTSU` bayrağı eklemek yeterli. Adaptif eşikleme ise gölgeli veya eşit aydınlatılmamış görüntülerde (el yazısı, kitap sayfası) çok daha iyi sonuç verir.
 
----
+| Yöntem | Ne Zaman Kullan |
+|--------|-----------------|
+| Sabit eşik | Kontrollü stüdyo aydınlatması, basit test |
+| Otsu | Homojen arka plan, bimodal histogram |
+| Adaptif | Değişen aydınlatma, gölge, doğal ortam |
 
-Morfoloji (İngilizce morphology) şekil bilimi olarak tanımlanmaktadır. Başlı başına bilim olan bu alanı tüm yöntemleri ile OpenCV Kütüphanesi içerisine taşımak elbette ki mantıklı bir seçim değildir bu yüzden ihtiyaç duyulabilecek bazı teknikler aktarılmıştır. Morfolojik görüntü işleme (morphology ) görüntü içindeki nesnelerin şekilleri (morfolojisi) ile ilgilenen bir dizi görüntü işleme tekniklerini tarif etmektedir.OpenCV içerisinde morfolojik işlem operatörleri Imgproc içerisinde bulunmaktadır.
+## Yapısal Eleman (Structuring Element)
 
-Morfoloji’nin bir şekil bilimi olduğunu söylemiştik, çalışılan görüntü üzerindeki şekillerin yorumlanması, analiz edilmesi, istenilen bilginin çıkartılması, inceltme, görüntü sıkıştırma, köşe analizi, bozuk görüntü onarma (eksik veya fazla piksellerin çıkarılması, eklenmesi), dokuların tespiti gibi işlemlerde sıklıkla başvurulmaktadır.
+Morfoloji operasyonlarının "fırçası" yapısal elemandır. Boyutu ve şekli operasyonun nasıl davranacağını belirler.
 
-* Erosion (Aşındırma)
-* Dilation (Yayma – Genişletme)
-* Opening (Açınım)
-* Closing (Kapanım)
-* Morphological Gradient
-* Top Hat
-* Black Hat
+Sezgi: Büyük bir fırça küçük detayları ezer, ince bir fırça hassas iş yapar. Yuvarlak şekli yuvarlak nesneleri işlerken, dikdörtgen şekli keskin köşeli nesneleri işlerken kullanırsınız.
 
+```python
+import cv2
 
-**Erosion (Aşındırma)**
+# Dikdörtgen çekirdek 5×5
+rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
 
-Bu operatör görüntü üzerinde bir aşındırma işlemi uygular. Parametrelere göre belirtilen alan içerisindeki pikseller aşındırılır ve gürültülü olarak adlandırılan bozuk olan görüntü, gürültüden arındırılarak temizlenir. Bütün bu olaylar matematiksel olarak tanımlanmıştır ve diziler üzerinde gerçekleştirilir. Aşağıdaki görseller yardımı ile nasıl çalıştığını somut olarak görelim. İlk görüntü dizisi aşındırma ile gürültüden arındırılmaktadır.
+# Elips çekirdek 5×5 — yuvarlak nesneler için
+ellipse_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 
-![Erosion](static/erosion-1.png)
+# Artı/çapraz çekirdek
+cross_kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (5, 5))
 
-Erosion işlemi için kullanacağımız metot erode(), bu metot imgproc içerisinde yer almaktadır.  Erode metodunun üç adet overloadı bulunmaktadır. Kullandığımız parametre olarak giriş mat nesnesi, işlem sonucunu atamak için çıkış mat nesnesi ve yapılandırma için bir nesne almaktadır. Bu nesne yapısal element olarak adlandırılır (Structuring Element) ve yayma işleminin şeklini belirler. Yapısal elementin merkez noktası üzerine giriş görüntüsünün pikselleri bu noktaya oturtularak oluşturulur. Bu şekiller Imgproc içerisinde tanımlanmışlardır, aşağıdaki örnekte MORPH_ERODE kullandık.
-
-*Java:*
-``` Java
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-
-public class Erosion {
-	public static void main(String[] args) {
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-
-		Mat girisGoruntu=new Mat();
-   		girisGoruntu=Imgcodecs.imread("C:\\1.png");
-		Mat cikisGoruntu=new Mat();
-        //Aşındırma işlemi
-        Imgproc.erode(girisGoruntu, cikisGoruntu, Imgproc.getStructuringElement(Imgproc.MORPH_ERODE, new Size(15,15))); 
-       
-		Imgcodecs.imwrite("C:\\2.png", cikisGoruntu);
-	}
-}
+print("Dikdörtgen çekirdek:\n", rect_kernel)
+print("Elips çekirdek:\n", ellipse_kernel)
 ```
 
-*Python:*
-```Python
+Elips çekirdeği dikdörtgenin köşelerini kırpar — yuvarlak nesnelerde daha doğal sonuç üretir.
+
+## Erosion (Aşındırma)
+
+Nesneyi küçültür: çekirdeğin tamamen nesne üzerinde olduğu konumlar beyaz kalır, diğerleri siyaha döner. Sonuç olarak nesne içten dışa eriyip küçülür.
+
+Sezgi: Bir nesnenin etrafına sert bir fırça bastırıyorsunuz ve fırça tamamen nesne içinde kalmadığı her yerde siyah boya sürüyorsunuz. Nesne küçülüyor, ince bağlantılar kopuyor, küçük gürültüler tamamen siliniyor.
+
+```python
 import cv2
 import numpy as np
 
-frame = cv2.imread('resim.png',0)
-if frame is None:
-    raise FileNotFoundError("Görüntü dosyası bulunamadı")
-#Numpy ile kernel matris tanımı
-kernel = np.ones((5,5),np.uint8)
-#Aşındırma işlemi
-sonuc = cv2.erode(frame,kernel,iterations = 1)
-cv2.imshow("Sonuc", sonuc)
+path = "ikili_goruntu.jpg"
+binary = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+
+if binary is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+_, binary = cv2.threshold(binary, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+
+eroded = cv2.erode(binary, kernel, iterations=1)
+
+cv2.imshow("Orijinal | Eroded", np.hstack([binary, eroded]))
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 ```
 
+`iterations` parametresi işlemi kaç kez tekrarlayacağını belirtir. 2 iterasyon, 2 kez ardışık erosion uygulamakla eşdeğerdir.
 
-Verilen parametreler doğrultusunda giriş görüntüsü üzerinde aşındırma operatörü kullanılmıştır. 1.png olarak adlandırılan görüntüyü aşağıda solda görmektesiniz bu input olarak tanımlanan girisGoruntu mat nesnesi içerisinde tutulan, cikisGoruntu olarak tanımlanan mat nesnesini oluşturulan ve 2.png olarak adlandırılan görüntüyü ise sağda görmektesiniz.
+## Dilation (Genişletme)
 
-![Erosion](static/erosion-2.png)
+Erosion'un tersi: çekirdeğin herhangi bir noktasının nesne üzerine denk geldiği konum beyaz kalır. Nesne dışa doğru büyür.
 
+Sezgi: Nesnenin her noktasından aynı fırçayı bastırıyorsunuz. Nesne şişiyor, delikler kapanıyor, yakın nesneler birleşiyor.
 
-**Dilation (Yayma – Genişletme)**
-
-Bu operatör giriş olarak verilen görüntü üzerinde parametreler ile verilen alan içerisindeki sınırları genişletmektedir, bu genişletme sayesinde piksel gurupları büyür ve pikseller arası boşluklar küçülür. OpenCV dilation operatörü için Imgproc içerisinde dilate() operatörü bulunmaktadır. Bu metot parametre olarak giriş görüntüsü olacak bir mat nesnesi, çıkış görüntüsü için ikinci bir mat nesnesi ve yapısal element almaktadır.
-
-*Java:*
-``` Java
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-
-public class Dilation {
-	public static void main(String[] args) {
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-
-		Mat girisGoruntu=new Mat();
-		girisGoruntu=Imgcodecs.imread("C:\\ 1.jpg");	
-		Mat cikisGoruntu=new Mat();
-		//dilate (genişletme) operatörü
-                Imgproc.dilate(girisGoruntu, cikisGoruntu,Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(25,25)));
-		Imgcodecs.imwrite("C:\\2.jpg", cikisGoruntu);
-	}
-}
-```
-
-*Python:*
-```Python
+```python
 import cv2
 import numpy as np
 
-frame = cv2.imread('resim.png',0)
-if frame is None:
-    raise FileNotFoundError("Görüntü dosyası bulunamadı")
-#Numpy ile kernel matris tanımı
-kernel = np.ones((15,15),np.uint8)
-#Genişletme işlemi
-sonuc = cv2.dilate(frame,kernel,iterations = 1)
-cv2.imshow("Sonuc", sonuc)
+path = "ikili_goruntu.jpg"
+binary = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+
+if binary is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+_, binary = cv2.threshold(binary, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+
+dilated = cv2.dilate(binary, kernel, iterations=1)
+
+cv2.imshow("Orijinal | Dilated", np.hstack([binary, dilated]))
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 ```
 
-Aşağıdaki çıktıda sol tarafta bulunan görüntü 1.jpg olarak adlandırılan giriş mat nesnesi, sağındaki ise 2.jpg olarak işlem sonucunda oluşturulan çıktı görüntü. Gördüğünüz üzere giriş görüntüsünde bulunan beyaz şekiller dilation operatörü uygulandığında bir birlerine yaklaşmışlardır. Burada önemli nokta zeminin, siyah nesneler beyaz olması ve yapısal element. Yapısal element üzerindeki değişikler ile aralarındaki mesafe daha da azaltılıp birleştirilebilirdi.
+## Opening = Erosion → Dilation
 
+Önce aşındırma, sonra genişletme. İki adım birlikte küçük gürültüleri siler ama büyük nesneleri korur. Erosion gürültüleri yok eder, ardından Dilation büyük nesneyi yaklaşık orijinal boyutuna geri getirir.
 
-![dilate](static/dilate.jpg)
+Sezgi: Küçük bir taşı ve büyük bir bloğu düşünün. Erosion ikisini de küçültür — ama küçük taş tamamen yok olur, büyük blok sadece hafif küçülür. Sonraki Dilation büyük bloğu restore eder, küçük taş artık yok.
 
-Diğer operatörleri kullanmak için daha önceki örneklerde yaptığımız gibi erode ve dilate metotlarını kullanarak gerçekleştirebilirsiniz fakat OpenCV içerisinde morfolojik operatörleri yönetmek için yazılmış bir metot hazırda bulunmaktadır. Imgproc içerisinde yer alan morphologyEx() ile operatörler yönetilebilmektedir. Bu metot parametre olarak giriş görüntüsü için mat nesnesi, işlem sonucu için bir mat nesnesi, uygulanacak olan operatör ve yapısal element almaktadır.
+```python
+import cv2
+import numpy as np
 
+path = "ikili_goruntu.jpg"
+binary = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
-**Opening (Açınım)**
+if binary is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
 
-Erosion ve dilation operatörlerinin görüntü üzerine birlikte uygulanması ile gerçekleşir.  Öncelikli olarak erosion operatörü uygulanır ve ardından dilation operatörü uygulanır. (Imgproc.MORPH_OPEN)
+_, binary = cv2.threshold(binary, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-*Java:*
-``` Java
-Imgproc.morphologyEx(girisGoruntu, cikisGoruntu, Imgproc.MORPH_OPEN, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(25,25)));
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+opened = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
+
+cv2.imshow("Orijinal | Opening", np.hstack([binary, opened]))
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
 
-*Python:*
-```Python
-opening = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernelMat)
+## Closing = Dilation → Erosion
+
+Önce genişletme, sonra aşındırma. Nesne içindeki delikleri kapatır, ama nesne boyutunu korur. Dilation delikleri doldurur, ardından Erosion nesneyi orijinal sınırlarına döndürür.
+
+Sezgi: Önce nesneyi şişiriyorsunuz — delikler kapanıyor. Sonra küçültüyorsunuz — nesne eski boyutuna dönüyor ama artık deliksiz.
+
+```python
+import cv2
+import numpy as np
+
+path = "ikili_goruntu.jpg"
+binary = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+
+if binary is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+_, binary = cv2.threshold(binary, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
+
+cv2.imshow("Orijinal | Closing", np.hstack([binary, closed]))
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
 
-![opening](static/opening.jpg)
+## Morphological Gradient
 
+Dilation ile Erosion arasındaki fark alınır: nesnenin sınırı — yani kenarı — elde edilir.
 
-**Closing (Kapanım)**
-Görüntüye dilation operatörü uygulanır ve ardından Erosion operatörü uygulanır. (Imgproc.MORPH_CLOSE)
+Matematiksel olarak: $\text{Gradient} = \text{Dilation}(A) - \text{Erosion}(A)$
 
-*Java:*
-``` Java
-Imgproc.morphologyEx(girisGoruntu, cikisGoruntu, Imgproc.MORPH_CLOSE, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(25,25)));
+Sonuç, nesnenin dış sınırını gösterir. Canny gibi gradyan tabanlı kenar dedektörlerinden farkı: morfoloji ikili görüntü üzerinde çalışır, genellikle daha kalın ama daha gürültüsüz kenarlar üretir.
+
+```python
+import cv2
+import numpy as np
+
+path = "ikili_goruntu.jpg"
+binary = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+
+if binary is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
+
+_, binary = cv2.threshold(binary, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+gradient = cv2.morphologyEx(binary, cv2.MORPH_GRADIENT, kernel)
+
+cv2.imshow("Binary | Gradient", np.hstack([binary, gradient]))
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
 
-*Python:*
-```Python
-closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernelMatris)
-```
-![closing](static/closing.jpg)
+## Karşılaştırma Tablosu
 
+| Operasyon | Formül | Amaç | Ne Zaman Kullan |
+|-----------|--------|-------|-----------------|
+| Erosion | $E = A \ominus B$ | Nesneyi küçültür, gürültüyü siler | Küçük gürültü pikselleri |
+| Dilation | $D = A \oplus B$ | Nesneyi büyütür, delikleri kapatır | Parçalanmış nesneler |
+| Opening | Erosion → Dilation | Gürültü sil, nesne koru | Nesne çevresinde gürültü |
+| Closing | Dilation → Erosion | Delikleri kapat, nesne koru | Nesne içinde delik |
+| Gradient | Dilation - Erosion | Nesne sınırını çıkar | Kenar/kontur tespiti |
 
-**Gradyan**
+## Tüm Operasyonlar: Tek Örnekte
 
-Dilation ve Erosion operatörü arasındaki farktır. Nesnelerin ana hatlarını belirlemek için kullanılır. Sınır çizgilerini tam hatlarıyla belirlemek için yapısal element, görüntüye göre özelleştirilmelidir. (Imgproc.MORPH_GRADIENT)
+Aşağıdaki kod tek bir görüntü üzerinde tüm 6 operasyonu uygular ve yan yana gösterir:
 
+```python
+import cv2
+import numpy as np
 
-*Java:*
-``` Java
-Imgproc.morphologyEx(girisGoruntu, cikisGoruntu, Imgproc.MORPH_GRADIENT, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(25,));
-```
+path = "test_image.jpg"
+img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
-*Python:*
-```Python
-morfolojik_gradient = cv2.morphologyEx(img, cv2.MORPH_GRADIENT, kernelMatris)
-```
+if img is None:
+    raise FileNotFoundError(f"{path} bulunamadı")
 
-![gradient](static/gradient.jpg)
+_, binary = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 
-**Top Hat**
+eroded   = cv2.erode(binary, kernel, iterations=1)
+dilated  = cv2.dilate(binary, kernel, iterations=1)
+opened   = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
+closed   = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
+gradient = cv2.morphologyEx(binary, cv2.MORPH_GRADIENT, kernel)
 
-Bu operatör giriş olarak verilen görüntüden, opening (açınım) operatörü uygulanmış halini çıkarır. (Imgproc.MORPH_TOPHAT)
+# Etiket ekle
+def etiket_ekle(goruntu, metin):
+    kopyasi = cv2.cvtColor(goruntu, cv2.COLOR_GRAY2BGR)
+    cv2.putText(kopyasi, metin, (5, 25),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+    return kopyasi
 
-*Java:*
+satir1 = np.hstack([
+    etiket_ekle(binary, "Binary"),
+    etiket_ekle(eroded, "Erosion"),
+    etiket_ekle(dilated, "Dilation"),
+])
+satir2 = np.hstack([
+    etiket_ekle(opened, "Opening"),
+    etiket_ekle(closed, "Closing"),
+    etiket_ekle(gradient, "Gradient"),
+])
 
-``` Java
-Imgproc.morphologyEx(girisGoruntu, cikisGoruntu, Imgproc.MORPH_GRADIENT, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(25,2);
-```
-
-*Python:*
-```Python
-tophat = cv2.morphologyEx(img, cv2.MORPH_TOPHAT, kernelMatris)
-```
-
-![tophat](static/tophat.jpg)
-
-
- ## Thresholding (Eşikleme)
-
-Giriş olarak verilen görüntüyü ikili görüntüye çevirmek için kullanılan bir yöntemdir. İkili görüntü (binary), görüntünün siyah ve beyaz olarak tanımlanmasıdır. Morfolojik operatörler gibi görüntü üzerindeki gürültüleri azaltmak veya nesne belirlemek gibi farklı amaçlar için kullanılır. Giriş olarak verilen görüntü üzerinde uygulanan thresholding tipine bağlı olarak, pikselleri verilen eşik değerine göre siyah ya da beyaz olarak günceller.
-
-OpenCV içerisindeki sık kullanılan eşikleme tipleri:
-
- * THRESH_BINARY
- * THRESH_BINARY_INV
- * THRESH_TRUNC
- * THRESH_TOZERO
- * THRESH_TOZERO_INV
-
-Thresholding işlemi için Imgproc içerisindeki threshold()metodunu kullanacağız. Bu metot beş adet parametre almaktadır. Kaynak mat nesnesi yani giriş görüntüsü, hedef olarak ikinci bir mat nesnesi bu hedef nesne işlem sonucunu tutmak için, thresh olarak adlandırılan parametre eşik değeri, THRESH_BINARY ve THRESH_BINARY_INV gibi tipler için kullanılmak üzere maksimum değer ve yukarıda belirtilenler gibi threshold tipini parametre olarak almaktadır.
-
-
-*Java:*
-
-``` Java
-Imgproc.threshold(kaynakMat,hedefMat,esikDegeri,maxDeger,threshoidngTipi);
+sonuc = np.vstack([satir1, satir2])
+cv2.imshow("Morfolojik Operasyonlar", sonuc)
+cv2.imwrite("morfoloji_karsilastirma.jpg", sonuc)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
 
-*Python:*
-```Python
-hedefMat = cv.threshold(kaynakMat,esikDegeri,maxDeger,cv.threshoidngTipi)
-```
+Altı kare tek bir pencerede görünür. İlk satır: Binary, Erosion, Dilation. İkinci satır: Opening, Closing, Gradient. Her operasyonun görüntüyü nasıl değiştirdiğini yan yana görmek kavramları pekiştirmenin en hızlı yoludur.
 
-THRESH_BINARY:
+> **⚠️ Dikkat:** Morfolojik operasyonlar için görüntünün ikili (0 veya 255) olması zorunludur. Gri görüntü üzerinde de çalışır ama sonuçlar farklı yorumlanır — gri morfoloji ayrı bir konudur.
 
-Kaynak olarak alınan görüntü üzerindeki piksel,esikDegeri olarak verilen değerden büyükse maksDeger olarak verilen parametre değerine atanır.
+## Özet & İleri Okuma
 
- 
-THRESH_BINARY_INV:
+- Eşikleme gri görüntüyü ikili hale getirir. Otsu otomatik eşik, Adaptif değişen aydınlatma için kullanılır.
+- Yapısal eleman (kernel) morfoloji operasyonunun fırçasıdır — boyut ve şekil sonucu etkiler.
+- Erosion nesneyi küçültür ve küçük gürültüleri siler; Dilation nesneyi büyütür ve delikleri kapatır.
+- Opening = Erosion + Dilation: nesne çevresindeki gürültüyü temizler.
+- Closing = Dilation + Erosion: nesne içindeki delikleri kapatır.
+- Gradient = Dilation - Erosion: nesne sınırını (kenarını) çıkarır.
+- `cv2.morphologyEx` Opening, Closing ve Gradient için tek fonksiyon sunar.
 
-Kaynak olarak alınan görüntü üzerindeki piksel,esikDegeri olarak verilen değerden küçükse maksDeger olarak verilen parametre değerine atanır.THRESH_BINARY_INV, THRESH_BINARY‘nin karşıtı olarak kullanılabilir.
+**Referanslar**
 
-
-THRESH_TRUNC:
-
-Kaynak olarak alınan görüntü üzerindeki piksel,
-
-
-
-THRESH_TOZERO:
-
-Kaynak olarak alınan görüntü üzerindeki piksel,sınır olarak verilen değerden büyük olması durumunda piksel değeri korunacak, küçük olması durumunda ise piksel siyah olarak atanacaktır.
-
- 
-THRESH_TOZERO_INV:
-
-Kaynak olarak alınan görüntü üzerindeki piksel,sınır olarak verilen değerden küçük olması durumunda piksel değeri korunacak, büyük olması durumunda ise piksel siyah olarak atanacaktır.
-
- 
-
-Aşağıdaki görselde kaynak üzerine etki eden threshold tipleri grafiksel olarak ifade edilmiştir.
-
-![threshold](static/thres-1.jpg)
-
-
-Threshold tiplerine göre ve kaynak görüntü üzerindeki farklılıklara bakalım.
-
-
-RGB Görüntü:
-
-![threshold](static/thres-2.jpg)
-
-Siyah - Beyaz Görüntü:
-
-![threshold](static/thresholdinUI.png)
+- Serra, J. (1982). *Image Analysis and Mathematical Morphology*. Academic Press.
+- OpenCV Morphological Transformations: [docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html](https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html)
