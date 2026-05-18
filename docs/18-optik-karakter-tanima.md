@@ -1,256 +1,251 @@
-**OCR (Optical Character Recognition - Optik Karakter Tanıma)** 
----------------------------------------------------------------
+# Optik Karakter Tanıma (OCR)
 
-Optik karakter tanıma; taranmış, fotoğraflanmış veya dijital olarak üretilmiş herhangi bir görüntü üzerinde yer alan metinlerin görüntü üzerinde tespit edilerek değiştirilebilir metin haline dönüştürülebilmesidir. OCR dijital olarak oluşturulmuş veya el yazısı ile yazılmış karakterleri tanıma yeteneğine sahiptir.
+Muhasebe departmanı her gün yüzlerce fatura görüntüsünü elle sisteme giriyor. Park otomasyonu araç plakasını kameradan okuyamıyor. Arşivdeki el yazısı notların aranabilir hale gelmesi gerekiyor. Üçü de aynı temel problemin farklı görünümleridir: görüntüdeki metin otomatik okunacak. Bu bölümde OCR pipeline'ının her adımını, Tesseract ve EasyOCR kullanımını ve metin tespiti ile tanımayı bir arada nasıl yapacağınızı öğreneceksiniz.
 
-![Optik Karakter Tanıma](static/ocr.png)
+## OCR Pipeline
 
-Algoritmaya göre bu aşamalar değişmekle birlikte OCR temel olarak üç aşamalı bir süreçtir;
+"Bir görüntüde metin oku" tek adım değildir. İyi bir OCR sistemi üç aşamadan oluşur:
 
-1. Önişleme
-2. Karakter Tespiti
-3. Sınıflandırma
+1. **Görüntü önişleme:** Gürültü gider, kontrastı artır, metni yatay hizala.
+2. **Metin tespiti:** Metnin görüntüde nerede olduğunu bul.
+3. **Metin tanıma:** O bölgede ne yazıldığını oku.
 
-şimdi bu süreçlere bir göz atalım.
+Her adım bir sonrakinin başarısını belirler. Yırtık, soluk ya da eğik bir görüntü üzerinde doğrudan OCR çalıştırmak %40 daha düşük doğruluk anlamına gelebilir.
 
-**1. Önişleme**
+> **⚠️ Dikkat:** Kötü önişleme OCR doğruluğunu %40 düşürebilir. Modeli değiştirmeden önce önişlemeyi iyileştirmeyi deneyin.
 
-Görüntünün önişlenmesi; görüntü işlemenin ilgilendiği temelalanlardan bir tanesidir. Önişleme ile, görüntü üzerindeki gürültüler temizlenir, ışık dengesi yapılır, kırpma, boyutlandırma yapılır ve renk uzayı dönüşümleri gerçekleştirilebilir. Önişleme süreci kullanılan algoritmaya göre değiklik göstermekle birlikte bir çok algoritma için ise geliştirici tarafından önişlenmiş görüntünün girdi olarak verilmesi beklenir.
-
-**2. Karakter Tespiti**
-
-Bu bölümde görüntü üzerinde yer alan alfabatik karakterlerin tespit işlemi gerçekleştirilir. Görüntü üzerinde alfabatik karakterler dışında bir çok nesne yer alabilir, karakterler ile bu nesnelerin ayıklanması gerekmektedir bu işlemler karakter tespiti aşamasında gerçekleştirilir. Karakter tespiti aşamasında tespit edilen karakterlerin ne olduğu yani tanımlanması yapılmaz.
-
-**3. Sınıflandırma**
-
-Önişlenmiş ve karakter tespiti yapılmış görüntü üzerine karakterlerin ASCI karşılıklarının belirlenmesi sürecidir. Görüntü üzerinde yer alan metinler bir çok farklı fontla, farklı dille farklı şekilde yazılmış olabilir, bu da farklı veri setleri ile eğitilmiş bir sınıflandırıcı ihtiyacı doğurur. OCR algoritmasının başarı oranını etkileyen en önemli faktör buradaki sınıflandırıcının başarı oranıdır.
-
-
-# Tesseract Kütüphanesi ile OCR
-
-OCR için geliştirilmiş birçok kütüphane ve algoritma mevcuttur. Açık kaynak olarak geliştirilmiş ücretsiz en iyi kütüphanelerden birisi hiç şüphesiz ki **tesseract**'dır.
-
-![Tesseract](static/tesseract.png)
-
-Tesseract 1985-1994 yılları arasında HP tarafından C++ ile geliştirilmiş bir kütüphanedir. 2006 yılından beri ise Google desteği ile geliştirilmeye devam etmektedir. En kararlı sürümü şuan için 4.0'dır. Tesseract UTF-8 desteğine sahiptir ve 100 den fazla dili desteklemektedir. 4. sürümü ile bilikte RNN(Recurrent Neural Network) çeşidi olan LTSM desteğine kavuşmuştur, bu sayede derin öğrenmeden yararlanarak daha iyi sonuçlar elde etmenize yardımcı olmaktadır.
-
-# Kurulum
-
-Python örneği için **pytesseract** kullanacağız, bunun için öncelikle bu python paketini kuralım.
-
-```Bash
-pip install pytesseract
-```
-Tesseract farklı dillerdeki metinleri tanıyabilmek için eksra bir modele ihtiyaç duyar, bu modeli aşağıdaki bağlantıdan indirebilirsiniz. 
-
-- https://github.com/tesseract-ocr/tessdata
-
-İsterseniz binary dosyaları işletim sisteminize doğrudan kurabilirsiniz. Bunun için buradaki bağlantı üzerinden işletim sistemine ve istediğiniz OCR diline göre özelleştirilmiş kurulum adımlarını izleyebilirsiniz. https://github.com/tesseract-ocr/tesseract/wiki
-
-Örneğin MacOS için;
-
-```Bash
-brew install tesseract
-```
-
-
-# Örnek Proje
-
-OpenCV ile bir görüntü yükleyelim ve bu görüntüyü tesseract ile metne çevirelim. Benim sistemimde İngilizce **tessdata** paketi olduğu için İngilizce seçtim, Türkçe için **lang = 'tur'** kullanabilirsiniz. Dil paketleri için [buraya](https://github.com/tesseract-ocr/tesseract/wiki/Data-Files) göz atabilirsiniz.
-
-```Python
-import cv2
-import pytesseract
-
-
-#OpenCV ile goruntuyu oku
-frame = cv2.imread("metin.png");
-
-#Matris goruntuyu tesseract ile metne çevir
-print(pytesseract.image_to_string(frame, lang='eng'))
-```
-
-Yukarıdaki projeyi çalıştırdığınızda görüntü metne çevrilecektir. Daha detaylı kullanımlar için bu bölümün örnek projelerine göz atabilirsiniz.
-
----
-
-### Teorik Temel — OCR Algoritmaları
-
-**CTC (Connectionist Temporal Classification) Loss:**
-Değişken uzunluklu çıktı dizilerini etiketlemek için:
-$$p(l|x) = \sum_{\pi \in \mathcal{B}^{-1}(l)} p(\pi|x), \quad p(\pi|x) = \prod_{t=1}^T p(\pi_t|x)$$
-$\mathcal{B}$: blank sembolü kaldırma ve tekrar azaltma operatörü. Hizalama etiketi gerektirmez.
-
-**CRNN Mimarisi (CNN + RNN + CTC):**
-1. CNN: görüntü öznitelikleri → özellik haritası
-2. Sütun bazlı özellik vektörleri → sekans
-3. Bidirectional LSTM: bağlamsal kodlama
-4. CTC decoder: karakter olasılıkları → metin dizisi
-
-Referans: Shi et al., "An End-to-End Trainable Neural Network for Image-based Sequence Recognition", IEEE TPAMI 2017 (https://arxiv.org/abs/1507.05717)
+## Görüntü Önişleme
 
 ```python
-import easyocr
 import cv2
 import numpy as np
 
-# EasyOCR — Türkçe dahil 80+ dil
-reader = easyocr.Reader(["tr", "en"], gpu=False)
-results = reader.readtext("belge.jpg")
+def ocr_icin_hazirla(img_path: str) -> np.ndarray:
+    img = cv2.imread(img_path)
+    if img is None:
+        raise FileNotFoundError(f"{img_path} bulunamadı")
+
+    # Gri dönüşüm
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Otsu eşikleme — iki tepe arasındaki eşiği otomatik seçer
+    _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # Gürültü giderme — küçük lekeleri temizle
+    denoised = cv2.medianBlur(binary, 3)
+
+    # Deskewing — metin eğriyse düzelt
+    coords = np.column_stack(np.where(denoised < 127))  # Siyah piksel koordinatları
+    if len(coords) > 0:
+        angle = cv2.minAreaRect(coords)[-1]
+        if angle < -45:
+            angle += 90
+        if abs(angle) > 0.5:  # 0.5 dereceden büyük eğim varsa düzelt
+            h, w = denoised.shape
+            center = (w // 2, h // 2)
+            M = cv2.getRotationMatrix2D(center, angle, 1.0)
+            denoised = cv2.warpAffine(denoised, M, (w, h),
+                                       flags=cv2.INTER_CUBIC,
+                                       borderMode=cv2.BORDER_REPLICATE)
+
+    return denoised
+
+prepared = ocr_icin_hazirla("fatura.jpg")
+cv2.imshow("Önişlenmiş", prepared)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+Beyaz arka plan üzerine siyah metin (veya tersi) OCR motorlarının beklediği standarttır. Otsu eşikleme el yazısı ve baskı metin için otomatik doğru eşiği seçer.
+
+## Tesseract
+
+Google'ın geliştirdiği ve açık kaynak haline getirdiği Tesseract 100'den fazla dili destekler; Türkçe dahil. Önce sisteme Tesseract binary yükleyin (`brew install tesseract` veya `sudo apt install tesseract-ocr`), ardından `pip install pytesseract`.
+
+```python
+import cv2
+import pytesseract
+
+# Windows için binary yolu belirtin:
+# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 img = cv2.imread("belge.jpg")
 if img is None:
     raise FileNotFoundError("belge.jpg bulunamadı")
 
-for (bbox, text, confidence) in results:
-    if confidence > 0.5:
-        print(f"Metin: {text!r}, Güven: {confidence:.2f}")
-        pts = np.array([[int(p[0]), int(p[1])] for p in bbox])
-        cv2.polylines(img, [pts], True, (0, 255, 0), 2)
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+_, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-cv2.imshow("OCR Sonuçları", img)
+# Düz metin çıkar — lang: tur Türkçe, eng İngilizce
+text = pytesseract.image_to_string(binary, lang="tur")
+print("Okunan metin:\n", text)
+
+# Bounding box + güven skoru
+data = pytesseract.image_to_data(binary, lang="tur", output_type=pytesseract.Output.DICT)
+
+for i, word in enumerate(data["text"]):
+    if word.strip() and int(data["conf"][i]) > 60:  # Güven eşiği
+        x, y, w, h = data["left"][i], data["top"][i], data["width"][i], data["height"][i]
+        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 1)
+        cv2.putText(img, word, (x, y - 4), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1)
+
+cv2.imshow("Tesseract Sonuçları", img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
-# Tesseract ile Türkçe OCR
-try:
-    import pytesseract
-    from PIL import Image
-
-    img_pil = Image.open("belge.jpg")
-    text = pytesseract.image_to_string(img_pil, lang="tur+eng")
-    print("Tesseract çıktısı:")
-    print(text)
-except ImportError:
-    print("pytesseract kurulu değil: pip install pytesseract")
 ```
 
-### Özet & İleri Okuma
-- CTC loss hizalama etiketi olmadan sekans çıktısı öğrenmesini sağlar
-- CRNN (CNN+BiLSTM+CTC) metin tanımada temel mimari olmuştur
-- EasyOCR 80+ dili destekler; kutu koordinatlarıyla birlikte metin döndürür
-- Tesseract açık kaynak, Türkçe dahil çok dilli OCR sunar; tur.traineddata gerekir
-- PaddleOCR ve TrOCR modern transformer tabanlı alternatifleridir
-- Referans: Shi et al. 2017 (https://arxiv.org/abs/1507.05717)
+Tesseract PSM (Page Segmentation Mode) parametresi metnin yapısını tanımlar:
 
----
-
-## EasyOCR ile Metin Tanıma
-
-EasyOCR, 80+ dil desteği ve derin öğrenme tabanlı mimarisi ile Tesseract'a güçlü bir alternatiftir. El yazısı ve zor fontlarda daha iyi sonuç verir.
-
-```bash
-pip install easyocr
-```
+- `--psm 6`: Tek düzgün metin bloğu (fatura, kitap sayfası)
+- `--psm 7`: Tek satır metin (plaka, başlık)
+- `--psm 11`: Seyrek metin, farklı konumlarda (form alanları, etiketler)
 
 ```python
-import easyocr
+custom_config = r"--psm 6 --oem 3"  # OEM 3: LSTM + eski motor karma
+text = pytesseract.image_to_string(binary, lang="tur", config=custom_config)
+```
+
+> **💡 İpucu:** Türkçe + İngilizce karışık belgeler için `lang="tur+eng"` kullanın. Dil paketi kurulu değilse `tesseract --list-langs` ile kontrol edin.
+
+## EasyOCR
+
+EasyOCR 80'den fazla dil destekler, GPU ile hızlanır, kurulumu `pip install easyocr` kadardır. Her tespit `[bounding_box, text, confidence]` üçlüsü döndürür.
+
+```python
 import cv2
+import easyocr
+import numpy as np
 
-# İlk çalıştırmada model dosyaları indirilir (~100MB)
-reader = easyocr.Reader(['tr', 'en'], gpu=False)
+img = cv2.imread("karma_dil_belge.jpg")
+if img is None:
+    raise FileNotFoundError("karma_dil_belge.jpg bulunamadı")
 
-img = cv2.imread("metin.png")
+# İlk çalıştırmada model dosyaları (~500MB) indirilir
+reader = easyocr.Reader(["tr", "en"], gpu=False)  # gpu=True ise CUDA gerekli
 results = reader.readtext(img)
 
+overlay = img.copy()
+
 for (bbox, text, confidence) in results:
-    print(f"Metin: '{text}' — Güven: {confidence:.2f}")
+    if confidence < 0.4:
+        continue
 
-    # Tespit kutusunu çiz
-    pts = [list(map(int, p)) for p in bbox]
-    cv2.polylines(img, [pts], True, (0, 255, 0), 2)
-    cv2.putText(img, text, tuple(pts[0]),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+    # bbox: [[x1,y1],[x2,y1],[x2,y2],[x1,y2]] dörtgen köşeleri
+    pts = np.array(bbox, dtype=np.int32).reshape((-1, 1, 2))
+    cv2.polylines(overlay, [pts], isClosed=True, color=(0, 200, 255), thickness=2)
 
-cv2.imshow("EasyOCR Sonuç", img)
+    # Metin etiketini sol üst köşeye yaz
+    x, y = int(bbox[0][0]), int(bbox[0][1])
+    label = f"{text} ({confidence:.2f})"
+    cv2.putText(overlay, label, (x, max(y - 6, 10)),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255), 1)
+    print(f"'{text}' — güven: {confidence:.2f}")
+
+cv2.imshow("EasyOCR Sonuçları", overlay)
 cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
 
-Sadece metin listesi almak için:
+EasyOCR dörtgen bounding box döndürür (Tesseract dikdörtgen döndürür) — eğimli metinde daha doğru konumlandırma sağlar.
+
+> **💡 İpucu:** Türkçe + İngilizce karışık belgeler için `["tr", "en"]` listesi verin. Dil listesi ne kadar uzun olursa başlangıç süresi o kadar artar — sadece ihtiyacınız olan dilleri ekleyin.
+
+## EAST: Metin Tespiti
+
+Tesseract ve EasyOCR tespit + tanımayı bir arada yapar. Ancak önce sadece "bu görüntüde metin nerede?" sorusuna cevap vermek ve ardından o bölgeleri ayrı bir tanıyıcıya vermek bazen daha iyi sonuç verir.
+
+EAST (Efficient and Accurate Scene Text Detector) eğimli ve çok yönlü metinleri dışında bile tespit eder; sokak levhası, reklam panosu gibi sahnelerde güçlüdür.
 
 ```python
-texts = reader.readtext("metin.png", detail=0)
-print(" ".join(texts))
-```
-
----
-
-## PaddleOCR ile Metin Tanıma
-
-PaddleOCR, Baidu tarafından geliştirilen ve endüstri uygulamalarında geniş çapta kullanılan yüksek performanslı bir OCR çerçevesidir. Metin tespiti, tanıma ve yönelim düzeltme aşamalarını tek bir pipeline'da sunar.
-
-```bash
-pip install paddlepaddle paddleocr
-```
-
-```python
-from paddleocr import PaddleOCR
 import cv2
+import numpy as np
 
-ocr = PaddleOCR(use_angle_cls=True, lang='en')  # 'ch' Çince için
+net = cv2.dnn.readNet("frozen_east_text_detection.pb")
 
-result = ocr.ocr("metin.png", cls=True)
-for line in result[0]:
-    bbox, (text, confidence) = line
-    print(f"Metin: '{text}' — Güven: {confidence:.2f}")
+img = cv2.imread("sokak_levhasi.jpg")
+if img is None:
+    raise FileNotFoundError("sokak_levhasi.jpg bulunamadı")
+
+orig_h, orig_w = img.shape[:2]
+
+# EAST 32'nin katı boyutlar ister
+new_w, new_h = (orig_w // 32) * 32, (orig_h // 32) * 32
+blob = cv2.dnn.blobFromImage(
+    cv2.resize(img, (new_w, new_h)), 1.0, (new_w, new_h),
+    (123.68, 116.78, 103.94), swapRB=True, crop=False,
+)
+
+net.setInput(blob)
+layer_names = ["feature_fusion/Conv_7/Sigmoid", "feature_fusion/concat_3"]
+scores, geometry = net.forward(layer_names)
+
+# Tespit edilen kutucukları filtrele
+rows, cols = scores.shape[2], scores.shape[3]
+boxes, confidences = [], []
+
+for y in range(rows):
+    for x in range(cols):
+        score = float(scores[0, 0, y, x])
+        if score < 0.5:
+            continue
+
+        offset_x = x * 4.0
+        offset_y = y * 4.0
+        angle = float(geometry[0, 4, y, x])
+        cos_a = np.cos(angle)
+        sin_a = np.sin(angle)
+        h_box = float(geometry[0, 0, y, x]) + float(geometry[0, 2, y, x])
+        w_box = float(geometry[0, 1, y, x]) + float(geometry[0, 3, y, x])
+
+        end_x = int(offset_x + cos_a * geometry[0, 1, y, x] + sin_a * geometry[0, 2, y, x])
+        end_y = int(offset_y - sin_a * geometry[0, 1, y, x] + cos_a * geometry[0, 2, y, x])
+        start_x = int(end_x - w_box)
+        start_y = int(end_y - h_box)
+
+        # Orijinal görüntü boyutuna ölçekle
+        sx = orig_w / new_w
+        sy = orig_h / new_h
+        boxes.append((int(start_x * sx), int(start_y * sy),
+                       int(end_x * sx), int(end_y * sy)))
+        confidences.append(score)
+
+# NMS ile çakışan kutuları temizle
+indices = cv2.dnn.NMSBoxes(
+    [(x, y, x2 - x, y2 - y) for x, y, x2, y2 in boxes],
+    confidences, 0.5, 0.4,
+)
+
+for i in indices.flatten():
+    x1, y1, x2, y2 = boxes[i]
+    cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+cv2.imshow("EAST Metin Tespiti", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 ```
 
-**Görsel çıktı:**
+## Yöntem Karşılaştırması
 
-```python
-from paddleocr import draw_ocr
-from PIL import Image
+| Yöntem | Dil Desteği | Hız | Doğruluk | Kurulum |
+|--------|------------|-----|----------|---------|
+| Tesseract | 100+ dil | Orta | Orta-yüksek (temiz belge) | pip + binary |
+| EasyOCR | 80+ dil | Yavaş (CPU) / hızlı (GPU) | Yüksek | pip (model indirir) |
+| PaddleOCR | 80+ dil | Hızlı | Çok yüksek | pip (ağır bağımlılık) |
+| EAST (tespit) | — (sadece tespit) | Hızlı | Eğimli metin için güçlü | pb dosyası gerekli |
 
-result = ocr.ocr("metin.png", cls=True)
-image = Image.open("metin.png").convert('RGB')
-boxes = [line[0] for line in result[0]]
-txts = [line[1][0] for line in result[0]]
-scores = [line[1][1] for line in result[0]]
+## Özet
 
-drawn = draw_ocr(image, boxes, txts, scores)
-Image.fromarray(drawn).save("paddleocr_sonuc.png")
-```
+- OCR pipeline üç adımdan oluşur: önişleme → tespit → tanıma. Her adım sonrakini etkiler.
+- Otsu eşikleme, gürültü giderme ve deskewing önişlemenin temel adımlarıdır.
+- Tesseract PSM modlarıyla farklı metin düzenlerine uyum sağlar; Türkçe `lang="tur"` ile çalışır.
+- EasyOCR dörtgen bounding box döndürür — eğimli metin için Tesseract'tan üstündür.
+- EAST önce "metin nerede?" sorusunu çözer; sahnedeki eğimli ve çok yönlü metinlerde güçlüdür.
+- Düşük güven (`conf < 0.5`) filtrelemesi yanlış okumaları temizlemenin en basit yoludur.
+- GPU varsa EasyOCR ve PaddleOCR CPU'ya göre 5-10× hızlanır.
 
----
+## İleri Okuma
 
-## TrOCR ile El Yazısı Tanıma
-
-TrOCR, Microsoft tarafından geliştirilen Transformer tabanlı bir OCR modelidir. Özellikle el yazısı tanımada son derece başarılıdır.
-
-```bash
-pip install transformers pillow torch
-```
-
-```python
-from transformers import TrOCRProcessor, VisionEncoderDecoderModel
-from PIL import Image
-import torch
-
-# El yazısı için eğitilmiş model
-processor = TrOCRProcessor.from_pretrained("microsoft/trocr-base-handwritten")
-model = VisionEncoderDecoderModel.from_pretrained("microsoft/trocr-base-handwritten")
-
-image = Image.open("el_yazisi.png").convert("RGB")
-pixel_values = processor(images=image, return_tensors="pt").pixel_values
-
-with torch.no_grad():
-    generated_ids = model.generate(pixel_values)
-
-text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-print(f"Tanınan metin: {text}")
-```
-
-Baskı metni için `"microsoft/trocr-base-printed"` modelini kullanın.
-
----
-
-## OCR Kütüphane Karşılaştırması
-
-| Kütüphane | Dil Desteği | El Yazısı | Hız | Kurulum |
-|-----------|------------|---------|-----|---------|
-| Tesseract | 100+ | Kısıtlı | ★★★ | ★★★★ |
-| EasyOCR | 80+ | İyi | ★★★ | ★★★★★ |
-| PaddleOCR | 80+ | İyi | ★★★★ | ★★★ |
-| TrOCR | EN/ZH | Mükemmel | ★★ | ★★★ |
-
-Genel amaçlı kullanım için **EasyOCR** ile başlamanız önerilir. Prodüksiyon uygulamalar için **PaddleOCR** daha uygun olabilir.
+- Shi et al., "An End-to-End Trainable Neural Network for Image-based Sequence Recognition (CRNN)" (IEEE TPAMI 2017): https://arxiv.org/abs/1507.05717
+- Zhou et al., "EAST: An Efficient and Accurate Scene Text Detector" (CVPR 2017): https://arxiv.org/abs/1704.03155
+- Tesseract OCR Belgeleri: https://tesseract-ocr.github.io/tessdoc
+- EasyOCR GitHub: https://github.com/JaidedAI/EasyOCR
